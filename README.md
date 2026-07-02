@@ -6,9 +6,11 @@ API documentation without the operational clutter. Create, organize, import, and
 
 - **Structured documentation** — Organize every API into projects, sections, endpoint references, and standalone guides.
 - **OpenAPI import** — Start from OpenAPI 3.0 or 3.1 JSON and YAML, then refine the result.
-- **AI assistant** — Bring your own keys for OpenAI, Anthropic, Google, xAI, Groq, and Mistral to draft and refine documentation.
+- **AI assistant** — Bring your own keys for OpenAI, Anthropic, Google, xAI, Groq, Mistral, or any OpenAI-compatible provider to draft and refine documentation.
 - **Documentation versioning** — Run draft and published versions side by side, mark betas and deprecations, and pin a default.
 - **Custom theming** — Pick a theme color, brand color, font, and layout style, then add your logo and favicon.
+- **Try it out** — Readers can call documented endpoints directly from the public docs; calls are proxied through the app and recorded in analytics.
+- **Public exports** — Publish an `openapi.json` spec, an `llms.txt` index, and Markdown exports of every guide and endpoint page.
 - **Private by default** — Keep work inside your organization, then publish documentation deliberately.
 - **Team workspaces** — Invite members as owners, admins, or members and share projects from one organization.
 - **Analytics** — Track API calls and page views per project with hourly and daily counters.
@@ -53,7 +55,7 @@ Set these Convex-side secrets with `bunx convex env set` (do **not** put them in
 ```bash
 bunx convex env set BETTER_AUTH_SECRET="$(openssl rand -hex 32)"
 bunx convex env set SITE_URL=http://localhost:3000
-bunx convex env set BETTER_AUTH_TRUSTED_ORIGINS=http://localhost:3001
+bunx convex env set BETTER_AUTH_TRUSTED_ORIGINS=http://localhost:3000
 ```
 
 ### 3. Initialize Convex
@@ -102,6 +104,7 @@ bun run dev
 ### Where things live
 
 - `src/routes/` — file-based routes (landing, auth, app workspace, public docs)
+- `src/routes/api/` — server API routes for AI chat, auth proxy, and the endpoint tester proxy
 - `src/components/` — React components (editor, AI panel, cards, dialogs)
 - `convex/` — backend: schema, auth, projects, endpoints, guides, versions, AI, analytics, OpenAPI import
 - `src/styles.css` — Geist design tokens, documentation theme overrides, editor styles
@@ -111,14 +114,14 @@ For a walkthrough of how the product works, see [guide.md](./guide.md). For the 
 
 ## Deploy
 
-The build is a self-contained Node server powered by Nitro.
+The build is a self-contained Node server powered by Nitro. The output goes to `.output/`.
 
 ```bash
 bun run build
-node dist/server/index.mjs
+node .output/server/index.mjs
 ```
 
-Push the `dist/` directory to any Node-compatible host (Vercel, Fly.io, Render, your own VPS). For host-specific presets, see [the Nitro deployment docs](https://v3.nitro.build/deploy).
+Push the `.output/` directory to any Node-compatible host (Vercel, Fly.io, Render, your own VPS). For host-specific presets, see [the Nitro deployment docs](https://v3.nitro.build/deploy).
 
 Set the production Convex environment variables the same way as above, and make sure:
 
