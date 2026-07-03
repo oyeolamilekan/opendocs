@@ -2146,6 +2146,79 @@ a {
   --code-comment: #8c959f;
 }
 
+.endpoint-response-card {
+  border-color: var(--code-border);
+  background: var(--code-background);
+  color: var(--code-foreground);
+}
+
+.endpoint-response-card .endpoint-response-toolbar {
+  border-color: var(--code-border);
+  background: var(--code-toolbar);
+}
+
+.endpoint-response-card .endpoint-response-pill,
+.endpoint-response-card .endpoint-response-action {
+  border-color: var(--code-border);
+  background: color-mix(
+    in oklch,
+    var(--code-toolbar) 72%,
+    var(--code-background)
+  );
+  color: var(--code-foreground);
+  box-shadow: none;
+}
+
+.endpoint-response-card .endpoint-response-action:hover,
+.endpoint-response-card .endpoint-response-copy:hover {
+  background: var(--code-hover);
+  color: var(--code-foreground);
+}
+
+.endpoint-response-card .endpoint-response-copy {
+  color: var(--code-muted);
+}
+
+.endpoint-response-card .endpoint-response-body {
+  background: var(--code-background);
+  border-bottom-right-radius: var(--radius-md);
+  border-bottom-left-radius: var(--radius-md);
+}
+
+.endpoint-response-card .endpoint-response-scroll {
+  position: relative;
+  background:
+    linear-gradient(
+      to right,
+      var(--code-background) 0,
+      var(--code-background) 3.5rem,
+      var(--code-border) 3.5rem,
+      var(--code-border) calc(3.5rem + 1px),
+      transparent calc(3.5rem + 1px)
+    ),
+    var(--code-background);
+  border-bottom-right-radius: var(--radius-md);
+  border-bottom-left-radius: var(--radius-md);
+  scrollbar-gutter: stable;
+}
+
+.endpoint-response-card .endpoint-response-snippet {
+  position: relative;
+  min-width: max-content;
+  overflow: visible;
+  padding-bottom: 1.25rem;
+}
+
+.endpoint-response-card .endpoint-response-snippet code {
+  width: max-content;
+  min-width: 100%;
+}
+
+.endpoint-response-card .code-snippet-line-number {
+  z-index: 2;
+  border-color: var(--code-border);
+}
+
 .code-snippet {
   max-width: 100%;
   overflow-x: auto;

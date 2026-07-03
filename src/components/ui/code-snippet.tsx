@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { cn } from "#/lib/utils.ts";
 
 export type CodeSnippetLanguage =
   | "javascript"
@@ -362,10 +363,12 @@ export function CodeSnippet({
   code,
   language,
   wrap = false,
+  className,
 }: {
   code: string;
   language: CodeSnippetLanguage;
   wrap?: boolean;
+  className?: string;
 }) {
   const formattedCode = useMemo(() => formatCode(code), [code]);
   const lines = useMemo(
@@ -378,9 +381,11 @@ export function CodeSnippet({
 
   return (
     <pre
-      className={`code-snippet m-0 max-h-[30rem] overflow-auto py-3 font-mono text-[13px] leading-6 [font-variant-ligatures:none] [tab-size:2] ${
-        wrap ? "code-snippet-wrap overflow-x-hidden" : ""
-      }`}
+      className={cn(
+        "code-snippet m-0 max-h-[30rem] overflow-auto py-3 font-mono text-[13px] leading-6 [font-variant-ligatures:none] [tab-size:2]",
+        wrap && "code-snippet-wrap overflow-x-hidden",
+        className,
+      )}
       aria-label={`${language} code sample`}
     >
       <code className={wrap ? "block min-w-full" : "block w-max min-w-full"}>
