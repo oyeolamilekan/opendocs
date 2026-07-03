@@ -9,9 +9,11 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ToolsDotjsonRouteImport } from './routes/tools[.]json'
 import { Route as OpenapiDotjsonRouteImport } from './routes/openapi[.]json'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
+import { Route as AgentDotjsonRouteImport } from './routes/agent[.]json'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReferenceIndexRouteImport } from './routes/reference.index'
 import { Route as GuidesIndexRouteImport } from './routes/guides.index'
@@ -25,8 +27,10 @@ import { Route as AuthTermsRouteImport } from './routes/auth/terms'
 import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
 import { Route as ApiExecuteRouteImport } from './routes/api/execute'
+import { Route as VVersionSlugToolsDotjsonRouteImport } from './routes/v/$versionSlug/tools[.]json'
 import { Route as VVersionSlugOpenapiDotjsonRouteImport } from './routes/v/$versionSlug/openapi[.]json'
 import { Route as VVersionSlugLlmsDottxtRouteImport } from './routes/v/$versionSlug/llms[.]txt'
+import { Route as VVersionSlugAgentDotjsonRouteImport } from './routes/v/$versionSlug/agent[.]json'
 import { Route as AppOrganizationSlugSettingsRouteImport } from './routes/app/$organizationSlug/settings'
 import { Route as AppOrganizationSlugProjectsRouteImport } from './routes/app/$organizationSlug/projects'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -36,12 +40,20 @@ import { Route as ApiAiChatRouteImport } from './routes/api/ai/chat'
 import { Route as VersionSlugReferenceEndpointSlugRouteImport } from './routes/$versionSlug/reference/$endpointSlug'
 import { Route as VersionSlugDocsGuideSlugRouteImport } from './routes/$versionSlug/docs/$guideSlug'
 import { Route as DocsOrganizationSlugProjectSlugIndexRouteImport } from './routes/docs/$organizationSlug/$projectSlug.index'
+import { Route as VVersionSlugReferenceChar123endpointSlugChar125DotmdRouteImport } from './routes/v/$versionSlug/reference/{$endpointSlug}[.]md'
 import { Route as VVersionSlugReferenceEndpointSlugRouteImport } from './routes/v/$versionSlug/reference/$endpointSlug'
+import { Route as VVersionSlugGuidesChar123guideSlugChar125DotmdRouteImport } from './routes/v/$versionSlug/guides/{$guideSlug}[.]md'
 import { Route as VVersionSlugGuidesGuideSlugRouteImport } from './routes/v/$versionSlug/guides/$guideSlug'
 import { Route as DocsOrganizationSlugProjectSlugChar123endpointSlugChar125DotmdRouteImport } from './routes/docs/$organizationSlug/$projectSlug/{$endpointSlug}[.]md'
+import { Route as DocsOrganizationSlugProjectSlugToolsDotjsonRouteImport } from './routes/docs/$organizationSlug/$projectSlug/tools[.]json'
 import { Route as DocsOrganizationSlugProjectSlugOpenapiDotjsonRouteImport } from './routes/docs/$organizationSlug/$projectSlug/openapi[.]json'
 import { Route as DocsOrganizationSlugProjectSlugLlmsDottxtRouteImport } from './routes/docs/$organizationSlug/$projectSlug/llms[.]txt'
+import { Route as DocsOrganizationSlugProjectSlugAgentDotjsonRouteImport } from './routes/docs/$organizationSlug/$projectSlug/agent[.]json'
 import { Route as DocsOrganizationSlugProjectSlugEndpointSlugRouteImport } from './routes/docs/$organizationSlug/$projectSlug/$endpointSlug'
+import { Route as ApiPublicDocsSearchRouteImport } from './routes/api/public/docs/search'
+import { Route as ApiPublicDocsPageRouteImport } from './routes/api/public/docs/page'
+import { Route as ApiPublicDocsNavigationRouteImport } from './routes/api/public/docs/navigation'
+import { Route as ApiPublicDocsEndpointRouteImport } from './routes/api/public/docs/endpoint'
 import { Route as AppOrganizationSlugProjectsProjectSlugIndexRouteImport } from './routes/app/$organizationSlug/projects/$projectSlug.index'
 import { Route as DocsOrganizationSlugProjectSlugGuidesChar123guideSlugChar125DotmdRouteImport } from './routes/docs/$organizationSlug/$projectSlug/guides/{$guideSlug}[.]md'
 import { Route as DocsOrganizationSlugProjectSlugGuidesGuideSlugRouteImport } from './routes/docs/$organizationSlug/$projectSlug/guides/$guideSlug'
@@ -58,6 +70,11 @@ import { Route as AppOrganizationSlugProjectsProjectSlugVersionsVersionSlugGuide
 import { Route as AppOrganizationSlugProjectsProjectSlugVersionsVersionSlugReferenceEndpointSlugRouteImport } from './routes/app/$organizationSlug/projects/$projectSlug/versions/$versionSlug/reference/$endpointSlug'
 import { Route as AppOrganizationSlugProjectsProjectSlugVersionsVersionSlugGuidesGuideSlugRouteImport } from './routes/app/$organizationSlug/projects/$projectSlug/versions/$versionSlug/guides/$guideSlug'
 
+const ToolsDotjsonRoute = ToolsDotjsonRouteImport.update({
+  id: '/tools.json',
+  path: '/tools.json',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OpenapiDotjsonRoute = OpenapiDotjsonRouteImport.update({
   id: '/openapi.json',
   path: '/openapi.json',
@@ -71,6 +88,11 @@ const OnboardingRoute = OnboardingRouteImport.update({
 const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
   id: '/llms.txt',
   path: '/llms.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AgentDotjsonRoute = AgentDotjsonRouteImport.update({
+  id: '/agent.json',
+  path: '/agent.json',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -140,6 +162,12 @@ const ApiExecuteRoute = ApiExecuteRouteImport.update({
   path: '/api/execute',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VVersionSlugToolsDotjsonRoute =
+  VVersionSlugToolsDotjsonRouteImport.update({
+    id: '/v/$versionSlug/tools.json',
+    path: '/v/$versionSlug/tools.json',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const VVersionSlugOpenapiDotjsonRoute =
   VVersionSlugOpenapiDotjsonRouteImport.update({
     id: '/v/$versionSlug/openapi.json',
@@ -151,6 +179,12 @@ const VVersionSlugLlmsDottxtRoute = VVersionSlugLlmsDottxtRouteImport.update({
   path: '/v/$versionSlug/llms.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VVersionSlugAgentDotjsonRoute =
+  VVersionSlugAgentDotjsonRouteImport.update({
+    id: '/v/$versionSlug/agent.json',
+    path: '/v/$versionSlug/agent.json',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AppOrganizationSlugSettingsRoute =
   AppOrganizationSlugSettingsRouteImport.update({
     id: '/app/$organizationSlug/settings',
@@ -201,10 +235,22 @@ const DocsOrganizationSlugProjectSlugIndexRoute =
     path: '/docs/$organizationSlug/$projectSlug/',
     getParentRoute: () => rootRouteImport,
   } as any)
+const VVersionSlugReferenceChar123endpointSlugChar125DotmdRoute =
+  VVersionSlugReferenceChar123endpointSlugChar125DotmdRouteImport.update({
+    id: '/v/$versionSlug/reference/{$endpointSlug}.md',
+    path: '/v/$versionSlug/reference/{$endpointSlug}.md',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const VVersionSlugReferenceEndpointSlugRoute =
   VVersionSlugReferenceEndpointSlugRouteImport.update({
     id: '/v/$versionSlug/reference/$endpointSlug',
     path: '/v/$versionSlug/reference/$endpointSlug',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const VVersionSlugGuidesChar123guideSlugChar125DotmdRoute =
+  VVersionSlugGuidesChar123guideSlugChar125DotmdRouteImport.update({
+    id: '/v/$versionSlug/guides/{$guideSlug}.md',
+    path: '/v/$versionSlug/guides/{$guideSlug}.md',
     getParentRoute: () => rootRouteImport,
   } as any)
 const VVersionSlugGuidesGuideSlugRoute =
@@ -221,6 +267,12 @@ const DocsOrganizationSlugProjectSlugChar123endpointSlugChar125DotmdRoute =
       getParentRoute: () => rootRouteImport,
     } as any,
   )
+const DocsOrganizationSlugProjectSlugToolsDotjsonRoute =
+  DocsOrganizationSlugProjectSlugToolsDotjsonRouteImport.update({
+    id: '/docs/$organizationSlug/$projectSlug/tools.json',
+    path: '/docs/$organizationSlug/$projectSlug/tools.json',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const DocsOrganizationSlugProjectSlugOpenapiDotjsonRoute =
   DocsOrganizationSlugProjectSlugOpenapiDotjsonRouteImport.update({
     id: '/docs/$organizationSlug/$projectSlug/openapi.json',
@@ -233,12 +285,38 @@ const DocsOrganizationSlugProjectSlugLlmsDottxtRoute =
     path: '/docs/$organizationSlug/$projectSlug/llms.txt',
     getParentRoute: () => rootRouteImport,
   } as any)
+const DocsOrganizationSlugProjectSlugAgentDotjsonRoute =
+  DocsOrganizationSlugProjectSlugAgentDotjsonRouteImport.update({
+    id: '/docs/$organizationSlug/$projectSlug/agent.json',
+    path: '/docs/$organizationSlug/$projectSlug/agent.json',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const DocsOrganizationSlugProjectSlugEndpointSlugRoute =
   DocsOrganizationSlugProjectSlugEndpointSlugRouteImport.update({
     id: '/docs/$organizationSlug/$projectSlug/$endpointSlug',
     path: '/docs/$organizationSlug/$projectSlug/$endpointSlug',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicDocsSearchRoute = ApiPublicDocsSearchRouteImport.update({
+  id: '/api/public/docs/search',
+  path: '/api/public/docs/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicDocsPageRoute = ApiPublicDocsPageRouteImport.update({
+  id: '/api/public/docs/page',
+  path: '/api/public/docs/page',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicDocsNavigationRoute = ApiPublicDocsNavigationRouteImport.update({
+  id: '/api/public/docs/navigation',
+  path: '/api/public/docs/navigation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicDocsEndpointRoute = ApiPublicDocsEndpointRouteImport.update({
+  id: '/api/public/docs/endpoint',
+  path: '/api/public/docs/endpoint',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppOrganizationSlugProjectsProjectSlugIndexRoute =
   AppOrganizationSlugProjectsProjectSlugIndexRouteImport.update({
     id: '/$projectSlug/',
@@ -348,9 +426,11 @@ const AppOrganizationSlugProjectsProjectSlugVersionsVersionSlugGuidesGuideSlugRo
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/agent.json': typeof AgentDotjsonRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/onboarding': typeof OnboardingRoute
   '/openapi.json': typeof OpenapiDotjsonRoute
+  '/tools.json': typeof ToolsDotjsonRoute
   '/api/execute': typeof ApiExecuteRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
@@ -371,14 +451,24 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/app/$organizationSlug/projects': typeof AppOrganizationSlugProjectsRouteWithChildren
   '/app/$organizationSlug/settings': typeof AppOrganizationSlugSettingsRoute
+  '/v/$versionSlug/agent.json': typeof VVersionSlugAgentDotjsonRoute
   '/v/$versionSlug/llms.txt': typeof VVersionSlugLlmsDottxtRoute
   '/v/$versionSlug/openapi.json': typeof VVersionSlugOpenapiDotjsonRoute
+  '/v/$versionSlug/tools.json': typeof VVersionSlugToolsDotjsonRoute
+  '/api/public/docs/endpoint': typeof ApiPublicDocsEndpointRoute
+  '/api/public/docs/navigation': typeof ApiPublicDocsNavigationRoute
+  '/api/public/docs/page': typeof ApiPublicDocsPageRoute
+  '/api/public/docs/search': typeof ApiPublicDocsSearchRoute
   '/docs/$organizationSlug/$projectSlug/$endpointSlug': typeof DocsOrganizationSlugProjectSlugEndpointSlugRoute
+  '/docs/$organizationSlug/$projectSlug/agent.json': typeof DocsOrganizationSlugProjectSlugAgentDotjsonRoute
   '/docs/$organizationSlug/$projectSlug/llms.txt': typeof DocsOrganizationSlugProjectSlugLlmsDottxtRoute
   '/docs/$organizationSlug/$projectSlug/openapi.json': typeof DocsOrganizationSlugProjectSlugOpenapiDotjsonRoute
+  '/docs/$organizationSlug/$projectSlug/tools.json': typeof DocsOrganizationSlugProjectSlugToolsDotjsonRoute
   '/docs/$organizationSlug/$projectSlug/{$endpointSlug}.md': typeof DocsOrganizationSlugProjectSlugChar123endpointSlugChar125DotmdRoute
   '/v/$versionSlug/guides/$guideSlug': typeof VVersionSlugGuidesGuideSlugRoute
+  '/v/$versionSlug/guides/{$guideSlug}.md': typeof VVersionSlugGuidesChar123guideSlugChar125DotmdRoute
   '/v/$versionSlug/reference/$endpointSlug': typeof VVersionSlugReferenceEndpointSlugRoute
+  '/v/$versionSlug/reference/{$endpointSlug}.md': typeof VVersionSlugReferenceChar123endpointSlugChar125DotmdRoute
   '/docs/$organizationSlug/$projectSlug/': typeof DocsOrganizationSlugProjectSlugIndexRoute
   '/app/$organizationSlug/projects/$projectSlug/ai': typeof AppOrganizationSlugProjectsProjectSlugAiRoute
   '/app/$organizationSlug/projects/$projectSlug/metrics': typeof AppOrganizationSlugProjectsProjectSlugMetricsRoute
@@ -398,9 +488,11 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/agent.json': typeof AgentDotjsonRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/onboarding': typeof OnboardingRoute
   '/openapi.json': typeof OpenapiDotjsonRoute
+  '/tools.json': typeof ToolsDotjsonRoute
   '/api/execute': typeof ApiExecuteRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
@@ -421,14 +513,24 @@ export interface FileRoutesByTo {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/app/$organizationSlug/projects': typeof AppOrganizationSlugProjectsRouteWithChildren
   '/app/$organizationSlug/settings': typeof AppOrganizationSlugSettingsRoute
+  '/v/$versionSlug/agent.json': typeof VVersionSlugAgentDotjsonRoute
   '/v/$versionSlug/llms.txt': typeof VVersionSlugLlmsDottxtRoute
   '/v/$versionSlug/openapi.json': typeof VVersionSlugOpenapiDotjsonRoute
+  '/v/$versionSlug/tools.json': typeof VVersionSlugToolsDotjsonRoute
+  '/api/public/docs/endpoint': typeof ApiPublicDocsEndpointRoute
+  '/api/public/docs/navigation': typeof ApiPublicDocsNavigationRoute
+  '/api/public/docs/page': typeof ApiPublicDocsPageRoute
+  '/api/public/docs/search': typeof ApiPublicDocsSearchRoute
   '/docs/$organizationSlug/$projectSlug/$endpointSlug': typeof DocsOrganizationSlugProjectSlugEndpointSlugRoute
+  '/docs/$organizationSlug/$projectSlug/agent.json': typeof DocsOrganizationSlugProjectSlugAgentDotjsonRoute
   '/docs/$organizationSlug/$projectSlug/llms.txt': typeof DocsOrganizationSlugProjectSlugLlmsDottxtRoute
   '/docs/$organizationSlug/$projectSlug/openapi.json': typeof DocsOrganizationSlugProjectSlugOpenapiDotjsonRoute
+  '/docs/$organizationSlug/$projectSlug/tools.json': typeof DocsOrganizationSlugProjectSlugToolsDotjsonRoute
   '/docs/$organizationSlug/$projectSlug/{$endpointSlug}.md': typeof DocsOrganizationSlugProjectSlugChar123endpointSlugChar125DotmdRoute
   '/v/$versionSlug/guides/$guideSlug': typeof VVersionSlugGuidesGuideSlugRoute
+  '/v/$versionSlug/guides/{$guideSlug}.md': typeof VVersionSlugGuidesChar123guideSlugChar125DotmdRoute
   '/v/$versionSlug/reference/$endpointSlug': typeof VVersionSlugReferenceEndpointSlugRoute
+  '/v/$versionSlug/reference/{$endpointSlug}.md': typeof VVersionSlugReferenceChar123endpointSlugChar125DotmdRoute
   '/docs/$organizationSlug/$projectSlug': typeof DocsOrganizationSlugProjectSlugIndexRoute
   '/app/$organizationSlug/projects/$projectSlug/ai': typeof AppOrganizationSlugProjectsProjectSlugAiRoute
   '/app/$organizationSlug/projects/$projectSlug/metrics': typeof AppOrganizationSlugProjectsProjectSlugMetricsRoute
@@ -449,9 +551,11 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/agent.json': typeof AgentDotjsonRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/onboarding': typeof OnboardingRoute
   '/openapi.json': typeof OpenapiDotjsonRoute
+  '/tools.json': typeof ToolsDotjsonRoute
   '/api/execute': typeof ApiExecuteRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
@@ -472,14 +576,24 @@ export interface FileRoutesById {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/app/$organizationSlug/projects': typeof AppOrganizationSlugProjectsRouteWithChildren
   '/app/$organizationSlug/settings': typeof AppOrganizationSlugSettingsRoute
+  '/v/$versionSlug/agent.json': typeof VVersionSlugAgentDotjsonRoute
   '/v/$versionSlug/llms.txt': typeof VVersionSlugLlmsDottxtRoute
   '/v/$versionSlug/openapi.json': typeof VVersionSlugOpenapiDotjsonRoute
+  '/v/$versionSlug/tools.json': typeof VVersionSlugToolsDotjsonRoute
+  '/api/public/docs/endpoint': typeof ApiPublicDocsEndpointRoute
+  '/api/public/docs/navigation': typeof ApiPublicDocsNavigationRoute
+  '/api/public/docs/page': typeof ApiPublicDocsPageRoute
+  '/api/public/docs/search': typeof ApiPublicDocsSearchRoute
   '/docs/$organizationSlug/$projectSlug/$endpointSlug': typeof DocsOrganizationSlugProjectSlugEndpointSlugRoute
+  '/docs/$organizationSlug/$projectSlug/agent.json': typeof DocsOrganizationSlugProjectSlugAgentDotjsonRoute
   '/docs/$organizationSlug/$projectSlug/llms.txt': typeof DocsOrganizationSlugProjectSlugLlmsDottxtRoute
   '/docs/$organizationSlug/$projectSlug/openapi.json': typeof DocsOrganizationSlugProjectSlugOpenapiDotjsonRoute
+  '/docs/$organizationSlug/$projectSlug/tools.json': typeof DocsOrganizationSlugProjectSlugToolsDotjsonRoute
   '/docs/$organizationSlug/$projectSlug/{$endpointSlug}.md': typeof DocsOrganizationSlugProjectSlugChar123endpointSlugChar125DotmdRoute
   '/v/$versionSlug/guides/$guideSlug': typeof VVersionSlugGuidesGuideSlugRoute
+  '/v/$versionSlug/guides/{$guideSlug}.md': typeof VVersionSlugGuidesChar123guideSlugChar125DotmdRoute
   '/v/$versionSlug/reference/$endpointSlug': typeof VVersionSlugReferenceEndpointSlugRoute
+  '/v/$versionSlug/reference/{$endpointSlug}.md': typeof VVersionSlugReferenceChar123endpointSlugChar125DotmdRoute
   '/docs/$organizationSlug/$projectSlug/': typeof DocsOrganizationSlugProjectSlugIndexRoute
   '/app/$organizationSlug/projects/$projectSlug/ai': typeof AppOrganizationSlugProjectsProjectSlugAiRoute
   '/app/$organizationSlug/projects/$projectSlug/metrics': typeof AppOrganizationSlugProjectsProjectSlugMetricsRoute
@@ -501,9 +615,11 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/agent.json'
     | '/llms.txt'
     | '/onboarding'
     | '/openapi.json'
+    | '/tools.json'
     | '/api/execute'
     | '/auth/sign-in'
     | '/auth/sign-up'
@@ -524,14 +640,24 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/app/$organizationSlug/projects'
     | '/app/$organizationSlug/settings'
+    | '/v/$versionSlug/agent.json'
     | '/v/$versionSlug/llms.txt'
     | '/v/$versionSlug/openapi.json'
+    | '/v/$versionSlug/tools.json'
+    | '/api/public/docs/endpoint'
+    | '/api/public/docs/navigation'
+    | '/api/public/docs/page'
+    | '/api/public/docs/search'
     | '/docs/$organizationSlug/$projectSlug/$endpointSlug'
+    | '/docs/$organizationSlug/$projectSlug/agent.json'
     | '/docs/$organizationSlug/$projectSlug/llms.txt'
     | '/docs/$organizationSlug/$projectSlug/openapi.json'
+    | '/docs/$organizationSlug/$projectSlug/tools.json'
     | '/docs/$organizationSlug/$projectSlug/{$endpointSlug}.md'
     | '/v/$versionSlug/guides/$guideSlug'
+    | '/v/$versionSlug/guides/{$guideSlug}.md'
     | '/v/$versionSlug/reference/$endpointSlug'
+    | '/v/$versionSlug/reference/{$endpointSlug}.md'
     | '/docs/$organizationSlug/$projectSlug/'
     | '/app/$organizationSlug/projects/$projectSlug/ai'
     | '/app/$organizationSlug/projects/$projectSlug/metrics'
@@ -551,9 +677,11 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/agent.json'
     | '/llms.txt'
     | '/onboarding'
     | '/openapi.json'
+    | '/tools.json'
     | '/api/execute'
     | '/auth/sign-in'
     | '/auth/sign-up'
@@ -574,14 +702,24 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/app/$organizationSlug/projects'
     | '/app/$organizationSlug/settings'
+    | '/v/$versionSlug/agent.json'
     | '/v/$versionSlug/llms.txt'
     | '/v/$versionSlug/openapi.json'
+    | '/v/$versionSlug/tools.json'
+    | '/api/public/docs/endpoint'
+    | '/api/public/docs/navigation'
+    | '/api/public/docs/page'
+    | '/api/public/docs/search'
     | '/docs/$organizationSlug/$projectSlug/$endpointSlug'
+    | '/docs/$organizationSlug/$projectSlug/agent.json'
     | '/docs/$organizationSlug/$projectSlug/llms.txt'
     | '/docs/$organizationSlug/$projectSlug/openapi.json'
+    | '/docs/$organizationSlug/$projectSlug/tools.json'
     | '/docs/$organizationSlug/$projectSlug/{$endpointSlug}.md'
     | '/v/$versionSlug/guides/$guideSlug'
+    | '/v/$versionSlug/guides/{$guideSlug}.md'
     | '/v/$versionSlug/reference/$endpointSlug'
+    | '/v/$versionSlug/reference/{$endpointSlug}.md'
     | '/docs/$organizationSlug/$projectSlug'
     | '/app/$organizationSlug/projects/$projectSlug/ai'
     | '/app/$organizationSlug/projects/$projectSlug/metrics'
@@ -601,9 +739,11 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/agent.json'
     | '/llms.txt'
     | '/onboarding'
     | '/openapi.json'
+    | '/tools.json'
     | '/api/execute'
     | '/auth/sign-in'
     | '/auth/sign-up'
@@ -624,14 +764,24 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/app/$organizationSlug/projects'
     | '/app/$organizationSlug/settings'
+    | '/v/$versionSlug/agent.json'
     | '/v/$versionSlug/llms.txt'
     | '/v/$versionSlug/openapi.json'
+    | '/v/$versionSlug/tools.json'
+    | '/api/public/docs/endpoint'
+    | '/api/public/docs/navigation'
+    | '/api/public/docs/page'
+    | '/api/public/docs/search'
     | '/docs/$organizationSlug/$projectSlug/$endpointSlug'
+    | '/docs/$organizationSlug/$projectSlug/agent.json'
     | '/docs/$organizationSlug/$projectSlug/llms.txt'
     | '/docs/$organizationSlug/$projectSlug/openapi.json'
+    | '/docs/$organizationSlug/$projectSlug/tools.json'
     | '/docs/$organizationSlug/$projectSlug/{$endpointSlug}.md'
     | '/v/$versionSlug/guides/$guideSlug'
+    | '/v/$versionSlug/guides/{$guideSlug}.md'
     | '/v/$versionSlug/reference/$endpointSlug'
+    | '/v/$versionSlug/reference/{$endpointSlug}.md'
     | '/docs/$organizationSlug/$projectSlug/'
     | '/app/$organizationSlug/projects/$projectSlug/ai'
     | '/app/$organizationSlug/projects/$projectSlug/metrics'
@@ -652,9 +802,11 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AgentDotjsonRoute: typeof AgentDotjsonRoute
   LlmsDottxtRoute: typeof LlmsDottxtRoute
   OnboardingRoute: typeof OnboardingRoute
   OpenapiDotjsonRoute: typeof OpenapiDotjsonRoute
+  ToolsDotjsonRoute: typeof ToolsDotjsonRoute
   ApiExecuteRoute: typeof ApiExecuteRoute
   AuthSignInRoute: typeof AuthSignInRoute
   AuthSignUpRoute: typeof AuthSignUpRoute
@@ -675,14 +827,24 @@ export interface RootRouteChildren {
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   AppOrganizationSlugProjectsRoute: typeof AppOrganizationSlugProjectsRouteWithChildren
   AppOrganizationSlugSettingsRoute: typeof AppOrganizationSlugSettingsRoute
+  VVersionSlugAgentDotjsonRoute: typeof VVersionSlugAgentDotjsonRoute
   VVersionSlugLlmsDottxtRoute: typeof VVersionSlugLlmsDottxtRoute
   VVersionSlugOpenapiDotjsonRoute: typeof VVersionSlugOpenapiDotjsonRoute
+  VVersionSlugToolsDotjsonRoute: typeof VVersionSlugToolsDotjsonRoute
+  ApiPublicDocsEndpointRoute: typeof ApiPublicDocsEndpointRoute
+  ApiPublicDocsNavigationRoute: typeof ApiPublicDocsNavigationRoute
+  ApiPublicDocsPageRoute: typeof ApiPublicDocsPageRoute
+  ApiPublicDocsSearchRoute: typeof ApiPublicDocsSearchRoute
   DocsOrganizationSlugProjectSlugEndpointSlugRoute: typeof DocsOrganizationSlugProjectSlugEndpointSlugRoute
+  DocsOrganizationSlugProjectSlugAgentDotjsonRoute: typeof DocsOrganizationSlugProjectSlugAgentDotjsonRoute
   DocsOrganizationSlugProjectSlugLlmsDottxtRoute: typeof DocsOrganizationSlugProjectSlugLlmsDottxtRoute
   DocsOrganizationSlugProjectSlugOpenapiDotjsonRoute: typeof DocsOrganizationSlugProjectSlugOpenapiDotjsonRoute
+  DocsOrganizationSlugProjectSlugToolsDotjsonRoute: typeof DocsOrganizationSlugProjectSlugToolsDotjsonRoute
   DocsOrganizationSlugProjectSlugChar123endpointSlugChar125DotmdRoute: typeof DocsOrganizationSlugProjectSlugChar123endpointSlugChar125DotmdRoute
   VVersionSlugGuidesGuideSlugRoute: typeof VVersionSlugGuidesGuideSlugRoute
+  VVersionSlugGuidesChar123guideSlugChar125DotmdRoute: typeof VVersionSlugGuidesChar123guideSlugChar125DotmdRoute
   VVersionSlugReferenceEndpointSlugRoute: typeof VVersionSlugReferenceEndpointSlugRoute
+  VVersionSlugReferenceChar123endpointSlugChar125DotmdRoute: typeof VVersionSlugReferenceChar123endpointSlugChar125DotmdRoute
   DocsOrganizationSlugProjectSlugIndexRoute: typeof DocsOrganizationSlugProjectSlugIndexRoute
   DocsOrganizationSlugProjectSlugGuidesGuideSlugRoute: typeof DocsOrganizationSlugProjectSlugGuidesGuideSlugRoute
   DocsOrganizationSlugProjectSlugGuidesChar123guideSlugChar125DotmdRoute: typeof DocsOrganizationSlugProjectSlugGuidesChar123guideSlugChar125DotmdRoute
@@ -690,6 +852,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tools.json': {
+      id: '/tools.json'
+      path: '/tools.json'
+      fullPath: '/tools.json'
+      preLoaderRoute: typeof ToolsDotjsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/openapi.json': {
       id: '/openapi.json'
       path: '/openapi.json'
@@ -709,6 +878,13 @@ declare module '@tanstack/react-router' {
       path: '/llms.txt'
       fullPath: '/llms.txt'
       preLoaderRoute: typeof LlmsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agent.json': {
+      id: '/agent.json'
+      path: '/agent.json'
+      fullPath: '/agent.json'
+      preLoaderRoute: typeof AgentDotjsonRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -802,6 +978,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiExecuteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/v/$versionSlug/tools.json': {
+      id: '/v/$versionSlug/tools.json'
+      path: '/v/$versionSlug/tools.json'
+      fullPath: '/v/$versionSlug/tools.json'
+      preLoaderRoute: typeof VVersionSlugToolsDotjsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/v/$versionSlug/openapi.json': {
       id: '/v/$versionSlug/openapi.json'
       path: '/v/$versionSlug/openapi.json'
@@ -814,6 +997,13 @@ declare module '@tanstack/react-router' {
       path: '/v/$versionSlug/llms.txt'
       fullPath: '/v/$versionSlug/llms.txt'
       preLoaderRoute: typeof VVersionSlugLlmsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/v/$versionSlug/agent.json': {
+      id: '/v/$versionSlug/agent.json'
+      path: '/v/$versionSlug/agent.json'
+      fullPath: '/v/$versionSlug/agent.json'
+      preLoaderRoute: typeof VVersionSlugAgentDotjsonRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app/$organizationSlug/settings': {
@@ -879,11 +1069,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocsOrganizationSlugProjectSlugIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/v/$versionSlug/reference/{$endpointSlug}.md': {
+      id: '/v/$versionSlug/reference/{$endpointSlug}.md'
+      path: '/v/$versionSlug/reference/{$endpointSlug}.md'
+      fullPath: '/v/$versionSlug/reference/{$endpointSlug}.md'
+      preLoaderRoute: typeof VVersionSlugReferenceChar123endpointSlugChar125DotmdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/v/$versionSlug/reference/$endpointSlug': {
       id: '/v/$versionSlug/reference/$endpointSlug'
       path: '/v/$versionSlug/reference/$endpointSlug'
       fullPath: '/v/$versionSlug/reference/$endpointSlug'
       preLoaderRoute: typeof VVersionSlugReferenceEndpointSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/v/$versionSlug/guides/{$guideSlug}.md': {
+      id: '/v/$versionSlug/guides/{$guideSlug}.md'
+      path: '/v/$versionSlug/guides/{$guideSlug}.md'
+      fullPath: '/v/$versionSlug/guides/{$guideSlug}.md'
+      preLoaderRoute: typeof VVersionSlugGuidesChar123guideSlugChar125DotmdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/v/$versionSlug/guides/$guideSlug': {
@@ -900,6 +1104,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocsOrganizationSlugProjectSlugChar123endpointSlugChar125DotmdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/docs/$organizationSlug/$projectSlug/tools.json': {
+      id: '/docs/$organizationSlug/$projectSlug/tools.json'
+      path: '/docs/$organizationSlug/$projectSlug/tools.json'
+      fullPath: '/docs/$organizationSlug/$projectSlug/tools.json'
+      preLoaderRoute: typeof DocsOrganizationSlugProjectSlugToolsDotjsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/docs/$organizationSlug/$projectSlug/openapi.json': {
       id: '/docs/$organizationSlug/$projectSlug/openapi.json'
       path: '/docs/$organizationSlug/$projectSlug/openapi.json'
@@ -914,11 +1125,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocsOrganizationSlugProjectSlugLlmsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/docs/$organizationSlug/$projectSlug/agent.json': {
+      id: '/docs/$organizationSlug/$projectSlug/agent.json'
+      path: '/docs/$organizationSlug/$projectSlug/agent.json'
+      fullPath: '/docs/$organizationSlug/$projectSlug/agent.json'
+      preLoaderRoute: typeof DocsOrganizationSlugProjectSlugAgentDotjsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/docs/$organizationSlug/$projectSlug/$endpointSlug': {
       id: '/docs/$organizationSlug/$projectSlug/$endpointSlug'
       path: '/docs/$organizationSlug/$projectSlug/$endpointSlug'
       fullPath: '/docs/$organizationSlug/$projectSlug/$endpointSlug'
       preLoaderRoute: typeof DocsOrganizationSlugProjectSlugEndpointSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/docs/search': {
+      id: '/api/public/docs/search'
+      path: '/api/public/docs/search'
+      fullPath: '/api/public/docs/search'
+      preLoaderRoute: typeof ApiPublicDocsSearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/docs/page': {
+      id: '/api/public/docs/page'
+      path: '/api/public/docs/page'
+      fullPath: '/api/public/docs/page'
+      preLoaderRoute: typeof ApiPublicDocsPageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/docs/navigation': {
+      id: '/api/public/docs/navigation'
+      path: '/api/public/docs/navigation'
+      fullPath: '/api/public/docs/navigation'
+      preLoaderRoute: typeof ApiPublicDocsNavigationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/docs/endpoint': {
+      id: '/api/public/docs/endpoint'
+      path: '/api/public/docs/endpoint'
+      fullPath: '/api/public/docs/endpoint'
+      preLoaderRoute: typeof ApiPublicDocsEndpointRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app/$organizationSlug/projects/$projectSlug/': {
@@ -1082,9 +1328,11 @@ const AppOrganizationSlugProjectsRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AgentDotjsonRoute: AgentDotjsonRoute,
   LlmsDottxtRoute: LlmsDottxtRoute,
   OnboardingRoute: OnboardingRoute,
   OpenapiDotjsonRoute: OpenapiDotjsonRoute,
+  ToolsDotjsonRoute: ToolsDotjsonRoute,
   ApiExecuteRoute: ApiExecuteRoute,
   AuthSignInRoute: AuthSignInRoute,
   AuthSignUpRoute: AuthSignUpRoute,
@@ -1108,19 +1356,33 @@ const rootRouteChildren: RootRouteChildren = {
   AppOrganizationSlugProjectsRoute:
     AppOrganizationSlugProjectsRouteWithChildren,
   AppOrganizationSlugSettingsRoute: AppOrganizationSlugSettingsRoute,
+  VVersionSlugAgentDotjsonRoute: VVersionSlugAgentDotjsonRoute,
   VVersionSlugLlmsDottxtRoute: VVersionSlugLlmsDottxtRoute,
   VVersionSlugOpenapiDotjsonRoute: VVersionSlugOpenapiDotjsonRoute,
+  VVersionSlugToolsDotjsonRoute: VVersionSlugToolsDotjsonRoute,
+  ApiPublicDocsEndpointRoute: ApiPublicDocsEndpointRoute,
+  ApiPublicDocsNavigationRoute: ApiPublicDocsNavigationRoute,
+  ApiPublicDocsPageRoute: ApiPublicDocsPageRoute,
+  ApiPublicDocsSearchRoute: ApiPublicDocsSearchRoute,
   DocsOrganizationSlugProjectSlugEndpointSlugRoute:
     DocsOrganizationSlugProjectSlugEndpointSlugRoute,
+  DocsOrganizationSlugProjectSlugAgentDotjsonRoute:
+    DocsOrganizationSlugProjectSlugAgentDotjsonRoute,
   DocsOrganizationSlugProjectSlugLlmsDottxtRoute:
     DocsOrganizationSlugProjectSlugLlmsDottxtRoute,
   DocsOrganizationSlugProjectSlugOpenapiDotjsonRoute:
     DocsOrganizationSlugProjectSlugOpenapiDotjsonRoute,
+  DocsOrganizationSlugProjectSlugToolsDotjsonRoute:
+    DocsOrganizationSlugProjectSlugToolsDotjsonRoute,
   DocsOrganizationSlugProjectSlugChar123endpointSlugChar125DotmdRoute:
     DocsOrganizationSlugProjectSlugChar123endpointSlugChar125DotmdRoute,
   VVersionSlugGuidesGuideSlugRoute: VVersionSlugGuidesGuideSlugRoute,
+  VVersionSlugGuidesChar123guideSlugChar125DotmdRoute:
+    VVersionSlugGuidesChar123guideSlugChar125DotmdRoute,
   VVersionSlugReferenceEndpointSlugRoute:
     VVersionSlugReferenceEndpointSlugRoute,
+  VVersionSlugReferenceChar123endpointSlugChar125DotmdRoute:
+    VVersionSlugReferenceChar123endpointSlugChar125DotmdRoute,
   DocsOrganizationSlugProjectSlugIndexRoute:
     DocsOrganizationSlugProjectSlugIndexRoute,
   DocsOrganizationSlugProjectSlugGuidesGuideSlugRoute:

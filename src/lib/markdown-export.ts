@@ -15,6 +15,7 @@ export type ExportEndpoint = {
   endpointType: "endpoint" | "doc";
   content?: string;
   markdown?: string;
+  updatedAt?: number;
   body: {
     method: string;
     path: string;
@@ -40,6 +41,7 @@ export type ExportGuidePage = {
   content?: string;
   markdown?: string;
   description: string;
+  updatedAt?: number;
 };
 
 export function formatEndpointMarkdown({

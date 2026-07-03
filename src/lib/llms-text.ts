@@ -57,7 +57,7 @@ function guideLines(guides: LlmsGuideSection[], baseUrl: string) {
     "",
     ...section.pages.map(
       (page) =>
-        `- ${page.title}${page.description ? ` — ${page.description}` : ""}\n  ${baseUrl}/docs/${page.slug}.md`,
+        `- ${page.title}${page.description ? ` — ${page.description}` : ""}\n  ${baseUrl}/guides/${page.slug}.md`,
     ),
     "",
   ]);

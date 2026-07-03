@@ -181,10 +181,11 @@ export async function loadPublicDocumentationExport(
   const client = getPublicClient();
   const args = { organizationSlug, projectSlug, versionSlug };
   const projectArgs = { organizationSlug, projectSlug };
-  const [project, navigation, guides] = await Promise.all([
+  const [project, navigation, guides, versions] = await Promise.all([
     client.query(api.projects.getPublic, projectArgs),
     client.query(api.sections.publicNavigation, args),
     client.query(api.guides.publicNavigation, args),
+    client.query(api.versions.publicList, projectArgs),
   ]);
   const [sections, guideSections] = await Promise.all([
     Promise.all(
@@ -219,7 +220,7 @@ export async function loadPublicDocumentationExport(
     ),
   ]);
 
-  return { project, sections, guides: guideSections };
+  return { project, sections, guides: guideSections, versions };
 }
 
 export function buildRequestUrl(

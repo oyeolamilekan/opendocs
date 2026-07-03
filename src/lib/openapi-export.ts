@@ -21,7 +21,7 @@ export type OpenApiExportSection = {
   endpoints: ExportEndpoint[];
 };
 
-type JsonSchema = {
+export type JsonSchema = {
   type?: string;
   format?: string;
   description?: string;
@@ -177,7 +177,7 @@ function responses(endpoint: ExportEndpoint) {
   );
 }
 
-function parseResponseExample(value: string) {
+export function parseResponseExample(value: string) {
   try {
     return JSON.parse(value);
   } catch {
@@ -185,7 +185,7 @@ function parseResponseExample(value: string) {
   }
 }
 
-function objectSchema(fields: ExportField[]): JsonSchema {
+export function objectSchema(fields: ExportField[]): JsonSchema {
   const required = fields
     .filter((field) => field.required)
     .map((field) => field.name);
@@ -206,12 +206,12 @@ function objectSchema(fields: ExportField[]): JsonSchema {
   };
 }
 
-function schemaFromField(field: ExportField): JsonSchema {
+export function schemaFromField(field: ExportField): JsonSchema {
   if (field.fields?.length) return objectSchema(field.fields);
   return schemaFromDataType(field.dataType);
 }
 
-function schemaFromDataType(dataType: string): JsonSchema {
+export function schemaFromDataType(dataType: string): JsonSchema {
   const normalized = dataType.trim().toLowerCase();
 
   if (normalized.includes("array")) {
@@ -235,7 +235,7 @@ function schemaFromDataType(dataType: string): JsonSchema {
   return { type: "string" };
 }
 
-function operationId(endpoint: ExportEndpoint) {
+export function operationId(endpoint: ExportEndpoint) {
   return endpoint.slug
     .replace(/[^a-zA-Z0-9]+(.)/g, (_, character: string) =>
       character.toUpperCase(),

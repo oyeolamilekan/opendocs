@@ -154,6 +154,9 @@ describe("documentation export formatters", () => {
 
     expect(llms).toContain("# Acme Docs");
     expect(llms).toContain(
+      "https://acme-docs.docs.example.com/guides/intro.md",
+    );
+    expect(llms).toContain(
       "https://acme-docs.docs.example.com/reference/create-user.md",
     );
     expect(llms).toContain(

@@ -211,10 +211,13 @@ Counters roll up at hour and day granularity and support ranges `day`, `week`, `
 
 Public projects expose a few machine-readable exports on their subdomain (and the path-based fallback for the default version):
 
+- `/agent.json` — discovery manifest for agents, including versions, export URLs, retrieval API URLs, auth notes, safe execution policy, and an agent-readiness score.
+- `/tools.json` — structured endpoint tool catalog with operation IDs, schemas, response examples, validation metadata, and request recipes.
 - `/openapi.json` — an OpenAPI 3.1 JSON document generated from the current version's sections and endpoints.
 - `/llms.txt` — a Markdown index of guides, endpoints, and the OpenAPI JSON URL, designed for LLM discovery.
 - `/reference/<endpoint-slug>.md` — Markdown export of a single endpoint.
-- `/docs/<guide-slug>.md` on the subdomain, or `/docs/<organization-slug>/<project-slug>/guides/<guide-slug>.md` on the path fallback — Markdown export of a single guide page.
+- `/guides/<guide-slug>.md` on the subdomain, or `/docs/<organization-slug>/<project-slug>/guides/<guide-slug>.md` on the path fallback — Markdown export of a single guide page.
+- `/api/public/docs/search?q=...`, `/api/public/docs/page`, `/api/public/docs/endpoint`, and `/api/public/docs/navigation` — read-only JSON retrieval APIs for external agents that bring their own model.
 
 Private projects return 404 for these URLs.
 
