@@ -1,12 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import {
-  AlertTriangle,
-  Check,
-  Copy,
-  Expand,
-  Lock,
-  Play,
-} from "lucide-react";
+import { AlertTriangle, Check, Copy, Expand, Lock, Play } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Button } from "./ui/button";
 import { CodeSnippet, type CodeSnippetLanguage } from "./ui/code-snippet";
@@ -213,11 +206,7 @@ export function EndpointTester({
         onSubmit={submit}
         className="flex justify-end"
       >
-        <Button
-          type="submit"
-          className="w-full sm:w-auto"
-          disabled={sending}
-        >
+        <Button type="submit" className="w-full sm:w-auto" disabled={sending}>
           <Play data-icon="inline-start" />
           {sending ? "Sending..." : "Send Request"}
         </Button>
@@ -257,7 +246,9 @@ export function EndpointTester({
                 size="icon-sm"
                 className="endpoint-response-copy"
                 onClick={() => void copyResponse()}
-                aria-label={copiedResponse ? "Response copied" : "Copy response"}
+                aria-label={
+                  copiedResponse ? "Response copied" : "Copy response"
+                }
               >
                 {copiedResponse ? <Check /> : <Copy />}
               </Button>

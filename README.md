@@ -17,13 +17,25 @@ API documentation without the operational clutter. Create, organize, import, and
 - **Team workspaces** — Invite members as owners, admins, or members and share projects from one organization.
 - **Analytics** — Track API calls and page views per project with hourly and daily counters.
 
-## Product Preview
+## Screenshot Gallery
 
 Minialdoc has two main surfaces: a private workspace for writing and maintaining API documentation, and a public documentation experience for readers.
 
-| Workspace                                                         | Published docs                                                                     |
-| ----------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| ![Minialdoc API metrics dashboard](./src/images/screenshot-6.png) | ![Minialdoc public API reference with AI assistant](./src/images/screenshot-8.png) |
+| Workspace                                                     | Workspace detail                                                     |
+| ------------------------------------------------------------- | -------------------------------------------------------------------- |
+| ![Minialdoc project dashboard](./src/images/screenshot-1.png) | ![Minialdoc endpoint editor overview](./src/images/screenshot-2.png) |
+
+| Workspace editor                                                | Navigation and metrics                                             |
+| --------------------------------------------------------------- | ------------------------------------------------------------------ |
+| ![Minialdoc rich content editor](./src/images/screenshot-3.png) | ![Minialdoc custom navigation page](./src/images/screenshot-4.png) |
+
+| Metrics overview                                                | Metrics detail                                                      |
+| --------------------------------------------------------------- | ------------------------------------------------------------------- |
+| ![Minialdoc API calls dashboard](./src/images/screenshot-5.png) | ![Minialdoc top endpoints dashboard](./src/images/screenshot-6.png) |
+
+| Public docs                                                                | Public reference with AI                                                           |
+| -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| ![Minialdoc documentation version settings](./src/images/screenshot-7.png) | ![Minialdoc public API reference with AI assistant](./src/images/screenshot-8.png) |
 
 ## Prerequisites
 

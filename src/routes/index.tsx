@@ -27,8 +27,13 @@ import {
   publicProjectQueries,
 } from "../lib/public-docs";
 import { getPublicProjectSlugFromRequest } from "../lib/public-docs-domain";
+import projectDashboardImage from "../images/screenshot-1.png";
 import endpointEditorImage from "../images/screenshot-2.png";
+import richEditorImage from "../images/screenshot-3.png";
+import navigationImage from "../images/screenshot-4.png";
+import apiCallsImage from "../images/screenshot-5.png";
 import metricsImage from "../images/screenshot-6.png";
+import versionSettingsImage from "../images/screenshot-7.png";
 import publicDocsImage from "../images/screenshot-8.png";
 
 export const Route = createFileRoute("/")({
@@ -240,16 +245,46 @@ function Home() {
               From blank project to published reference.
             </h2>
           </div>
-          <div className="mt-12 grid gap-6 sm:gap-8 md:grid-cols-2">
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             <FeaturePreview
-              image={publicDocsImage}
-              title="Publish docs that readers can use"
-              description="Show endpoint details, generated request examples, a safe tester, and an AI assistant in the public reference."
+              image={projectDashboardImage}
+              title="Projects"
+              description="Start with organized project workspaces."
+            />
+            <FeaturePreview
+              image={endpointEditorImage}
+              title="Endpoint editor"
+              description="Edit paths, bodies, responses, and sections."
+            />
+            <FeaturePreview
+              image={richEditorImage}
+              title="Writing"
+              description="Draft docs with a focused block editor."
+            />
+            <FeaturePreview
+              image={navigationImage}
+              title="Navigation"
+              description="Build version-specific public nav links."
+            />
+            <FeaturePreview
+              image={apiCallsImage}
+              title="API calls"
+              description="See request volume and failures in one place."
             />
             <FeaturePreview
               image={metricsImage}
-              title="See what happens after release"
-              description="Track API calls, top endpoints, status codes, and public documentation usage from the same project workspace."
+              title="Top endpoints"
+              description="Find the most-used reference URLs quickly."
+            />
+            <FeaturePreview
+              image={versionSettingsImage}
+              title="Versions"
+              description="Manage default, beta, and deprecated releases."
+            />
+            <FeaturePreview
+              image={publicDocsImage}
+              title="Published docs"
+              description="Show readers the reference, tester, and AI assistant."
             />
           </div>
         </div>
@@ -307,7 +342,7 @@ function FeaturePreview({
       <div className="overflow-hidden border-b bg-muted">
         <img
           src={image}
-          alt=""
+          alt={`${title} screenshot`}
           className="aspect-[5/3] w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.175,0.885,0.32,1.1)] group-hover:scale-[1.02]"
         />
       </div>
