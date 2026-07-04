@@ -27,6 +27,9 @@ import {
   publicProjectQueries,
 } from "../lib/public-docs";
 import { getPublicProjectSlugFromRequest } from "../lib/public-docs-domain";
+import endpointEditorImage from "../images/screenshot-2.png";
+import metricsImage from "../images/screenshot-6.png";
+import publicDocsImage from "../images/screenshot-8.png";
 
 export const Route = createFileRoute("/")({
   loader: async ({ context }) => {
@@ -143,9 +146,7 @@ function Home() {
             <CardTitle className="text-2xl">
               {publicProject.project.title}
             </CardTitle>
-            <CardDescription>
-              {publicProject.organization.name}
-            </CardDescription>
+            <CardDescription>{publicProject.organization.name}</CardDescription>
           </CardHeader>
           <CardContent className="text-muted-foreground">
             This documentation is published, but it does not have any pages yet.
@@ -197,11 +198,11 @@ function Home() {
       </section>
 
       <section className="app-container -mt-12 pb-24 sm:-mt-16">
-        <div className="overflow-hidden rounded-2xl border bg-muted p-2 shadow-[var(--surface-raised-shadow)] sm:rounded-3xl sm:p-3">
+        <div className="overflow-hidden rounded-2xl border bg-[#090909] p-2 shadow-[var(--surface-raised-shadow)] sm:rounded-3xl sm:p-3">
           <img
-            src="/images/landing-image.png"
+            src={endpointEditorImage}
             alt="Minialdoc project and endpoint editor"
-            className="w-full rounded-xl bg-white sm:rounded-2xl"
+            className="w-full rounded-xl bg-[#090909] sm:rounded-2xl"
           />
         </div>
       </section>
@@ -241,14 +242,14 @@ function Home() {
           </div>
           <div className="mt-12 grid gap-6 sm:gap-8 md:grid-cols-2">
             <FeaturePreview
-              image="/images/add-project.gif"
-              title="Create focused API projects"
-              description="Keep base URLs, visibility, and endpoint collections isolated by project."
+              image={publicDocsImage}
+              title="Publish docs that readers can use"
+              description="Show endpoint details, generated request examples, a safe tester, and an AI assistant in the public reference."
             />
             <FeaturePreview
-              image="/images/adding-api-section.gif"
-              title="Shape a clear navigation"
-              description="Group endpoints into ordered sections and edit the reference in real time."
+              image={metricsImage}
+              title="See what happens after release"
+              description="Track API calls, top endpoints, status codes, and public documentation usage from the same project workspace."
             />
           </div>
         </div>

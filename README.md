@@ -2,6 +2,8 @@
 
 API documentation without the operational clutter. Create, organize, import, and publish clear API references from one focused workspace. Built with TanStack Start, Convex, Better Auth, and the Geist design system.
 
+![Minialdoc endpoint editor](./src/images/screenshot-2.png)
+
 ## Features
 
 - **Structured documentation** — Organize every API into projects, sections, endpoint references, and standalone guides.
@@ -14,6 +16,14 @@ API documentation without the operational clutter. Create, organize, import, and
 - **Private by default** — Keep work inside your organization, then publish documentation deliberately.
 - **Team workspaces** — Invite members as owners, admins, or members and share projects from one organization.
 - **Analytics** — Track API calls and page views per project with hourly and daily counters.
+
+## Product Preview
+
+Minialdoc has two main surfaces: a private workspace for writing and maintaining API documentation, and a public documentation experience for readers.
+
+| Workspace                                                         | Published docs                                                                     |
+| ----------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| ![Minialdoc API metrics dashboard](./src/images/screenshot-6.png) | ![Minialdoc public API reference with AI assistant](./src/images/screenshot-8.png) |
 
 ## Prerequisites
 
@@ -40,15 +50,15 @@ cp .env.example .env.local
 
 Required variables in `.env.local`:
 
-| Variable | Required | Description |
-| --- | --- | --- |
-| `CONVEX_DEPLOYMENT` | yes | Convex deployment name (set after `convex init`) |
-| `VITE_CONVEX_URL` | yes | Convex deployment URL |
-| `VITE_CONVEX_SITE_URL` | yes | Convex HTTP actions URL, ending in `.convex.site` |
-| `VITE_SITE_URL` | yes | Public URL of this TanStack Start app, e.g. `http://localhost:3000` |
-| `VITE_PUBLIC_DOCS_ROOT_DOMAIN` | yes | Root domain for public documentation subdomains. Use `localhost` locally. |
-| `AI_GATEWAY_API_KEY` | optional | Vercel AI Gateway key used by the default Gateway runtime |
-| `AI_KEY_ENCRYPTION_SECRET` | optional | Server-only secret used to encrypt project-level AI provider API keys |
+| Variable                       | Required | Description                                                               |
+| ------------------------------ | -------- | ------------------------------------------------------------------------- |
+| `CONVEX_DEPLOYMENT`            | yes      | Convex deployment name (set after `convex init`)                          |
+| `VITE_CONVEX_URL`              | yes      | Convex deployment URL                                                     |
+| `VITE_CONVEX_SITE_URL`         | yes      | Convex HTTP actions URL, ending in `.convex.site`                         |
+| `VITE_SITE_URL`                | yes      | Public URL of this TanStack Start app, e.g. `http://localhost:3000`       |
+| `VITE_PUBLIC_DOCS_ROOT_DOMAIN` | yes      | Root domain for public documentation subdomains. Use `localhost` locally. |
+| `AI_GATEWAY_API_KEY`           | optional | Vercel AI Gateway key used by the default Gateway runtime                 |
+| `AI_KEY_ENCRYPTION_SECRET`     | optional | Server-only secret used to encrypt project-level AI provider API keys     |
 
 Set these Convex-side secrets with `bunx convex env set` (do **not** put them in `.env.local`):
 
@@ -78,28 +88,28 @@ bun run dev
 
 ## Scripts
 
-| Command | Description |
-| --- | --- |
-| `bun run dev` | Start Convex and the web dev server together |
-| `bun run dev:web` | Start only the Vite dev server |
-| `bun run dev:convex` | Start only the Convex dev server |
-| `bun run build` | Build the production bundle with Vite |
-| `bun run preview` | Preview the production build |
-| `bun run typecheck` | Run `tsc --noEmit` |
-| `bun run test` | Run Vitest |
-| `bun run generate-routes` | Regenerate TanStack Router route files |
+| Command                   | Description                                  |
+| ------------------------- | -------------------------------------------- |
+| `bun run dev`             | Start Convex and the web dev server together |
+| `bun run dev:web`         | Start only the Vite dev server               |
+| `bun run dev:convex`      | Start only the Convex dev server             |
+| `bun run build`           | Build the production bundle with Vite        |
+| `bun run preview`         | Preview the production build                 |
+| `bun run typecheck`       | Run `tsc --noEmit`                           |
+| `bun run test`            | Run Vitest                                   |
+| `bun run generate-routes` | Regenerate TanStack Router route files       |
 
 ## Architecture
 
-| Layer | Technology |
-| --- | --- |
-| Frontend | TanStack Start, TanStack Router, React 19, Tailwind CSS v4 |
-| Backend | Convex (schema, mutations, queries, actions) |
-| Auth | Better Auth via `@convex-dev/better-auth` (email + password) |
-| Editor | Tiptap (prose, parameters, request bodies, sample responses) |
-| AI | Vercel AI SDK + provider keys (`@ai-sdk/react`, `ai`) |
-| Icons | lucide-react |
-| UI primitives | shadcn/ui |
+| Layer         | Technology                                                   |
+| ------------- | ------------------------------------------------------------ |
+| Frontend      | TanStack Start, TanStack Router, React 19, Tailwind CSS v4   |
+| Backend       | Convex (schema, mutations, queries, actions)                 |
+| Auth          | Better Auth via `@convex-dev/better-auth` (email + password) |
+| Editor        | Tiptap (prose, parameters, request bodies, sample responses) |
+| AI            | Vercel AI SDK + provider keys (`@ai-sdk/react`, `ai`)        |
+| Icons         | lucide-react                                                 |
+| UI primitives | shadcn/ui                                                    |
 
 ### Where things live
 
