@@ -52,11 +52,14 @@ export type AiProjectContextData = {
 const MAX_CONTEXT_CHARS = 14_000;
 const MAX_SNIPPET_CHARS = 1_200;
 
-export function buildAiSystemPrompt({
-  context,
-}: {
-  context: string;
-}) {
+/**
+ * Builds the system prompt for project-aware AI documentation answers.
+ *
+ * @param options - Function options.
+ * @param options.context - Prebuilt project context supplied to the assistant.
+ * @returns Result produced by the function.
+ */
+export const buildAiSystemPrompt = ({ context }: { context: string }) => {
   return `You are the AI documentation assistant for this API project.
 
 Rules:
@@ -70,9 +73,18 @@ Rules:
 
 Project documentation context:
 ${context}`;
-}
+};
 
-export function buildProjectAiContext({
+/**
+ * Builds compact project documentation context for AI retrieval and answer generation.
+ *
+ * @param options - Function options.
+ * @param options.data - Documentation or project data consumed by the operation.
+ * @param options.latestUserMessage - Latest user message used to rank relevant documentation.
+ * @param options.publicDocsBasePath - Absolute public docs base path used to build source URLs.
+ * @returns Result produced by the function.
+ */
+export const buildProjectAiContext = ({
   data,
   latestUserMessage,
   publicDocsBasePath,
@@ -80,7 +92,7 @@ export function buildProjectAiContext({
   data: AiProjectContextData;
   latestUserMessage: string;
   publicDocsBasePath: string;
-}) {
+}) => {
   const candidates = [
     ...data.guideSections.flatMap((section) =>
       section.pages.map((page) => ({
@@ -105,7 +117,11 @@ export function buildProjectAiContext({
           endpoint.markdown ?? "",
           endpoint.content ?? "",
         ]),
-        text: formatEndpointContext(section.title, endpoint, publicDocsBasePath),
+        text: formatEndpointContext(
+          section.title,
+          endpoint,
+          publicDocsBasePath,
+        ),
       })),
     ),
   ].sort((left, right) => right.score - left.score);
@@ -132,13 +148,21 @@ export function buildProjectAiContext({
   }
 
   return truncate(parts.join("\n"), MAX_CONTEXT_CHARS);
-}
+};
 
-function formatGuideContext(
+/**
+ * Formats one guide page as compact AI context.
+ *
+ * @param sectionTitle - Value supplied to the helper.
+ * @param page - Value supplied to the helper.
+ * @param publicDocsBasePath - Value supplied to the helper.
+ * @returns Formatted guide context text.
+ */
+const formatGuideContext = (
   sectionTitle: string,
   page: AiProjectContextData["guideSections"][number]["pages"][number],
   publicDocsBasePath: string,
-) {
+) => {
   const body = contentToMarkdown(page.markdown, page.content);
   return [
     `### Guide: ${sectionTitle} / ${page.title}`,
@@ -148,19 +172,29 @@ function formatGuideContext(
   ]
     .filter(Boolean)
     .join("\n");
-}
+};
 
-function formatEndpointContext(
+/**
+ * Formats one endpoint page as compact AI context.
+ *
+ * @param sectionTitle - Value supplied to the helper.
+ * @param endpoint - Endpoint data used by the helper.
+ * @param publicDocsBasePath - Value supplied to the helper.
+ * @returns Formatted endpoint context text.
+ */
+const formatEndpointContext = (
   sectionTitle: string,
   endpoint: AiProjectContextData["apiSections"][number]["endpoints"][number],
   publicDocsBasePath: string,
-) {
+) => {
   const isEndpoint = endpoint.endpointType === "endpoint";
   const notes = contentToMarkdown(endpoint.markdown, endpoint.content);
 
   return [
     `### ${isEndpoint ? "Endpoint" : "Reference page"}: ${sectionTitle} / ${endpoint.title}`,
-    isEndpoint ? `Method/path: ${endpoint.body.method} ${endpoint.body.path}` : "",
+    isEndpoint
+      ? `Method/path: ${endpoint.body.method} ${endpoint.body.path}`
+      : "",
     endpoint.body.description
       ? `Description: ${endpoint.body.description}`
       : "",
@@ -173,47 +207,81 @@ function formatEndpointContext(
   ]
     .filter(Boolean)
     .join("\n");
-}
+};
 
-function formatAuth(auth: {
+/**
+ * Formats endpoint authentication details for AI context.
+ *
+ * @param auth - Authentication configuration to summarize.
+ * @returns Formatted authentication text.
+ */
+const formatAuth = (auth: {
   type: "none" | "bearer" | "apiKey" | "basic";
   key: string;
-}) {
+}) => {
   if (auth.type === "none") return "Authentication: none";
   const key =
     auth.key || (auth.type === "apiKey" ? "X-API-Key" : "Authorization");
   return `Authentication: ${auth.type}; header ${key}; value intentionally omitted`;
-}
+};
 
-function formatFields(title: string, fields: ExportField[]) {
+/**
+ * Formats endpoint field definitions for AI context.
+ *
+ * @param title - Section or group title.
+ * @param fields - Field definitions to inspect.
+ * @returns Formatted field text.
+ */
+const formatFields = (title: string, fields: ExportField[]) => {
   if (!fields.length) return "";
   return `${title}:\n${fields
     .flatMap((field) => formatField(field))
     .join("\n")}`;
-}
+};
 
-function formatField(field: ExportField, prefix = ""): string[] {
+/**
+ * Formats one endpoint field and its nested children.
+ *
+ * @param field - Field definition to convert.
+ * @param [prefix=""] - Field path prefix used for nested fields.
+ * @returns Formatted field lines.
+ */
+const formatField = (field: ExportField, prefix = ""): string[] => {
   const name = prefix ? `${prefix}.${field.name}` : field.name;
   return [
     `- ${name}: ${field.dataType}${field.required ? " required" : " optional"}${field.description ? ` — ${field.description}` : ""}`,
     ...(field.fields ?? []).flatMap((child) => formatField(child, name)),
   ];
-}
+};
 
-function formatResponses(
+/**
+ * Formats endpoint sample responses for Markdown or AI context.
+ *
+ * @param responses - Response examples to format.
+ * @returns Formatted response text.
+ */
+const formatResponses = (
   responses: AiProjectContextData["apiSections"][number]["endpoints"][number]["body"]["sampleResponses"],
-) {
+) => {
   if (!responses.length) return "";
   return `Responses:\n${responses
-    .map((response) =>
-      `- ${response.statusCode}: ${response.description}${
-        response.body ? ` — example: ${truncate(response.body, 240)}` : ""
-      }`,
+    .map(
+      (response) =>
+        `- ${response.statusCode}: ${response.description}${
+          response.body ? ` — example: ${truncate(response.body, 240)}` : ""
+        }`,
     )
     .join("\n")}`;
-}
+};
 
-function scoreText(query: string, values: string[]) {
+/**
+ * Scores text against a search query using deterministic token matching.
+ *
+ * @param query - Search query text.
+ * @param values - Array values to inspect.
+ * @returns Numeric relevance score.
+ */
+const scoreText = (query: string, values: string[]) => {
   const terms = new Set(
     query
       .toLowerCase()
@@ -229,10 +297,17 @@ function scoreText(query: string, values: string[]) {
     if (haystack.includes(term)) score += 1;
   }
   return score;
-}
+};
 
-function truncate(value: string, maxLength: number) {
+/**
+ * Truncates long text to a bounded length.
+ *
+ * @param value - Value to inspect or format.
+ * @param maxLength - Maximum output length.
+ * @returns Original or truncated text.
+ */
+const truncate = (value: string, maxLength: number) => {
   const normalized = value.replace(/\r\n?/g, "\n").replace(/\n{4,}/g, "\n\n\n");
   if (normalized.length <= maxLength) return normalized;
   return `${normalized.slice(0, maxLength - 24).trimEnd()}\n...[truncated]`;
-}
+};

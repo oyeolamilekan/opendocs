@@ -11,7 +11,17 @@ export type LlmsGuideSection = {
   pages: ExportGuidePage[];
 };
 
-export function formatLlmsTxt({
+/**
+ * Formats project documentation into an llms.txt index.
+ *
+ * @param options - Function options.
+ * @param options.project - Project metadata used by the operation.
+ * @param options.guides - Published guide sections to include.
+ * @param options.sections - Published API reference sections to include.
+ * @param options.publicBaseUrl - Absolute public documentation base URL used for links.
+ * @returns Result produced by the function.
+ */
+export const formatLlmsTxt = ({
   project,
   guides,
   sections,
@@ -21,7 +31,7 @@ export function formatLlmsTxt({
   guides: LlmsGuideSection[];
   sections: OpenApiExportSection[];
   publicBaseUrl: string;
-}) {
+}) => {
   const baseUrl = publicBaseUrl.replace(/\/$/, "");
   const lines = [
     `# ${project.project.title}`,
@@ -49,9 +59,16 @@ export function formatLlmsTxt({
     .join("\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim()}\n`;
-}
+};
 
-function guideLines(guides: LlmsGuideSection[], baseUrl: string) {
+/**
+ * Builds llms.txt link lines for guide pages.
+ *
+ * @param guides - Guide sections to format.
+ * @param baseUrl - Base URL used to build links.
+ * @returns llms.txt guide lines.
+ */
+const guideLines = (guides: LlmsGuideSection[], baseUrl: string) => {
   const lines = guides.flatMap((section) => [
     `### ${section.title}`,
     "",
@@ -63,9 +80,16 @@ function guideLines(guides: LlmsGuideSection[], baseUrl: string) {
   ]);
 
   return lines.length ? lines.join("\n") : "No guide pages are published.";
-}
+};
 
-function endpointLines(sections: OpenApiExportSection[], baseUrl: string) {
+/**
+ * Builds llms.txt link lines for endpoint pages.
+ *
+ * @param sections - API sections to inspect.
+ * @param baseUrl - Base URL used to build links.
+ * @returns llms.txt endpoint lines.
+ */
+const endpointLines = (sections: OpenApiExportSection[], baseUrl: string) => {
   const lines = sections.flatMap((section) => [
     `### ${section.title}`,
     "",
@@ -79,5 +103,7 @@ function endpointLines(sections: OpenApiExportSection[], baseUrl: string) {
     "",
   ]);
 
-  return lines.length ? lines.join("\n") : "No API reference pages are published.";
-}
+  return lines.length
+    ? lines.join("\n")
+    : "No API reference pages are published.";
+};

@@ -4,7 +4,8 @@ export const AI_PROVIDER_MODES = [
   {
     value: "gateway",
     label: "Vercel AI Gateway",
-    description: "Use the platform Gateway key and route requests through Vercel.",
+    description:
+      "Use the platform Gateway key and route requests through Vercel.",
   },
   {
     value: "ai-sdk",

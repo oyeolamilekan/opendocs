@@ -144,8 +144,7 @@ const urls: AgentExportUrls = {
   },
   retrievalApi: {
     search: "https://acme-docs.example.com/api/public/docs/search?q={query}",
-    page:
-      "https://acme-docs.example.com/api/public/docs/page?type={guide|reference}&slug={slug}",
+    page: "https://acme-docs.example.com/api/public/docs/page?type={guide|reference}&slug={slug}",
     endpoint:
       "https://acme-docs.example.com/api/public/docs/endpoint?slug={slug}",
     navigation: "https://acme-docs.example.com/api/public/docs/navigation",

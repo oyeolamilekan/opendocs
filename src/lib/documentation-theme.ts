@@ -81,87 +81,105 @@ export const DOCUMENTATION_FONTS = [
     value: "sans",
     label: "Sans",
     description: "Clean product documentation typography.",
-    family: "\"Geist\", system-ui, sans-serif",
+    family: '"Geist", system-ui, sans-serif',
   },
   {
     value: "serif",
     label: "Serif",
     description: "Editorial reading style for long-form docs.",
-    family: "Georgia, \"Times New Roman\", serif",
+    family: 'Georgia, "Times New Roman", serif',
   },
   {
     value: "mono",
     label: "Mono",
     description: "Technical, code-forward presentation.",
-    family: "\"Geist Mono\", monospace",
+    family: '"Geist Mono", monospace',
   },
   {
     value: "inter",
     label: "Inter",
     description: "Neutral interface typography with strong readability.",
-    family: "\"Inter\", \"Geist\", system-ui, sans-serif",
+    family: '"Inter", "Geist", system-ui, sans-serif',
   },
   {
     value: "roboto",
     label: "Roboto",
     description: "Familiar material-style documentation typography.",
-    family: "\"Roboto\", \"Geist\", system-ui, sans-serif",
+    family: '"Roboto", "Geist", system-ui, sans-serif',
   },
   {
     value: "open-sans",
     label: "Open Sans",
     description: "Warm, approachable prose for guides and references.",
-    family: "\"Open Sans\", \"Geist\", system-ui, sans-serif",
+    family: '"Open Sans", "Geist", system-ui, sans-serif',
   },
   {
     value: "lato",
     label: "Lato",
     description: "Humanist sans with a polished editorial tone.",
-    family: "\"Lato\", \"Geist\", system-ui, sans-serif",
+    family: '"Lato", "Geist", system-ui, sans-serif',
   },
   {
     value: "ibm-plex-sans",
     label: "IBM Plex Sans",
     description: "Structured technical typography for product docs.",
-    family: "\"IBM Plex Sans\", \"Geist\", system-ui, sans-serif",
+    family: '"IBM Plex Sans", "Geist", system-ui, sans-serif',
   },
   {
     value: "merriweather",
     label: "Merriweather",
     description: "Readable serif for long-form documentation.",
-    family: "\"Merriweather\", Georgia, \"Times New Roman\", serif",
+    family: '"Merriweather", Georgia, "Times New Roman", serif',
   },
   {
     value: "source-serif-4",
     label: "Source Serif 4",
     description: "Refined serif with strong article readability.",
-    family: "\"Source Serif 4\", Georgia, \"Times New Roman\", serif",
+    family: '"Source Serif 4", Georgia, "Times New Roman", serif',
   },
   {
     value: "jetbrains-mono",
     label: "JetBrains Mono",
     description: "Code-oriented monospace for technical references.",
-    family: "\"JetBrains Mono\", \"Geist Mono\", monospace",
+    family: '"JetBrains Mono", "Geist Mono", monospace',
   },
 ] as const;
 
 export type DocumentationFont = (typeof DOCUMENTATION_FONTS)[number]["value"];
 export const DEFAULT_DOCUMENTATION_FONT: DocumentationFont = "sans";
 
-export function getDocumentationFont(value?: string) {
+/**
+ * Returns the configured documentation font option or the default font.
+ *
+ * @param [value] - Input value to process.
+ * @returns Result produced by the function.
+ */
+export const getDocumentationFont = (value?: string) => {
   return (
     DOCUMENTATION_FONTS.find((font) => font.value === value) ??
     DOCUMENTATION_FONTS[0]
   );
-}
+};
 
-export function getDocumentationTheme(value?: string) {
+/**
+ * Returns the configured documentation theme color option or the default theme.
+ *
+ * @param [value] - Input value to process.
+ * @returns Result produced by the function.
+ */
+export const getDocumentationTheme = (value?: string) => {
   return (
     DOCUMENTATION_THEMES.find((theme) => theme.value === value) ??
     DOCUMENTATION_THEMES[0]
   );
-}
+};
 
-export function isValidBrandColor(value: string) {
+/**
+ * Checks whether a string is a supported hexadecimal brand color.
+ *
+ * @param value - Input value to process.
+ * @returns Result produced by the function.
+ */
+export const isValidBrandColor = (value: string) => {
   return /^#[0-9a-fA-F]{6}$/.test(value);
-}
+};

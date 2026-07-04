@@ -44,13 +44,21 @@ export type ExportGuidePage = {
   updatedAt?: number;
 };
 
-export function formatEndpointMarkdown({
+/**
+ * Formats an API endpoint into a Markdown export page.
+ *
+ * @param options - Function options.
+ * @param options.endpoint - Endpoint data used by the operation.
+ * @param options.baseUrl - API base URL.
+ * @returns Result produced by the function.
+ */
+export const formatEndpointMarkdown = ({
   endpoint,
   baseUrl,
 }: {
   endpoint: ExportEndpoint;
   baseUrl: string;
-}) {
+}) => {
   if (endpoint.endpointType === "doc") {
     return normalizeMarkdown([
       `# ${endpoint.title}`,
@@ -74,10 +82,7 @@ export function formatEndpointMarkdown({
       parameter.location !== "query" &&
       parameter.location !== "header",
   );
-  const requestUrl = buildDocumentationRequestUrl(
-    baseUrl,
-    endpoint.body.path,
-  );
+  const requestUrl = buildDocumentationRequestUrl(baseUrl, endpoint.body.path);
   const codeExamples = generateCodeExamples({
     method: endpoint.body.method,
     url: requestUrl,
@@ -106,17 +111,31 @@ export function formatEndpointMarkdown({
         )
       : "",
   ]);
-}
+};
 
-export function formatGuideMarkdown({ guide }: { guide: ExportGuidePage }) {
+/**
+ * Formats a guide page into a Markdown export page.
+ *
+ * @param options - Function options.
+ * @param options.guide - Guide page data used by the operation.
+ * @returns Result produced by the function.
+ */
+export const formatGuideMarkdown = ({ guide }: { guide: ExportGuidePage }) => {
   return normalizeMarkdown([
     `# ${guide.title}`,
     guide.description,
     contentToMarkdown(guide.markdown, guide.content),
   ]);
-}
+};
 
-export function contentToMarkdown(markdown?: string, content?: string) {
+/**
+ * Converts stored rich-text content fields into Markdown text.
+ *
+ * @param [markdown] - Preferred Markdown source when already available.
+ * @param [content] - Serialized rich-text JSON content used as a fallback source.
+ * @returns Result produced by the function.
+ */
+export const contentToMarkdown = (markdown?: string, content?: string) => {
   if (markdown?.trim()) return normalizeWhitespace(markdown);
   if (!content?.trim()) return "";
 
@@ -130,9 +149,17 @@ export function contentToMarkdown(markdown?: string, content?: string) {
   }
 
   return normalizeWhitespace(stripHtml(content));
-}
+};
 
-function formatAuthentication(authHeader: ExportEndpoint["body"]["authHeader"]) {
+/**
+ * Formats endpoint authentication notes for Markdown output.
+ *
+ * @param authHeader - Value supplied to the helper.
+ * @returns Markdown authentication section, or undefined when omitted.
+ */
+const formatAuthentication = (
+  authHeader: ExportEndpoint["body"]["authHeader"],
+) => {
   if (authHeader.type === "none") return "";
 
   const key =
@@ -159,9 +186,16 @@ function formatAuthentication(authHeader: ExportEndpoint["body"]["authHeader"]) 
       fenced("txt", `${key}: ${value}`),
     ]),
   );
-}
+};
 
-function formatFieldTable(title: string, fields: ExportField[]) {
+/**
+ * Formats a Markdown table for documented fields.
+ *
+ * @param title - Section or group title.
+ * @param fields - Field definitions to inspect.
+ * @returns Markdown table section, or undefined when no fields exist.
+ */
+const formatFieldTable = (title: string, fields: ExportField[]) => {
   if (!fields.length) return "";
 
   return section(
@@ -172,9 +206,16 @@ function formatFieldTable(title: string, fields: ExportField[]) {
       ...fields.flatMap((field) => formatFieldRows(field)),
     ].join("\n"),
   );
-}
+};
 
-function formatFieldRows(field: ExportField, prefix = ""): string[] {
+/**
+ * Formats Markdown table rows for one field and its children.
+ *
+ * @param field - Field definition to convert.
+ * @param [prefix=""] - Field path prefix used for nested fields.
+ * @returns Markdown table rows.
+ */
+const formatFieldRows = (field: ExportField, prefix = ""): string[] => {
   const name = prefix ? `${prefix}.${field.name}` : field.name;
   return [
     `| ${escapeTableCell(name)} | ${escapeTableCell(
@@ -184,11 +225,17 @@ function formatFieldRows(field: ExportField, prefix = ""): string[] {
     )} |`,
     ...(field.fields ?? []).flatMap((child) => formatFieldRows(child, name)),
   ];
-}
+};
 
-function formatResponses(
+/**
+ * Formats endpoint sample responses for Markdown or AI context.
+ *
+ * @param responses - Response examples to format.
+ * @returns Formatted response text.
+ */
+const formatResponses = (
   responses: ExportEndpoint["body"]["sampleResponses"],
-) {
+) => {
   if (!responses.length) return "";
 
   return section(
@@ -198,52 +245,108 @@ function formatResponses(
         normalizeMarkdown([
           `### ${response.statusCode}`,
           response.description,
-          response.body ? fenced(detectCodeLanguage(response.body), response.body) : "",
+          response.body
+            ? fenced(detectCodeLanguage(response.body), response.body)
+            : "",
         ]),
       )
       .join("\n\n"),
   );
-}
+};
 
-function section(title: string, body?: string) {
+/**
+ * Formats an optional Markdown section.
+ *
+ * @param title - Section or group title.
+ * @param [body] - Value supplied to the helper.
+ * @returns Markdown section, or undefined when body is empty.
+ */
+const section = (title: string, body?: string) => {
   const content = body?.trim();
   if (!content) return "";
   return `## ${title}\n\n${content}`;
-}
+};
 
-function fenced(language: string, code: string) {
+/**
+ * Formats a fenced Markdown code block.
+ *
+ * @param language - Code fence language.
+ * @param code - Code content for the fence.
+ * @returns Fenced Markdown code block.
+ */
+const fenced = (language: string, code: string) => {
   return `\`\`\`${language}\n${code.trim()}\n\`\`\``;
-}
+};
 
-function detectCodeLanguage(value: string) {
+/**
+ * Detects a code fence language for a sample response.
+ *
+ * @param value - Value to inspect or format.
+ * @returns Detected code language.
+ */
+const detectCodeLanguage = (value: string) => {
   try {
     JSON.parse(value);
     return "json";
   } catch {
     return "txt";
   }
-}
+};
 
-function buildDocumentationRequestUrl(baseUrl: string, path: string) {
+/**
+ * Builds an example request URL for documentation output.
+ *
+ * @param baseUrl - Base URL used to build links.
+ * @param path - Path value to append or normalize.
+ * @returns Example request URL.
+ */
+const buildDocumentationRequestUrl = (baseUrl: string, path: string) => {
   return `${baseUrl.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
-}
+};
 
-function escapeTableCell(value: string) {
+/**
+ * Escapes Markdown table cell content.
+ *
+ * @param value - Value to inspect or format.
+ * @returns Escaped table cell string.
+ */
+const escapeTableCell = (value: string) => {
   return value.replaceAll("|", "\\|").replaceAll("\n", "<br>");
-}
+};
 
-function normalizeMarkdown(parts: Array<string | undefined | null | false>) {
+/**
+ * Joins Markdown sections while removing empty parts.
+ *
+ * @param parts - Markdown parts to join.
+ * @returns Normalized Markdown document.
+ */
+const normalizeMarkdown = (parts: Array<string | undefined | null | false>) => {
   return `${parts
     .map((part) => (typeof part === "string" ? part.trim() : ""))
     .filter(Boolean)
     .join("\n\n")}\n`;
-}
+};
 
-function normalizeWhitespace(value: string) {
-  return value.replace(/\r\n?/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
-}
+/**
+ * Normalizes whitespace in text extracted from rich-text content.
+ *
+ * @param value - Value to inspect or format.
+ * @returns Whitespace-normalized text.
+ */
+const normalizeWhitespace = (value: string) => {
+  return value
+    .replace(/\r\n?/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+};
 
-function stripHtml(value: string) {
+/**
+ * Removes HTML tags from serialized content.
+ *
+ * @param value - Value to inspect or format.
+ * @returns Plain text with HTML removed.
+ */
+const stripHtml = (value: string) => {
   return value
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/(p|div|li|h[1-6])>/gi, "\n")
@@ -254,7 +357,7 @@ function stripHtml(value: string) {
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'");
-}
+};
 
 type TipTapNode = {
   type?: string;
@@ -264,7 +367,13 @@ type TipTapNode = {
   content?: TipTapNode[];
 };
 
-function tiptapNodeToMarkdown(node: TipTapNode): string {
+/**
+ * Converts a TipTap JSON node into Markdown.
+ *
+ * @param node - TipTap node to convert.
+ * @returns Markdown text for the node.
+ */
+const tiptapNodeToMarkdown = (node: TipTapNode): string => {
   const children = (node.content ?? []).map(tiptapNodeToMarkdown).join("");
 
   switch (node.type) {
@@ -287,7 +396,10 @@ function tiptapNodeToMarkdown(node: TipTapNode): string {
         .join("\n");
     case "orderedList":
       return (node.content ?? [])
-        .map((child, index) => `${index + 1}. ${tiptapNodeToMarkdown(child).trim()}`)
+        .map(
+          (child, index) =>
+            `${index + 1}. ${tiptapNodeToMarkdown(child).trim()}`,
+        )
         .join("\n");
     case "listItem":
       return children.trim();
@@ -320,12 +432,19 @@ function tiptapNodeToMarkdown(node: TipTapNode): string {
     default:
       return children;
   }
-}
+};
 
-function applyMarks(
+/**
+ * Applies TipTap text marks to Markdown text.
+ *
+ * @param text - Text content to transform.
+ * @param marks - TipTap marks to apply.
+ * @returns Markdown text with marks applied.
+ */
+const applyMarks = (
   text: string,
   marks: Array<{ type?: string; attrs?: Record<string, unknown> }>,
-) {
+) => {
   return marks.reduce((value, mark) => {
     if (mark.type === "bold") return `**${value}**`;
     if (mark.type === "italic") return `_${value}_`;
@@ -337,4 +456,4 @@ function applyMarks(
     }
     return value;
   }, text);
-}
+};

@@ -9,11 +9,19 @@ import {
 } from "./public-docs";
 import { extractProjectSlugFromRequest } from "./public-docs-domain";
 
-export async function loadPublicRetrievalRequest(request: Request): Promise<{
+/**
+ * Loads public retrieval data and URL templates for a retrieval API request.
+ *
+ * @param request - Incoming request to inspect.
+ * @returns Result produced by the function.
+ */
+export const loadPublicRetrievalRequest = async (
+  request: Request,
+): Promise<{
   data: DocumentationExportData;
   urls: AgentExportUrls;
   versionSlug?: string;
-}> {
+}> => {
   const url = new URL(request.url);
   const organizationSlug = url.searchParams.get("organizationSlug")?.trim();
   const projectSlug = url.searchParams.get("projectSlug")?.trim();
@@ -52,4 +60,4 @@ export async function loadPublicRetrievalRequest(request: Request): Promise<{
     ),
     urls: customDomainAgentExportUrls({ request, versionSlug }),
   };
-}
+};

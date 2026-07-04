@@ -17,7 +17,16 @@ type DocumentationEntry = DocumentationSource & {
 const MAX_SEARCH_RESULTS = 5;
 const MAX_PAGE_CHARS = 6_000;
 
-export function buildRetrievalSystemPrompt({
+/**
+ * Builds the system prompt used by the public documentation retrieval assistant.
+ *
+ * @param options - Function options.
+ * @param options.project - Project metadata used by the operation.
+ * @param [options.currentPageTitle] - Title of the page currently open in the public docs UI.
+ * @param [options.currentPagePath] - Path of the page currently open in the public docs UI.
+ * @returns Result produced by the function.
+ */
+export const buildRetrievalSystemPrompt = ({
   project,
   currentPageTitle,
   currentPagePath,
@@ -25,7 +34,7 @@ export function buildRetrievalSystemPrompt({
   project: AiProjectContextData["project"];
   currentPageTitle?: string;
   currentPagePath?: string;
-}) {
+}) => {
   return `You are the AI documentation assistant for ${project.title}.
 
 Project summary: ${project.description || "No project description provided."}
@@ -44,18 +53,30 @@ Rules:
 - Use the complete absolute URL exactly as returned by the page tool; never shorten it or use a relative path.
 - Do not add a separate Sources section because the interface also displays the referenced pages.
 - Never invent credentials, tokens, request IDs, or undocumented behavior.`;
-}
+};
 
-export function buildFinalAnswerPrompt(basePrompt: string) {
+/**
+ * Builds the final-answer prompt used after retrieval has loaded relevant documentation.
+ *
+ * @param basePrompt - Existing prompt text to extend.
+ * @returns Result produced by the function.
+ */
+export const buildFinalAnswerPrompt = (basePrompt: string) => {
   return `${basePrompt}
 
 Final response step:
 - Tools are no longer available.
 - Write the complete user-facing answer now using only the documentation already loaded.
 - Do not emit tool calls, XML, DSML, function syntax, or internal reasoning.`;
-}
+};
 
-export function sanitizeAiResponseText(value: string) {
+/**
+ * Removes accidental tool-call markup from public AI assistant responses.
+ *
+ * @param value - Input value to process.
+ * @returns Result produced by the function.
+ */
+export const sanitizeAiResponseText = (value: string) => {
   return value
     .split("\n")
     .filter(
@@ -66,9 +87,18 @@ export function sanitizeAiResponseText(value: string) {
     .join("\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
-}
+};
 
-export function searchDocumentation({
+/**
+ * Searches documentation context for the public AI assistant.
+ *
+ * @param options - Function options.
+ * @param options.data - Documentation or project data consumed by the operation.
+ * @param options.query - Search query text.
+ * @param options.publicDocsBasePath - Absolute public docs base path used to build source URLs.
+ * @returns Result produced by the function.
+ */
+export const searchDocumentation = ({
   data,
   query,
   publicDocsBasePath,
@@ -76,7 +106,7 @@ export function searchDocumentation({
   data: AiProjectContextData;
   query: string;
   publicDocsBasePath: string;
-}) {
+}) => {
   return documentationEntries(data, publicDocsBasePath)
     .map((entry) => ({
       entry,
@@ -96,9 +126,19 @@ export function searchDocumentation({
       description: entry.description,
       url: entry.url,
     }));
-}
+};
 
-export function getDocumentationPage({
+/**
+ * Loads one guide or reference page from AI project context.
+ *
+ * @param options - Function options.
+ * @param options.data - Documentation or project data consumed by the operation.
+ * @param options.type - Documentation page type to load.
+ * @param options.slug - Public slug used to find the resource.
+ * @param options.publicDocsBasePath - Absolute public docs base path used to build source URLs.
+ * @returns Result produced by the function.
+ */
+export const getDocumentationPage = ({
   data,
   type,
   slug,
@@ -108,7 +148,7 @@ export function getDocumentationPage({
   type: DocumentationSource["type"];
   slug: string;
   publicDocsBasePath: string;
-}) {
+}) => {
   if (type === "guide") {
     for (const section of data.guideSections) {
       const page = section.pages.find((candidate) => candidate.slug === slug);
@@ -171,9 +211,18 @@ export function getDocumentationPage({
   }
 
   return null;
-}
+};
 
-export function getCurrentDocumentationPage({
+/**
+ * Loads the documentation page that matches the current public route path.
+ *
+ * @param options - Function options.
+ * @param options.data - Documentation or project data consumed by the operation.
+ * @param [options.currentPagePath] - Path of the page currently open in the public docs UI.
+ * @param options.publicDocsBasePath - Absolute public docs base path used to build source URLs.
+ * @returns Result produced by the function.
+ */
+export const getCurrentDocumentationPage = ({
   data,
   currentPagePath,
   publicDocsBasePath,
@@ -181,7 +230,7 @@ export function getCurrentDocumentationPage({
   data: AiProjectContextData;
   currentPagePath?: string;
   publicDocsBasePath: string;
-}) {
+}) => {
   const match = currentPagePath?.match(/^\/(docs|guides|reference)\/([^/?#]+)/);
   if (!match) return null;
   return getDocumentationPage({
@@ -190,11 +239,17 @@ export function getCurrentDocumentationPage({
     slug: decodeURIComponent(match[2]),
     publicDocsBasePath,
   });
-}
+};
 
-export function getDocumentationSources(message: {
+/**
+ * Extracts cited documentation sources from an AI SDK message.
+ *
+ * @param message - AI message object that may contain source parts or tool outputs.
+ * @returns Result produced by the function.
+ */
+export const getDocumentationSources = (message: {
   parts?: Array<unknown>;
-}) {
+}) => {
   const sources = new Map<string, DocumentationSource>();
   for (const part of message.parts ?? []) {
     if (!part || typeof part !== "object") continue;
@@ -205,8 +260,7 @@ export function getDocumentationSources(message: {
       /^https?:\/\//.test(record.url)
     ) {
       sources.set(record.url, {
-        title:
-          typeof record.title === "string" ? record.title : record.url,
+        title: typeof record.title === "string" ? record.title : record.url,
         url: record.url,
         type: /\/(?:docs|guides)\//.test(new URL(record.url).pathname)
           ? "guide"
@@ -224,79 +278,109 @@ export function getDocumentationSources(message: {
     collectSources(record.output, sources);
   }
   return [...sources.values()];
-}
+};
 
-function documentationEntries(
+/**
+ * Builds searchable documentation entries from guide and reference data.
+ *
+ * @param data - Documentation export data to inspect.
+ * @param publicDocsBasePath - Value supplied to the helper.
+ * @returns Searchable documentation entries.
+ */
+const documentationEntries = (
   data: AiProjectContextData,
   publicDocsBasePath: string,
-) {
+) => {
   return [
     ...data.guideSections.flatMap((section) =>
-      section.pages.map((page): DocumentationEntry => ({
-        ...guideSource(page.title, page.slug, publicDocsBasePath),
-        slug: page.slug,
-        sectionTitle: section.title,
-        description: page.description,
-        searchableText: [
-          section.title,
-          page.title,
-          page.description,
-          page.markdown ?? "",
-          page.content ?? "",
-        ].join(" "),
-      })),
+      section.pages.map(
+        (page): DocumentationEntry => ({
+          ...guideSource(page.title, page.slug, publicDocsBasePath),
+          slug: page.slug,
+          sectionTitle: section.title,
+          description: page.description,
+          searchableText: [
+            section.title,
+            page.title,
+            page.description,
+            page.markdown ?? "",
+            page.content ?? "",
+          ].join(" "),
+        }),
+      ),
     ),
     ...data.apiSections.flatMap((section) =>
-      section.endpoints.map((endpoint): DocumentationEntry => ({
-        ...referenceSource(
-          endpoint.title,
-          endpoint.slug,
-          publicDocsBasePath,
-        ),
-        slug: endpoint.slug,
-        sectionTitle: section.title,
-        description: endpoint.body.description,
-        searchableText: [
-          section.title,
-          endpoint.title,
-          endpoint.body.method,
-          endpoint.body.path,
-          endpoint.body.description,
-          endpoint.markdown ?? "",
-          endpoint.content ?? "",
-          endpoint.body.parameters.map((field) => field.name).join(" "),
-          endpoint.body.requestBody.map((field) => field.name).join(" "),
-        ].join(" "),
-      })),
+      section.endpoints.map(
+        (endpoint): DocumentationEntry => ({
+          ...referenceSource(endpoint.title, endpoint.slug, publicDocsBasePath),
+          slug: endpoint.slug,
+          sectionTitle: section.title,
+          description: endpoint.body.description,
+          searchableText: [
+            section.title,
+            endpoint.title,
+            endpoint.body.method,
+            endpoint.body.path,
+            endpoint.body.description,
+            endpoint.markdown ?? "",
+            endpoint.content ?? "",
+            endpoint.body.parameters.map((field) => field.name).join(" "),
+            endpoint.body.requestBody.map((field) => field.name).join(" "),
+          ].join(" "),
+        }),
+      ),
     ),
   ];
-}
+};
 
-function guideSource(
+/**
+ * Builds source metadata for a guide page.
+ *
+ * @param title - Section or group title.
+ * @param slug - Slug value to insert.
+ * @param publicDocsBasePath - Value supplied to the helper.
+ * @returns Guide source metadata.
+ */
+const guideSource = (
   title: string,
   slug: string,
   publicDocsBasePath: string,
-): DocumentationSource {
+): DocumentationSource => {
   return {
     title,
     type: "guide",
     url: `${publicDocsBasePath}/docs/${slug}`,
   };
-}
+};
 
-function referenceSource(
+/**
+ * Builds source metadata for a reference page.
+ *
+ * @param title - Section or group title.
+ * @param slug - Slug value to insert.
+ * @param publicDocsBasePath - Value supplied to the helper.
+ * @returns Reference source metadata.
+ */
+const referenceSource = (
   title: string,
   slug: string,
   publicDocsBasePath: string,
-): DocumentationSource {
+): DocumentationSource => {
   return {
     title,
     type: "reference",
     url: `${publicDocsBasePath}/reference/${slug}`,
   };
-}
+};
 
-function flattenFields(
+/**
+ * Flattens nested fields into dot-delimited field paths.
+ *
+ * @param fields - Field definitions to inspect.
+ * @param [prefix=""] - Field path prefix used for nested fields.
+ * @returns Flattened field list.
+ */
+const flattenFields = (
   fields: AiProjectContextData["apiSections"][number]["endpoints"][number]["body"]["requestBody"],
   prefix = "",
 ): Array<{
@@ -304,7 +388,7 @@ function flattenFields(
   dataType: string;
   required: boolean;
   description: string;
-}> {
+}> => {
   return fields.flatMap((field) => {
     const name = prefix ? `${prefix}.${field.name}` : field.name;
     return [
@@ -317,9 +401,16 @@ function flattenFields(
       ...flattenFields(field.fields ?? [], name),
     ];
   });
-}
+};
 
-function scoreText(query: string, searchableText: string) {
+/**
+ * Scores text against a search query using deterministic token matching.
+ *
+ * @param query - Search query text.
+ * @param searchableText - Text to compare against the query.
+ * @returns Numeric relevance score.
+ */
+const scoreText = (query: string, searchableText: string) => {
   const normalizedQuery = query.trim().toLowerCase();
   if (!normalizedQuery) return 0;
   const haystack = searchableText.toLowerCase();
@@ -330,12 +421,19 @@ function scoreText(query: string, searchableText: string) {
     (score, term) => score + (haystack.includes(term) ? 1 : 0),
     haystack.includes(normalizedQuery) ? 10 : 0,
   );
-}
+};
 
-function collectSources(
+/**
+ * Collects documentation sources from nested AI tool output.
+ *
+ * @param value - Value to inspect or format.
+ * @param sources - Source map to append to.
+ * @returns Nothing is returned.
+ */
+const collectSources = (
   value: unknown,
   sources: Map<string, DocumentationSource>,
-) {
+) => {
   if (!value || typeof value !== "object") return;
   if (Array.isArray(value)) {
     value.forEach((item) => collectSources(item, sources));
@@ -359,13 +457,20 @@ function collectSources(
   for (const nested of Object.values(record)) {
     collectSources(nested, sources);
   }
-}
+};
 
-function truncate(value: string, maxLength: number) {
+/**
+ * Truncates long text to a bounded length.
+ *
+ * @param value - Value to inspect or format.
+ * @param maxLength - Maximum output length.
+ * @returns Original or truncated text.
+ */
+const truncate = (value: string, maxLength: number) => {
   const normalized = value
     .replace(/\r\n?/g, "\n")
     .replace(/\n{4,}/g, "\n\n\n")
     .trim();
   if (normalized.length <= maxLength) return normalized;
   return `${normalized.slice(0, maxLength - 24).trimEnd()}\n...[truncated]`;
-}
+};

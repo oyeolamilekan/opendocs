@@ -141,19 +141,32 @@ describe("inferRequestBodyFields", () => {
   });
 });
 
-function field(name: string, dataType: string) {
+/**
+ * Builds the expected inferred field shape used by request body inference tests.
+ *
+ * @param name - Expected field name.
+ * @param dataType - Expected inferred field data type.
+ * @returns Expected field assertion object.
+ */
+const field = (name: string, dataType: string) => {
   return {
     name,
     dataType,
     required: false,
     description: "",
   };
-}
+};
 
-function nestedObject(depth: number): Record<string, unknown> {
+/**
+ * Builds a nested object fixture for recursion-depth validation.
+ *
+ * @param depth - Number of nested object levels to generate.
+ * @returns Nested object fixture.
+ */
+const nestedObject = (depth: number): Record<string, unknown> => {
   let value: Record<string, unknown> = { leaf: "value" };
   for (let index = 0; index < depth; index += 1) {
     value = { [`level_${index}`]: value };
   }
   return value;
-}
+};

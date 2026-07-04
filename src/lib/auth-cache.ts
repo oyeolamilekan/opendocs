@@ -4,7 +4,12 @@ const PROFILE_BOOTSTRAP_TTL_MS = 5 * 60 * 1000;
 let profileBootstrapPromise: Promise<void> | null = null;
 let profileBootstrapExpiresAt = 0;
 
-function readStoredExpiry() {
+/**
+ * Reads the persisted auth profile cache expiry timestamp.
+ *
+ * @returns Stored expiry timestamp, or zero when unavailable.
+ */
+const readStoredExpiry = () => {
   if (typeof window === "undefined") return 0;
   try {
     const value = Number(
@@ -14,9 +19,15 @@ function readStoredExpiry() {
   } catch {
     return 0;
   }
-}
+};
 
-function storeExpiry(expiresAt: number) {
+/**
+ * Persists the auth profile cache expiry timestamp.
+ *
+ * @param expiresAt - Expiry timestamp to persist.
+ * @returns Nothing is returned.
+ */
+const storeExpiry = (expiresAt: number) => {
   if (typeof window === "undefined") return;
   try {
     window.sessionStorage.setItem(
@@ -26,12 +37,19 @@ function storeExpiry(expiresAt: number) {
   } catch {
     // In-memory caching still applies when browser storage is unavailable.
   }
-}
+};
 
-export function ensureProfileCached(
+/**
+ * Ensures the authenticated profile has been fetched recently before protected work continues.
+ *
+ * @param ensureProfile - Async callback that fetches or validates the current profile.
+ * @param [now=Date.now()] - Current timestamp in milliseconds, injectable for tests.
+ * @returns Promise that resolves after the profile is confirmed or cache freshness is extended.
+ */
+export const ensureProfileCached = (
   ensureProfile: () => Promise<unknown>,
   now = Date.now(),
-) {
+) => {
   const storedExpiry = readStoredExpiry();
   const expiresAt = Math.max(profileBootstrapExpiresAt, storedExpiry);
 
@@ -63,9 +81,14 @@ export function ensureProfileCached(
   );
 
   return promise;
-}
+};
 
-export function resetAuthCache() {
+/**
+ * Clears the authentication profile freshness cache.
+ *
+ * @returns Nothing is returned.
+ */
+export const resetAuthCache = () => {
   profileBootstrapPromise = null;
   profileBootstrapExpiresAt = 0;
   if (typeof window !== "undefined") {
@@ -75,4 +98,4 @@ export function resetAuthCache() {
       // Nothing else to clear when browser storage is unavailable.
     }
   }
-}
+};

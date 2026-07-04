@@ -18,9 +18,15 @@ type InferenceContext = {
   fieldCount: number;
 };
 
-export function inferRequestBodyFields(
+/**
+ * Infers request body field definitions from a JSON example.
+ *
+ * @param rawJson - Raw JSON object or array example entered by the user.
+ * @returns Inferred fields on success, or a validation error message on failure.
+ */
+export const inferRequestBodyFields = (
   rawJson: string,
-): RequestBodyInferenceResult {
+): RequestBodyInferenceResult => {
   if (!rawJson.trim()) {
     return { ok: false, error: "Paste a JSON object to import." };
   }
@@ -65,17 +71,27 @@ export function inferRequestBodyFields(
           : "The request body could not be converted.",
     };
   }
-}
+};
 
-function inferObjectFields(
+/**
+ * Infers request body fields from an object value.
+ *
+ * @param value - Value to inspect or format.
+ * @param context - Value supplied to the helper.
+ * @param objectDepth - Value supplied to the helper.
+ * @returns Inferred field list or validation error.
+ */
+const inferObjectFields = (
   value: Record<string, unknown>,
   context: InferenceContext,
   objectDepth: number,
-) {
+) => {
   return Object.entries(value).map(([name, fieldValue]) => {
     context.fieldCount += 1;
     if (context.fieldCount > MAX_FIELDS) {
-      throw new Error(`Request bodies may contain at most ${MAX_FIELDS} fields.`);
+      throw new Error(
+        `Request bodies may contain at most ${MAX_FIELDS} fields.`,
+      );
     }
 
     const inferred = inferValue(fieldValue, context, objectDepth);
@@ -87,16 +103,24 @@ function inferObjectFields(
       ...(inferred.fields ? { fields: inferred.fields } : {}),
     };
   });
-}
+};
 
-function inferValue(
+/**
+ * Infers a request body field from an unknown JSON value.
+ *
+ * @param value - Value to inspect or format.
+ * @param context - Value supplied to the helper.
+ * @param objectDepth - Value supplied to the helper.
+ * @returns Inferred field definition or validation error.
+ */
+const inferValue = (
   value: unknown,
   context: InferenceContext,
   objectDepth: number,
 ): {
   dataType: string;
   fields?: InferredRequestBodyField[];
-} {
+} => {
   if (value === null) return { dataType: "unknown" };
   if (typeof value === "string") return { dataType: "string" };
   if (typeof value === "boolean") return { dataType: "boolean" };
@@ -123,9 +147,15 @@ function inferValue(
   }
 
   return { dataType: "unknown" };
-}
+};
 
-function inferArrayType(values: unknown[]) {
+/**
+ * Infers the item type description for an array value.
+ *
+ * @param values - Array values to inspect.
+ * @returns Array item type description.
+ */
+const inferArrayType = (values: unknown[]) => {
   if (values.length === 0) return "array";
 
   const itemTypes = values.map(scalarArrayItemType);
@@ -144,17 +174,29 @@ function inferArrayType(values: unknown[]) {
   }
 
   return "array";
-}
+};
 
-function scalarArrayItemType(value: unknown) {
+/**
+ * Infers a scalar array item type from a value.
+ *
+ * @param value - Value to inspect or format.
+ * @returns Scalar type name, or undefined for non-scalar values.
+ */
+const scalarArrayItemType = (value: unknown) => {
   if (typeof value === "string") return "string";
   if (typeof value === "boolean") return "boolean";
   if (typeof value === "number" && Number.isFinite(value)) {
     return Number.isInteger(value) ? "integer" : "number";
   }
   return null;
-}
+};
 
-function isRecord(value: unknown): value is Record<string, unknown> {
+/**
+ * Checks whether an unknown value is a plain object record.
+ *
+ * @param value - Value to inspect or format.
+ * @returns True when the value is a non-array object record.
+ */
+const isRecord = (value: unknown): value is Record<string, unknown> => {
   return value !== null && typeof value === "object" && !Array.isArray(value);
-}
+};

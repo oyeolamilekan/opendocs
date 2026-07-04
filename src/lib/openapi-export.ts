@@ -31,13 +31,21 @@ export type JsonSchema = {
   additionalProperties?: boolean;
 };
 
-export function generateOpenApiDocument({
+/**
+ * Generates an OpenAPI document for a public documentation project.
+ *
+ * @param options - Function options.
+ * @param options.project - Project metadata used by the operation.
+ * @param options.sections - Published API reference sections to include.
+ * @returns Result produced by the function.
+ */
+export const generateOpenApiDocument = ({
   project,
   sections,
 }: {
   project: OpenApiExportProject;
   sections: OpenApiExportSection[];
-}) {
+}) => {
   const endpointSections = sections
     .map((section) => ({
       ...section,
@@ -65,9 +73,15 @@ export function generateOpenApiDocument({
   }
 
   return document;
-}
+};
 
-function paths(sections: OpenApiExportSection[]) {
+/**
+ * Builds the OpenAPI paths map from documented sections.
+ *
+ * @param sections - API sections to inspect.
+ * @returns OpenAPI paths object.
+ */
+const paths = (sections: OpenApiExportSection[]) => {
   const result: Record<string, Record<string, unknown>> = {};
 
   for (const section of sections) {
@@ -88,9 +102,15 @@ function paths(sections: OpenApiExportSection[]) {
   }
 
   return result;
-}
+};
 
-function collectSecuritySchemes(sections: OpenApiExportSection[]) {
+/**
+ * Collects OpenAPI security scheme definitions from endpoints.
+ *
+ * @param sections - API sections to inspect.
+ * @returns OpenAPI security schemes object.
+ */
+const collectSecuritySchemes = (sections: OpenApiExportSection[]) => {
   const schemes: Record<string, Record<string, string>> = {};
 
   for (const endpoint of sections.flatMap((section) => section.endpoints)) {
@@ -112,16 +132,28 @@ function collectSecuritySchemes(sections: OpenApiExportSection[]) {
   }
 
   return schemes;
-}
+};
 
-function security(endpoint: ExportEndpoint) {
+/**
+ * Builds the OpenAPI security requirement for an endpoint.
+ *
+ * @param endpoint - Endpoint data used by the helper.
+ * @returns OpenAPI security requirement list.
+ */
+const security = (endpoint: ExportEndpoint) => {
   if (endpoint.body.authHeader.type === "bearer") return [{ BearerAuth: [] }];
   if (endpoint.body.authHeader.type === "basic") return [{ BasicAuth: [] }];
   if (endpoint.body.authHeader.type === "apiKey") return [{ ApiKeyAuth: [] }];
   return undefined;
-}
+};
 
-function openApiParameter(parameter: ExportField) {
+/**
+ * Converts a documented field into an OpenAPI parameter object.
+ *
+ * @param parameter - Parameter field to convert.
+ * @returns OpenAPI parameter object.
+ */
+const openApiParameter = (parameter: ExportField) => {
   return {
     name: parameter.name,
     in: openApiParameterLocation(parameter.location),
@@ -129,16 +161,28 @@ function openApiParameter(parameter: ExportField) {
     description: parameter.description || undefined,
     schema: schemaFromDataType(parameter.dataType),
   };
-}
+};
 
-function openApiParameterLocation(location?: string) {
+/**
+ * Maps a documented parameter location to an OpenAPI location.
+ *
+ * @param [location] - Parameter location for the fixture.
+ * @returns OpenAPI parameter location.
+ */
+const openApiParameterLocation = (location?: string) => {
   if (location === "path" || location === "query" || location === "header") {
     return location;
   }
   return "query";
-}
+};
 
-function requestBody(fields: ExportField[]) {
+/**
+ * Builds an OpenAPI request body object from documented fields.
+ *
+ * @param fields - Field definitions to inspect.
+ * @returns OpenAPI request body object, or undefined when no fields exist.
+ */
+const requestBody = (fields: ExportField[]) => {
   if (!fields.length) return undefined;
 
   return {
@@ -149,9 +193,15 @@ function requestBody(fields: ExportField[]) {
       },
     },
   };
-}
+};
 
-function responses(endpoint: ExportEndpoint) {
+/**
+ * Builds OpenAPI response objects from documented endpoint samples.
+ *
+ * @param endpoint - Endpoint data used by the helper.
+ * @returns OpenAPI responses object.
+ */
+const responses = (endpoint: ExportEndpoint) => {
   if (!endpoint.body.sampleResponses.length) {
     return {
       "200": {
@@ -175,17 +225,29 @@ function responses(endpoint: ExportEndpoint) {
       },
     ]),
   );
-}
+};
 
-export function parseResponseExample(value: string) {
+/**
+ * Parses a response example body for OpenAPI output.
+ *
+ * @param value - Input value to process.
+ * @returns Result produced by the function.
+ */
+export const parseResponseExample = (value: string) => {
   try {
     return JSON.parse(value);
   } catch {
     return value;
   }
-}
+};
 
-export function objectSchema(fields: ExportField[]): JsonSchema {
+/**
+ * Converts exported fields into a JSON object schema.
+ *
+ * @param fields - Field definitions to convert.
+ * @returns Result produced by the function.
+ */
+export const objectSchema = (fields: ExportField[]): JsonSchema => {
   const required = fields
     .filter((field) => field.required)
     .map((field) => field.name);
@@ -204,20 +266,34 @@ export function objectSchema(fields: ExportField[]): JsonSchema {
     required: required.length ? required : undefined,
     additionalProperties: false,
   };
-}
+};
 
-export function schemaFromField(field: ExportField): JsonSchema {
+/**
+ * Converts a single exported field into a JSON schema node.
+ *
+ * @param field - Field definition to convert.
+ * @returns Result produced by the function.
+ */
+export const schemaFromField = (field: ExportField): JsonSchema => {
   if (field.fields?.length) return objectSchema(field.fields);
   return schemaFromDataType(field.dataType);
-}
+};
 
-export function schemaFromDataType(dataType: string): JsonSchema {
+/**
+ * Maps a documented scalar data type to JSON schema.
+ *
+ * @param dataType - Documented data type label.
+ * @returns Result produced by the function.
+ */
+export const schemaFromDataType = (dataType: string): JsonSchema => {
   const normalized = dataType.trim().toLowerCase();
 
   if (normalized.includes("array")) {
     return {
       type: "array",
-      items: schemaFromDataType(normalized.replace(/array|[\[\]<>]/g, "") || "string"),
+      items: schemaFromDataType(
+        normalized.replace(/array|[\[\]<>]/g, "") || "string",
+      ),
     };
   }
   if (normalized.includes("int")) return { type: "integer" };
@@ -233,12 +309,18 @@ export function schemaFromDataType(dataType: string): JsonSchema {
   if (normalized.includes("uuid")) return { type: "string", format: "uuid" };
 
   return { type: "string" };
-}
+};
 
-export function operationId(endpoint: ExportEndpoint) {
+/**
+ * Builds a stable OpenAPI operationId for a documented endpoint.
+ *
+ * @param endpoint - Endpoint data used by the operation.
+ * @returns Result produced by the function.
+ */
+export const operationId = (endpoint: ExportEndpoint) => {
   return endpoint.slug
     .replace(/[^a-zA-Z0-9]+(.)/g, (_, character: string) =>
       character.toUpperCase(),
     )
     .replace(/^[^a-zA-Z]+/, "");
-}
+};

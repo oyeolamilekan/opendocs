@@ -7,10 +7,14 @@ import {
   type EndpointParameter,
 } from "./endpoint-path";
 
-const parameter = (
-  name: string,
-  location = "path",
-): EndpointParameter => ({
+/**
+ * Builds an endpoint parameter fixture for tests.
+ *
+ * @param name - Name value for the fixture.
+ * @param [location="path"] - Parameter location for the fixture.
+ * @returns Endpoint parameter fixture.
+ */
+const parameter = (name: string, location = "path"): EndpointParameter => ({
   name,
   location,
   required: location === "path",
@@ -48,11 +52,7 @@ describe("endpoint path helpers", () => {
 
   it("preserves metadata when a placeholder is renamed", () => {
     expect(
-      syncPathParameters(
-        "/users/{id}",
-        "/users/{userId}",
-        [parameter("id")],
-      ),
+      syncPathParameters("/users/{id}", "/users/{userId}", [parameter("id")]),
     ).toEqual([
       {
         ...parameter("id"),
@@ -64,12 +64,10 @@ describe("endpoint path helpers", () => {
 
   it("keeps unmatched path parameters and leaves other parameters untouched", () => {
     expect(
-      syncPathParameters(
-        "/users/{id}",
-        "/users",
-        [parameter("id"), parameter("page", "query")],
-      ),
+      syncPathParameters("/users/{id}", "/users", [
+        parameter("id"),
+        parameter("page", "query"),
+      ]),
     ).toEqual([parameter("id"), parameter("page", "query")]);
   });
 });
-

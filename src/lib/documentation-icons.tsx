@@ -153,20 +153,41 @@ export const DOCUMENTATION_ICON_NAMES = Object.keys(
   DOCUMENTATION_ICONS,
 ) as DocumentationIconName[];
 
-export function isDocumentationIconName(
+/**
+ * Checks whether a value is a registered documentation icon name.
+ *
+ * @param value - Input value to process.
+ * @returns True when the value is a known documentation icon name.
+ */
+export const isDocumentationIconName = (
   value: string | undefined | null,
-): value is DocumentationIconName {
+): value is DocumentationIconName => {
   return Boolean(value && value in DOCUMENTATION_ICONS);
-}
+};
 
-export function normalizeDocumentationIconName(
+/**
+ * Normalizes a stored icon name to a supported documentation icon name.
+ *
+ * @param value - Input value to process.
+ * @returns Valid icon name when supported, otherwise undefined.
+ */
+export const normalizeDocumentationIconName = (
   value: string | undefined | null,
-): DocumentationIconName | undefined {
+): DocumentationIconName | undefined => {
   if (!value) return undefined;
   return isDocumentationIconName(value) ? value : undefined;
-}
+};
 
-export function DocumentationIcon({
+/**
+ * Renders a documentation icon with an optional fallback Lucide icon.
+ *
+ * @param options - Function options.
+ * @param [options.iconName] - Registered documentation icon name to render.
+ * @param [options.fallback] - Fallback value used when the preferred value is unavailable.
+ * @param [options.className] - Optional CSS class string applied to the rendered element.
+ * @returns Rendered Lucide icon element.
+ */
+export const DocumentationIcon = ({
   iconName,
   fallback,
   className,
@@ -174,9 +195,9 @@ export function DocumentationIcon({
   iconName?: string | null;
   fallback?: LucideIcon;
   className?: string;
-}) {
+}) => {
   const resolved = normalizeDocumentationIconName(iconName);
   const Icon = resolved ? DOCUMENTATION_ICONS[resolved] : fallback;
   if (!Icon) return null;
   return <Icon className={className} />;
-}
+};

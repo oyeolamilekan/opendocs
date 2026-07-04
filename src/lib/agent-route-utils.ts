@@ -1,6 +1,13 @@
 import type { AgentExportUrls } from "./agent-export";
 
-export function jsonResponse(value: unknown, status = 200) {
+/**
+ * Creates a JSON HTTP response with consistent headers.
+ *
+ * @param value - Input value to process.
+ * @param [status=200] - HTTP status code for the response.
+ * @returns Fetch API response containing the JSON encoded value.
+ */
+export const jsonResponse = (value: unknown, status = 200) => {
   return new Response(JSON.stringify(value, null, 2), {
     status,
     headers: {
@@ -8,15 +15,23 @@ export function jsonResponse(value: unknown, status = 200) {
       "content-type": "application/json; charset=utf-8",
     },
   });
-}
+};
 
-export function customDomainAgentExportUrls({
+/**
+ * Builds agent export URLs for a custom-domain documentation request.
+ *
+ * @param options - Function options.
+ * @param options.request - Incoming request to inspect.
+ * @param [options.versionSlug] - Optional documentation version slug.
+ * @returns Result produced by the function.
+ */
+export const customDomainAgentExportUrls = ({
   request,
   versionSlug,
 }: {
   request: Request;
   versionSlug?: string;
-}): AgentExportUrls {
+}): AgentExportUrls => {
   const origin = new URL(request.url).origin;
   const encodedVersion = versionSlug
     ? encodeURIComponent(versionSlug)
@@ -44,9 +59,18 @@ export function customDomainAgentExportUrls({
       versionSlug,
     }),
   };
-}
+};
 
-export function hostedAgentExportUrls({
+/**
+ * Builds agent export URLs for a hosted organization and project documentation request.
+ *
+ * @param options - Function options.
+ * @param options.request - Incoming request to inspect.
+ * @param options.organizationSlug - Public organization slug.
+ * @param options.projectSlug - Public project slug.
+ * @returns Result produced by the function.
+ */
+export const hostedAgentExportUrls = ({
   request,
   organizationSlug,
   projectSlug,
@@ -54,7 +78,7 @@ export function hostedAgentExportUrls({
   request: Request;
   organizationSlug: string;
   projectSlug: string;
-}): AgentExportUrls {
+}): AgentExportUrls => {
   const origin = new URL(request.url).origin;
   const base = `${origin}/docs/${encodeURIComponent(
     organizationSlug,
@@ -81,9 +105,19 @@ export function hostedAgentExportUrls({
       projectSlug,
     }),
   };
-}
+};
 
-function retrievalApiUrls({
+/**
+ * Builds public retrieval API URLs for an export URL set.
+ *
+ * @param options - Function options.
+ * @param options.origin - Option value used by the helper.
+ * @param options.organizationSlug - Option value used by the helper.
+ * @param options.projectSlug - Option value used by the helper.
+ * @param options.versionSlug - Optional version slug to match.
+ * @returns Retrieval API URL template object.
+ */
+const retrievalApiUrls = ({
   origin,
   organizationSlug,
   projectSlug,
@@ -93,7 +127,7 @@ function retrievalApiUrls({
   organizationSlug?: string;
   projectSlug?: string;
   versionSlug?: string;
-}) {
+}) => {
   const params = new URLSearchParams();
   if (organizationSlug) params.set("organizationSlug", organizationSlug);
   if (projectSlug) params.set("projectSlug", projectSlug);
@@ -109,4 +143,4 @@ function retrievalApiUrls({
     endpoint: `${base}/endpoint?slug={slug}${joiner}`,
     navigation: `${base}/navigation${query}`,
   };
-}
+};

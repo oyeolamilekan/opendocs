@@ -87,7 +87,9 @@ describe("documentation export formatters", () => {
     expect(markdown).toContain("POST /v1/users/{id}");
     expect(markdown).toContain("## Authentication");
     expect(markdown).toContain("Authorization: Bearer YOUR_TOKEN");
-    expect(markdown).toContain("| profile.name | string | Yes | Display name. |");
+    expect(markdown).toContain(
+      "| profile.name | string | Yes | Display name. |",
+    );
     expect(markdown).toContain("```bash\ncurl --request POST");
   });
 
@@ -159,9 +161,7 @@ describe("documentation export formatters", () => {
     expect(llms).toContain(
       "https://acme-docs.docs.example.com/reference/create-user.md",
     );
-    expect(llms).toContain(
-      "https://acme-docs.docs.example.com/openapi.json",
-    );
+    expect(llms).toContain("https://acme-docs.docs.example.com/openapi.json");
   });
 
   it("generates an OpenAPI document from endpoint metadata", () => {

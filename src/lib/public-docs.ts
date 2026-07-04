@@ -5,18 +5,31 @@ import { joinEndpointUrl } from "./endpoint-path";
 
 let publicClient: ConvexHttpClient | null = null;
 
-export function getPublicClient() {
+/**
+ * Returns the shared Convex HTTP client used by public server routes.
+ *
+ * @returns Shared Convex HTTP client configured from VITE_CONVEX_URL.
+ */
+export const getPublicClient = () => {
   const convexUrl = import.meta.env.VITE_CONVEX_URL;
   if (!convexUrl) throw new Error("VITE_CONVEX_URL is not configured");
   publicClient ??= new ConvexHttpClient(convexUrl);
   return publicClient;
-}
+};
 
-export function publicProjectQueries(
+/**
+ * Builds React Query descriptors for loading a public documentation project.
+ *
+ * @param organizationSlug - Public organization slug.
+ * @param projectSlug - Public project slug.
+ * @param [versionSlug] - Optional documentation version slug.
+ * @returns Result produced by the function.
+ */
+export const publicProjectQueries = (
   organizationSlug: string,
   projectSlug: string,
   versionSlug?: string,
-) {
+) => {
   const args = { organizationSlug, projectSlug, versionSlug };
   const projectArgs = { organizationSlug, projectSlug };
   return {
@@ -30,24 +43,45 @@ export function publicProjectQueries(
     aiSettings: convexQuery(api.ai.getPublicSettingsBySlug, projectArgs),
     versions: convexQuery(api.versions.publicList, projectArgs),
   };
-}
+};
 
-export function publicDomainProjectQuery(projectSlug: string) {
+/**
+ * Builds a query descriptor for resolving a public project by subdomain slug.
+ *
+ * @param projectSlug - Public project slug.
+ * @returns Result produced by the function.
+ */
+export const publicDomainProjectQuery = (projectSlug: string) => {
   return convexQuery(api.projects.getPublicByDomain, { projectSlug });
-}
+};
 
-export async function resolvePublicProjectByDomain(projectSlug: string) {
+/**
+ * Resolves a public documentation identity from a project subdomain slug.
+ *
+ * @param projectSlug - Public project slug.
+ * @returns Result produced by the function.
+ */
+export const resolvePublicProjectByDomain = async (projectSlug: string) => {
   return await getPublicClient().query(api.projects.getPublicByDomain, {
     projectSlug,
   });
-}
+};
 
-export function publicEndpointQueries(
+/**
+ * Builds query descriptors for a public endpoint page.
+ *
+ * @param organizationSlug - Public organization slug.
+ * @param projectSlug - Public project slug.
+ * @param endpointSlug - Public endpoint slug.
+ * @param [versionSlug] - Optional documentation version slug.
+ * @returns Result produced by the function.
+ */
+export const publicEndpointQueries = (
   organizationSlug: string,
   projectSlug: string,
   endpointSlug: string,
   versionSlug?: string,
-) {
+) => {
   return {
     ...publicProjectQueries(organizationSlug, projectSlug, versionSlug),
     endpoint: convexQuery(api.endpoints.getPublicBySlug, {
@@ -57,14 +91,23 @@ export function publicEndpointQueries(
       endpointSlug,
     }),
   };
-}
+};
 
-export function publicGuidePageQueries(
+/**
+ * Builds query descriptors for a public guide page.
+ *
+ * @param organizationSlug - Public organization slug.
+ * @param projectSlug - Public project slug.
+ * @param guideSlug - Public guide page slug.
+ * @param [versionSlug] - Optional documentation version slug.
+ * @returns Result produced by the function.
+ */
+export const publicGuidePageQueries = (
   organizationSlug: string,
   projectSlug: string,
   guideSlug: string,
   versionSlug?: string,
-) {
+) => {
   return {
     ...publicProjectQueries(organizationSlug, projectSlug, versionSlug),
     guidePage: convexQuery(api.guides.getPublicBySlug, {
@@ -74,13 +117,21 @@ export function publicGuidePageQueries(
       guideSlug,
     }),
   };
-}
+};
 
-export async function loadPublicProject(
+/**
+ * Loads a public project and its navigation data from Convex.
+ *
+ * @param organizationSlug - Public organization slug.
+ * @param projectSlug - Public project slug.
+ * @param [versionSlug] - Optional documentation version slug.
+ * @returns Result produced by the function.
+ */
+export const loadPublicProject = async (
   organizationSlug: string,
   projectSlug: string,
   versionSlug?: string,
-) {
+) => {
   const client = getPublicClient();
   const args = { organizationSlug, projectSlug, versionSlug };
   const projectArgs = { organizationSlug, projectSlug };
@@ -93,15 +144,31 @@ export async function loadPublicProject(
       client.query(api.ai.getPublicSettingsBySlug, projectArgs),
       client.query(api.versions.publicList, projectArgs),
     ]);
-  return { project, navigation, guides, customNavigation, aiSettings, versions };
-}
+  return {
+    project,
+    navigation,
+    guides,
+    customNavigation,
+    aiSettings,
+    versions,
+  };
+};
 
-export async function loadPublicEndpoint(
+/**
+ * Loads a public endpoint page and surrounding project data from Convex.
+ *
+ * @param organizationSlug - Public organization slug.
+ * @param projectSlug - Public project slug.
+ * @param endpointSlug - Public endpoint slug.
+ * @param [versionSlug] - Optional documentation version slug.
+ * @returns Result produced by the function.
+ */
+export const loadPublicEndpoint = async (
   organizationSlug: string,
   projectSlug: string,
   endpointSlug: string,
   versionSlug?: string,
-) {
+) => {
   const client = getPublicClient();
   const args = { organizationSlug, projectSlug, versionSlug };
   const projectArgs = { organizationSlug, projectSlug };
@@ -134,14 +201,23 @@ export async function loadPublicEndpoint(
     versions,
     endpoint,
   };
-}
+};
 
-export async function loadPublicGuidePage(
+/**
+ * Loads a public guide page and surrounding project data from Convex.
+ *
+ * @param organizationSlug - Public organization slug.
+ * @param projectSlug - Public project slug.
+ * @param guideSlug - Public guide page slug.
+ * @param [versionSlug] - Optional documentation version slug.
+ * @returns Result produced by the function.
+ */
+export const loadPublicGuidePage = async (
   organizationSlug: string,
   projectSlug: string,
   guideSlug: string,
   versionSlug?: string,
-) {
+) => {
   const client = getPublicClient();
   const args = { organizationSlug, projectSlug, versionSlug };
   const projectArgs = { organizationSlug, projectSlug };
@@ -171,13 +247,21 @@ export async function loadPublicGuidePage(
     versions,
     guidePage,
   };
-}
+};
 
-export async function loadPublicDocumentationExport(
+/**
+ * Loads the published documentation graph used by public export formats.
+ *
+ * @param organizationSlug - Public organization slug.
+ * @param projectSlug - Public project slug.
+ * @param [versionSlug] - Optional documentation version slug.
+ * @returns Result produced by the function.
+ */
+export const loadPublicDocumentationExport = async (
   organizationSlug: string,
   projectSlug: string,
   versionSlug?: string,
-) {
+) => {
   const client = getPublicClient();
   const args = { organizationSlug, projectSlug, versionSlug };
   const projectArgs = { organizationSlug, projectSlug };
@@ -221,14 +305,23 @@ export async function loadPublicDocumentationExport(
   ]);
 
   return { project, sections, guides: guideSections, versions };
-}
+};
 
-export function buildRequestUrl(
+/**
+ * Builds a concrete request URL from a base URL, path template, and parameter values.
+ *
+ * @param baseUrl - API base URL.
+ * @param path - Path or route value to normalize or append.
+ * @param parameters - Endpoint parameter definitions.
+ * @param values - Value supplied to the function.
+ * @returns Result produced by the function.
+ */
+export const buildRequestUrl = (
   baseUrl: string,
   path: string,
   parameters: Array<{ name: string; location: string }>,
   values: Record<string, string>,
-) {
+) => {
   let resolvedPath = path;
   for (const parameter of parameters) {
     if (parameter.location === "path" && values[parameter.name]) {
@@ -248,21 +341,41 @@ export function buildRequestUrl(
   }
   const query = searchParams.toString();
   return `${joinEndpointUrl(baseUrl, pathname)}${query ? `?${query}` : ""}`;
-}
+};
 
-function indentFollowingLines(value: string, spaces: number) {
+/**
+ * Indents all lines after the first line in generated code.
+ *
+ * @param value - Value to inspect or format.
+ * @param spaces - Value supplied to the helper.
+ * @returns Text with following lines indented.
+ */
+const indentFollowingLines = (value: string, spaces: number) => {
   const indentation = " ".repeat(spaces);
   return value
     .split("\n")
     .map((line, index) => (index === 0 ? line : `${indentation}${line}`))
     .join("\n");
-}
+};
 
-function shellQuote(value: string) {
+/**
+ * Quotes a string for safe use in shell examples.
+ *
+ * @param value - Value to inspect or format.
+ * @returns Shell-quoted string.
+ */
+const shellQuote = (value: string) => {
   return `'${value.replaceAll("'", "'\"'\"'")}'`;
-}
+};
 
-function formatPythonValue(value: unknown, depth = 0): string {
+/**
+ * Formats a JavaScript value as Python literal syntax.
+ *
+ * @param value - Value to inspect or format.
+ * @param [depth=0] - Current recursion depth.
+ * @returns Python literal string.
+ */
+const formatPythonValue = (value: unknown, depth = 0): string => {
   if (value === null) return "None";
   if (typeof value === "boolean") return value ? "True" : "False";
   if (typeof value === "number") return String(value);
@@ -275,8 +388,7 @@ function formatPythonValue(value: unknown, depth = 0): string {
     if (!value.length) return "[]";
     return `[\n${value
       .map(
-        (item) =>
-          `${childIndentation}${formatPythonValue(item, depth + 1)},`,
+        (item) => `${childIndentation}${formatPythonValue(item, depth + 1)},`,
       )
       .join("\n")}\n${indentation}]`;
   }
@@ -296,9 +408,16 @@ function formatPythonValue(value: unknown, depth = 0): string {
   }
 
   return "None";
-}
+};
 
-function formatRubyValue(value: unknown, depth = 0): string {
+/**
+ * Formats a JavaScript value as Ruby literal syntax.
+ *
+ * @param value - Value to inspect or format.
+ * @param [depth=0] - Current recursion depth.
+ * @returns Ruby literal string.
+ */
+const formatRubyValue = (value: unknown, depth = 0): string => {
   if (value === null) return "nil";
   if (typeof value === "boolean" || typeof value === "number") {
     return String(value);
@@ -311,9 +430,7 @@ function formatRubyValue(value: unknown, depth = 0): string {
   if (Array.isArray(value)) {
     if (!value.length) return "[]";
     return `[\n${value
-      .map(
-        (item) => `${childIndentation}${formatRubyValue(item, depth + 1)},`,
-      )
+      .map((item) => `${childIndentation}${formatRubyValue(item, depth + 1)},`)
       .join("\n")}\n${indentation}]`;
   }
 
@@ -332,9 +449,22 @@ function formatRubyValue(value: unknown, depth = 0): string {
   }
 
   return "nil";
-}
+};
 
-export function generateCodeExamples({
+/**
+ * Generates canonical request examples for a documented endpoint.
+ *
+ * @param options - Function options.
+ * @param options.method - HTTP method for the request.
+ * @param options.url - Fully resolved request URL.
+ * @param options.authType - Authentication strategy used by the endpoint.
+ * @param options.authKey - Header key for API key or bearer authentication.
+ * @param options.hasBody - Whether the request includes a JSON body.
+ * @param [options.bodyValues] - Example JSON body values.
+ * @param [options.credential] - Placeholder credential value used in generated examples.
+ * @returns Result produced by the function.
+ */
+export const generateCodeExamples = ({
   method,
   url,
   authType,
@@ -350,10 +480,9 @@ export function generateCodeExamples({
   hasBody: boolean;
   bodyValues?: Record<string, unknown>;
   credential?: string;
-}) {
+}) => {
   const headerKey =
-    authKey.trim() ||
-    (authType === "apiKey" ? "X-API-Key" : "Authorization");
+    authKey.trim() || (authType === "apiKey" ? "X-API-Key" : "Authorization");
   const credentialValue =
     credential ||
     (authType === "bearer"
@@ -407,21 +536,15 @@ export function generateCodeExamples({
     ...headers.map((header) => `  --header ${shellQuote(header)}`),
   ];
   if (hasBody) {
-    curlParts.push(
-      `  --data ${shellQuote(indentFollowingLines(jsonBody, 2))}`,
-    );
+    curlParts.push(`  --data ${shellQuote(indentFollowingLines(jsonBody, 2))}`);
   }
 
   const pythonArguments = [`    ${JSON.stringify(url)},`];
   if (headers.length) {
-    pythonArguments.push(
-      `    headers=${formatPythonValue(jsHeaders, 1)},`,
-    );
+    pythonArguments.push(`    headers=${formatPythonValue(jsHeaders, 1)},`);
   }
   if (hasBody) {
-    pythonArguments.push(
-      `    json=${formatPythonValue(requestBody, 1)},`,
-    );
+    pythonArguments.push(`    json=${formatPythonValue(requestBody, 1)},`);
   }
 
   const rubyRequestClass =
@@ -467,4 +590,4 @@ end
 
 puts response.body`,
   };
-}
+};

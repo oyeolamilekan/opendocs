@@ -1,4 +1,14 @@
-export function getErrorMessage(error: unknown, fallback = "Something went wrong") {
+/**
+ * Extracts a user-facing message from an unknown error value.
+ *
+ * @param error - Unknown error-like value caught from an operation.
+ * @param [fallback="Something went wrong"] - Fallback value used when the preferred value is unavailable.
+ * @returns Result produced by the function.
+ */
+export const getErrorMessage = (
+  error: unknown,
+  fallback = "Something went wrong",
+) => {
   if (error instanceof Error && error.message) {
     try {
       const parsed = JSON.parse(error.message) as {
@@ -26,4 +36,4 @@ export function getErrorMessage(error: unknown, fallback = "Something went wrong
   }
 
   return fallback;
-}
+};
