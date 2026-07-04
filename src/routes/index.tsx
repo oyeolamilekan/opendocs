@@ -245,7 +245,7 @@ function Home() {
               From blank project to published reference.
             </h2>
           </div>
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-12 grid gap-6 sm:grid-cols-2">
             <FeaturePreview
               image={projectDashboardImage}
               title="Projects"
@@ -343,12 +343,12 @@ function FeaturePreview({
         <img
           src={image}
           alt={`${title} screenshot`}
-          className="aspect-[5/3] w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.175,0.885,0.32,1.1)] group-hover:scale-[1.02]"
+          className="aspect-[16/10] w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.175,0.885,0.32,1.1)] group-hover:scale-[1.02]"
         />
       </div>
-      <div className="p-6">
-        <h3 className="text-base font-semibold tracking-[-0.01em]">{title}</h3>
-        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+      <div className="p-7">
+        <h3 className="text-lg font-semibold tracking-[-0.02em]">{title}</h3>
+        <p className="mt-2.5 text-sm leading-6 text-muted-foreground">
           {description}
         </p>
       </div>

@@ -19,13 +19,13 @@ API documentation without the operational clutter. Create, organize, import, and
 
 ## Screenshot Gallery
 
-Minialdoc has two main surfaces: a private workspace for writing and maintaining API documentation, and a public documentation experience for readers.
+Minialdoc has two main surfaces: a private workspace for writing and maintaining API documentation, and a public documentation experience for readers. The reference editor uses a Notion-style block editor.
 
-| Workspace                                                     | Workspace detail                                                     |
+| Reference editor                                              | API reference editor                                                 |
 | ------------------------------------------------------------- | -------------------------------------------------------------------- |
 | ![Minialdoc project dashboard](./src/images/screenshot-1.png) | ![Minialdoc endpoint editor overview](./src/images/screenshot-2.png) |
 
-| Workspace editor                                                | Navigation and metrics                                             |
+| Reference editor with Notion-style editor                       | Custom navigation links                                            |
 | --------------------------------------------------------------- | ------------------------------------------------------------------ |
 | ![Minialdoc rich content editor](./src/images/screenshot-3.png) | ![Minialdoc custom navigation page](./src/images/screenshot-4.png) |
 
@@ -33,7 +33,7 @@ Minialdoc has two main surfaces: a private workspace for writing and maintaining
 | --------------------------------------------------------------- | ------------------------------------------------------------------- |
 | ![Minialdoc API calls dashboard](./src/images/screenshot-5.png) | ![Minialdoc top endpoints dashboard](./src/images/screenshot-6.png) |
 
-| Public docs                                                                | Public reference with AI                                                           |
+| Manage versions                                                            | Public reference with AI                                                           |
 | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
 | ![Minialdoc documentation version settings](./src/images/screenshot-7.png) | ![Minialdoc public API reference with AI assistant](./src/images/screenshot-8.png) |
 
