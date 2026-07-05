@@ -9,8 +9,17 @@ import { Button } from "../../components/ui/button";
 import { Field, FieldGroup } from "../../components/ui/field";
 import { Input } from "../../components/ui/input";
 import { useToast } from "../../components/ui/toast";
+import { seoMeta } from "../../lib/seo";
 
 export const Route = createFileRoute("/auth/sign-in")({
+  head: () => ({
+    meta: seoMeta({
+      title: "Sign In",
+      description: "Sign in to your openapidoc workspace.",
+      path: "/auth/sign-in",
+      noindex: true,
+    }),
+  }),
   component: SignInRoute,
 });
 

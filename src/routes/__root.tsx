@@ -19,6 +19,7 @@ import {
   ThemeProvider,
   themeInitializationScript,
 } from '../components/theme-provider'
+import { seoAssetLinks } from '../lib/seo'
 
 import appCss from '../styles.css?url'
 
@@ -35,15 +36,14 @@ export const Route = createRootRouteWithContext<{
         name: 'viewport',
         content: 'width=device-width, initial-scale=1',
       },
-      {
-        title: 'openapidoc',
-      },
+      { name: 'theme-color', content: '#ffffff' },
     ],
     links: [
       {
         rel: 'stylesheet',
         href: appCss,
       },
+      ...seoAssetLinks(),
     ],
   }),
   component: RootComponent,

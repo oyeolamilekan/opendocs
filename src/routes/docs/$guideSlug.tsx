@@ -5,6 +5,7 @@ import {
   publicGuidePageQueries,
 } from "../../lib/public-docs";
 import { getPublicProjectSlugFromRequest } from "../../lib/public-docs-domain";
+import { publicDocsUrl, seoLinks, seoMeta } from "../../lib/seo";
 
 export const Route = createFileRoute("/docs/$guideSlug")({
   loader: async ({ params, context }) => {
@@ -54,30 +55,35 @@ export const Route = createFileRoute("/docs/$guideSlug")({
       throw notFound();
     }
   },
-  head: ({ loaderData }) => ({
-    meta: [
-      {
+  head: ({ loaderData }) => {
+    const canonicalUrl = loaderData
+      ? publicDocsUrl({
+          projectSlug: loaderData.project.project.slug,
+          path: `/docs/${loaderData.guidePage.slug}`,
+        })
+      : undefined;
+
+    return {
+      meta: seoMeta({
         title: loaderData
           ? `${loaderData.guidePage.title} · ${loaderData.project.project.title}`
           : "Documentation",
-      },
-      {
-        name: "description",
-        content:
+        description:
           loaderData?.guidePage.description ||
           loaderData?.project.project.description ||
           "Published documentation",
-      },
-    ],
-    links: loaderData?.project.project.faviconUrl
-      ? [
-          {
-            rel: "icon",
-            href: loaderData.project.project.faviconUrl,
-          },
-        ]
-      : undefined,
-  }),
+        url: canonicalUrl,
+        image: loaderData?.project.project.logoUrl,
+        type: "article",
+      }),
+      links: [
+        ...seoLinks({ url: canonicalUrl }),
+        ...(loaderData?.project.project.faviconUrl
+          ? [{ rel: "icon", href: loaderData.project.project.faviconUrl }]
+          : []),
+      ],
+    };
+  },
   component: PublicDocsGuidePageRoute,
 });
 

@@ -1,4 +1,5 @@
 import {
+  Link,
   createFileRoute,
   isRedirect,
   notFound,
@@ -27,6 +28,7 @@ import {
   publicProjectQueries,
 } from "../lib/public-docs";
 import { getPublicProjectSlugFromRequest } from "../lib/public-docs-domain";
+import { SITE_DESCRIPTION, seoLinks, seoMeta, siteUrl } from "../lib/seo";
 import projectDashboardImage from "../images/screenshot-1.png";
 import endpointEditorImage from "../images/screenshot-2.png";
 import richEditorImage from "../images/screenshot-3.png";
@@ -37,6 +39,14 @@ import versionSettingsImage from "../images/screenshot-7.png";
 import publicDocsImage from "../images/screenshot-8.png";
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: seoMeta({
+      title: "Open-source API docs for developers and AI agents",
+      description: SITE_DESCRIPTION,
+      path: "/",
+    }),
+    links: seoLinks({ url: siteUrl("/") }),
+  }),
   loader: async ({ context }) => {
     const domainSlug = await getPublicProjectSlugFromRequest();
     if (!domainSlug) return { publicProject: null };
@@ -98,9 +108,9 @@ const features = [
   },
   {
     icon: Bot,
-    title: "AI Assistant",
+    title: "AI-agent friendly",
     description:
-      "Bring your own keys for OpenAI, Anthropic, Google, and more to draft and refine documentation.",
+      "Publish llms.txt, OpenAPI, Markdown exports, and read-only MCP servers so agents can browse your docs safely.",
   },
   {
     icon: GitBranch,
@@ -137,6 +147,11 @@ const principles = [
     title: "Publish on Your Terms",
     description:
       "Share a project internally today, publish a public reference tomorrow. Visibility is a decision, not a migration.",
+  },
+  {
+    title: "Open Source, Fairly Priced",
+    description:
+      "Start from transparent source code and avoid enterprise documentation pricing for teams that just need great docs.",
   },
 ];
 
@@ -180,14 +195,14 @@ function Home() {
         <div className="mx-auto max-w-5xl text-center">
           <div className="mx-auto inline-flex items-center gap-2 rounded-full border bg-background/70 px-3.5 py-1.5 text-xs font-medium text-muted-foreground shadow-[var(--surface-raised-shadow)] backdrop-blur">
             <Sparkles className="size-3.5 text-blue-700 dark:text-blue-600" />
-            Built for teams that ship APIs
+            Open source documentation for humans and AI agents
           </div>
           <h1 className="mx-auto mt-9 max-w-4xl text-5xl font-semibold leading-[1.02] tracking-[-0.06em] text-foreground sm:text-7xl">
-            API documentation
+            Open-source API documentation
             <br className="hidden sm:block" />{" "}
-            <span className="text-muted-foreground">without the</span>{" "}
+            <span className="text-muted-foreground">developers and AI agents</span>{" "}
             <span className="relative whitespace-nowrap">
-              operational clutter
+              can use
               <span
                 aria-hidden
                 className="absolute inset-x-0 -bottom-1 h-3 bg-blue-700/10 dark:bg-blue-600/15 blur-md"
@@ -196,8 +211,9 @@ function Home() {
             <span className="text-muted-foreground">.</span>
           </h1>
           <p className="mx-auto mt-7 max-w-2xl text-lg leading-7 text-muted-foreground sm:text-xl sm:leading-8">
-            Create, organize, import, and publish clear API references from one
-            focused workspace.
+            Create, organize, import, and publish API references with OpenAPI,
+            Markdown, llms.txt, and read-only MCP support without enterprise
+            documentation pricing.
           </p>
         </div>
       </section>
@@ -299,7 +315,7 @@ function Home() {
             A documentation tool that respects your time.
           </h2>
         </div>
-        <div className="mt-12 grid gap-6 sm:gap-8 md:grid-cols-3">
+        <div className="mt-12 grid gap-6 sm:gap-8 md:grid-cols-4">
           {principles.map((principle) => (
             <div
               key={principle.title}
@@ -319,9 +335,15 @@ function Home() {
       <footer className="border-t bg-muted/30 px-5 py-10">
         <div className="app-container flex flex-col items-center justify-between gap-4 sm:flex-row">
           <Brand compact />
-          <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} openapidoc.
-          </p>
+          <nav className="flex items-center gap-4 text-xs text-muted-foreground">
+            <Link to="/license" className="hover:text-foreground">
+              MIT License
+            </Link>
+            <a href="/sitemap.xml" className="hover:text-foreground">
+              Sitemap
+            </a>
+            <span>&copy; 2026 openapidoc.</span>
+          </nav>
         </div>
       </footer>
     </main>

@@ -3,8 +3,21 @@ import { ArrowLeft } from "lucide-react";
 import { Brand } from "../components/brand";
 import { Card } from "../components/ui/card";
 import { ThemeToggle } from "../components/theme-toggle";
+import { seoLinks, seoMeta, siteUrl } from "../lib/seo";
 
 export const Route = createFileRoute("/license")({
+  head: () => {
+    const url = siteUrl("/license");
+    return {
+      meta: seoMeta({
+        title: "MIT License",
+        description:
+          "MIT License for openapidoc, an open-source API documentation platform for developers and AI agents.",
+        url,
+      }),
+      links: seoLinks({ url }),
+    };
+  },
   component: License,
 });
 

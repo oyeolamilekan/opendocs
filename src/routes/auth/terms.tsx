@@ -3,8 +3,17 @@ import { ArrowLeft } from "lucide-react";
 import { Brand } from "../../components/brand";
 import { Card } from "../../components/ui/card";
 import { ThemeToggle } from "../../components/theme-toggle";
+import { seoMeta } from "../../lib/seo";
 
 export const Route = createFileRoute("/auth/terms")({
+  head: () => ({
+    meta: seoMeta({
+      title: "Terms of Service",
+      description: "Terms of service for openapidoc.",
+      path: "/auth/terms",
+      noindex: true,
+    }),
+  }),
   component: Terms,
 });
 

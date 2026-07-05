@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ToolsDotjsonRouteImport } from './routes/tools[.]json'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as OpenapiDotjsonRouteImport } from './routes/openapi[.]json'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as McpRouteImport } from './routes/mcp'
@@ -80,6 +82,16 @@ import { Route as AppOrganizationSlugProjectsProjectSlugVersionsVersionSlugGuide
 const ToolsDotjsonRoute = ToolsDotjsonRouteImport.update({
   id: '/tools.json',
   path: '/tools.json',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OpenapiDotjsonRoute = OpenapiDotjsonRouteImport.update({
@@ -477,6 +489,8 @@ export interface FileRoutesByFullPath {
   '/mcp': typeof McpRoute
   '/onboarding': typeof OnboardingRoute
   '/openapi.json': typeof OpenapiDotjsonRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tools.json': typeof ToolsDotjsonRoute
   '/.well-known/mcp.json': typeof DotwellKnownMcpDotjsonRoute
   '/api/execute': typeof ApiExecuteRoute
@@ -546,6 +560,8 @@ export interface FileRoutesByTo {
   '/mcp': typeof McpRoute
   '/onboarding': typeof OnboardingRoute
   '/openapi.json': typeof OpenapiDotjsonRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tools.json': typeof ToolsDotjsonRoute
   '/.well-known/mcp.json': typeof DotwellKnownMcpDotjsonRoute
   '/api/execute': typeof ApiExecuteRoute
@@ -616,6 +632,8 @@ export interface FileRoutesById {
   '/mcp': typeof McpRoute
   '/onboarding': typeof OnboardingRoute
   '/openapi.json': typeof OpenapiDotjsonRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/tools.json': typeof ToolsDotjsonRoute
   '/.well-known/mcp.json': typeof DotwellKnownMcpDotjsonRoute
   '/api/execute': typeof ApiExecuteRoute
@@ -687,6 +705,8 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/onboarding'
     | '/openapi.json'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/tools.json'
     | '/.well-known/mcp.json'
     | '/api/execute'
@@ -756,6 +776,8 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/onboarding'
     | '/openapi.json'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/tools.json'
     | '/.well-known/mcp.json'
     | '/api/execute'
@@ -825,6 +847,8 @@ export interface FileRouteTypes {
     | '/mcp'
     | '/onboarding'
     | '/openapi.json'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/tools.json'
     | '/.well-known/mcp.json'
     | '/api/execute'
@@ -895,6 +919,8 @@ export interface RootRouteChildren {
   McpRoute: typeof McpRoute
   OnboardingRoute: typeof OnboardingRoute
   OpenapiDotjsonRoute: typeof OpenapiDotjsonRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ToolsDotjsonRoute: typeof ToolsDotjsonRoute
   DotwellKnownMcpDotjsonRoute: typeof DotwellKnownMcpDotjsonRoute
   ApiExecuteRoute: typeof ApiExecuteRoute
@@ -950,6 +976,20 @@ declare module '@tanstack/react-router' {
       path: '/tools.json'
       fullPath: '/tools.json'
       preLoaderRoute: typeof ToolsDotjsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/openapi.json': {
@@ -1477,6 +1517,8 @@ const rootRouteChildren: RootRouteChildren = {
   McpRoute: McpRoute,
   OnboardingRoute: OnboardingRoute,
   OpenapiDotjsonRoute: OpenapiDotjsonRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   ToolsDotjsonRoute: ToolsDotjsonRoute,
   DotwellKnownMcpDotjsonRoute: DotwellKnownMcpDotjsonRoute,
   ApiExecuteRoute: ApiExecuteRoute,

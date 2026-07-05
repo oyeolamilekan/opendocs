@@ -307,6 +307,61 @@ export const loadPublicDocumentationExport = async (
   return { project, sections, guides: guideSections, versions };
 };
 
+export const loadPublicDocumentationSitemap = async (
+  organizationSlug: string,
+  projectSlug: string,
+) => {
+  const client = getPublicClient();
+  const projectArgs = { organizationSlug, projectSlug };
+  const [project, versions] = await Promise.all([
+    client.query(api.projects.getPublic, projectArgs),
+    client.query(api.versions.publicList, projectArgs),
+  ]);
+  const versionTargets = [
+    { versionSlug: undefined, pathPrefix: "", priority: "0.8" },
+    ...versions
+      .filter((version) => !version.isDefault)
+      .map((version) => ({
+        versionSlug: version.slug,
+        pathPrefix: `/${version.slug}`,
+        priority: version.isDeprecated ? "0.4" : "0.7",
+      })),
+  ];
+  const entryGroups = await Promise.all(
+    versionTargets.map(async (target) => {
+      const args = { ...projectArgs, versionSlug: target.versionSlug };
+      const [navigation, guides] = await Promise.all([
+        client.query(api.sections.publicNavigation, args),
+        client.query(api.guides.publicNavigation, args),
+      ]);
+      return [
+        ...guides.flatMap((section) =>
+          section.pages.map((page) => ({
+            path: `${target.pathPrefix}/docs/${page.slug}`,
+            priority: target.priority,
+            changefreq: "weekly",
+          })),
+        ),
+        ...navigation.flatMap((section) =>
+          section.endpoints.map((endpoint) => ({
+            path: `${target.pathPrefix}/reference/${endpoint.slug}`,
+            priority: target.priority,
+            changefreq: "weekly",
+          })),
+        ),
+      ];
+    }),
+  );
+  const entries = entryGroups.flat();
+
+  return {
+    project,
+    entries: entries.length
+      ? entries
+      : [{ path: "/", priority: "0.5", changefreq: "weekly" }],
+  };
+};
+
 /**
  * Builds a concrete request URL from a base URL, path template, and parameter values.
  *

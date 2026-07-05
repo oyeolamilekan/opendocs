@@ -10,8 +10,17 @@ import { Checkbox } from "../../components/ui/checkbox";
 import { Field, FieldGroup } from "../../components/ui/field";
 import { Input } from "../../components/ui/input";
 import { useToast } from "../../components/ui/toast";
+import { seoMeta } from "../../lib/seo";
 
 export const Route = createFileRoute("/auth/sign-up")({
+  head: () => ({
+    meta: seoMeta({
+      title: "Create Account",
+      description: "Create an openapidoc workspace.",
+      path: "/auth/sign-up",
+      noindex: true,
+    }),
+  }),
   component: SignUpRoute,
 });
 
