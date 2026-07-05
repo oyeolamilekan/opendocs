@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "app-doc",
+      "name": "openapidoc",
       "dependencies": {
         "@ai-sdk/react": "^3.0.206",
         "@convex-dev/better-auth": "^0.12.2",

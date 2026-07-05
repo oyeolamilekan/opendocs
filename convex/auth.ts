@@ -67,7 +67,7 @@ export const authComponent = createClient<DataModel, typeof authSchema>(
 
 export const createAuthOptions = (ctx: GenericCtx<DataModel>) =>
   ({
-    appName: "Minialdoc",
+    appName: "openapidoc",
     baseURL: process.env.SITE_URL,
     secret: process.env.BETTER_AUTH_SECRET,
     trustedOrigins: getTrustedOrigins(),

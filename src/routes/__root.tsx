@@ -36,7 +36,7 @@ export const Route = createRootRouteWithContext<{
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'Minialdoc',
+        title: 'openapidoc',
       },
     ],
     links: [

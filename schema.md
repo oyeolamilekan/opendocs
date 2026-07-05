@@ -1,6 +1,6 @@
-# Minialdoc Schema Reference
+# openapidoc Schema Reference
 
-This document is the source of truth for Minialdoc's data model. It mirrors [`convex/schema.ts`](./convex/schema.ts) and [`convex/lib/validators.ts`](./convex/lib/validators.ts) and is grouped by domain: identity & teams, projects & versions, documentation content, AI, and analytics. Use it when you're adding a field, planning a migration, or writing a query.
+This document is the source of truth for openapidoc's data model. It mirrors [`convex/schema.ts`](./convex/schema.ts) and [`convex/lib/validators.ts`](./convex/lib/validators.ts) and is grouped by domain: identity & teams, projects & versions, documentation content, AI, and analytics. Use it when you're adding a field, planning a migration, or writing a query.
 
 ## Conventions
 
@@ -50,7 +50,7 @@ Indexes: `by_email` (`email`), `by_status` (`status`).
 
 ### `userProfiles`
 
-The Minialdoc-side profile. `authUserId` points at the Better Auth `user` document (managed by `@convex-dev/better-auth`). Created by the `auth:onAuthCreate` trigger in [`convex/auth.ts`](./convex/auth.ts).
+The openapidoc-side profile. `authUserId` points at the Better Auth `user` document (managed by `@convex-dev/better-auth`). Created by the `auth:onAuthCreate` trigger in [`convex/auth.ts`](./convex/auth.ts).
 
 | Field | Type | Notes |
 | --- | --- | --- |

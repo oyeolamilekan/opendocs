@@ -1,6 +1,6 @@
 {
-  "short_name": "Minialdoc",
-  "name": "Minialdoc",
+  "short_name": "openapidoc",
+  "name": "openapidoc",
   "icons": [
     {
       "src": "favicon.ico",

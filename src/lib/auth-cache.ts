@@ -1,4 +1,4 @@
-const PROFILE_BOOTSTRAP_CACHE_KEY = "minialdoc:profile-bootstrap";
+const PROFILE_BOOTSTRAP_CACHE_KEY = "openapidoc:profile-bootstrap";
 const PROFILE_BOOTSTRAP_TTL_MS = 5 * 60 * 1000;
 
 let profileBootstrapPromise: Promise<void> | null = null;

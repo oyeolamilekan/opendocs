@@ -1,5 +1,5 @@
 {
-  "name": "app-doc",
+  "name": "openapidoc",
   "private": true,
   "type": "module",
   "imports": {

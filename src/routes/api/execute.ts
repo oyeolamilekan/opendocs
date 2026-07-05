@@ -188,7 +188,7 @@ async function executeRequest({
   const headers: Record<string, string> = {
     accept: "application/json, text/plain;q=0.9, */*;q=0.8",
     host: url.host,
-    "user-agent": "Minialdoc-Endpoint-Tester/1.0",
+    "user-agent": "openapidoc-Endpoint-Tester/1.0",
   };
   if (payload) {
     headers["content-type"] = "application/json";

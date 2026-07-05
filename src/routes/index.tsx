@@ -206,7 +206,7 @@ function Home() {
         <div className="overflow-hidden rounded-2xl border bg-[#090909] p-2 shadow-[var(--surface-raised-shadow)] sm:rounded-3xl sm:p-3">
           <img
             src={endpointEditorImage}
-            alt="Minialdoc project and endpoint editor"
+            alt="openapidoc project and endpoint editor"
             className="w-full rounded-xl bg-[#090909] sm:rounded-2xl"
           />
         </div>
@@ -320,7 +320,7 @@ function Home() {
         <div className="app-container flex flex-col items-center justify-between gap-4 sm:flex-row">
           <Brand compact />
           <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} Minialdoc.
+            &copy; {new Date().getFullYear()} openapidoc.
           </p>
         </div>
       </footer>

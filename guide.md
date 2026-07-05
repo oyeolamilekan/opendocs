@@ -1,10 +1,10 @@
-# Minialdoc Product Guide
+# openapidoc Product Guide
 
-This guide walks through how Minialdoc works end to end — from signing in to publishing a live API reference. Read this alongside the [README](./README.md) for setup instructions.
+This guide walks through how openapidoc works end to end — from signing in to publishing a live API reference. Read this alongside the [README](./README.md) for setup instructions.
 
-## 1. How Minialdoc is organized
+## 1. How openapidoc is organized
 
-Minialdoc models documentation in four nested layers:
+openapidoc models documentation in four nested layers:
 
 ```
 Organization
@@ -109,7 +109,7 @@ Each endpoint captures everything a reader needs to call it:
 
 ### Importing from OpenAPI
 
-From a project, choose **Import OpenAPI** and upload a JSON or YAML file (OpenAPI 3.0 or 3.1, up to 1 MB). Minialdoc parses:
+From a project, choose **Import OpenAPI** and upload a JSON or YAML file (OpenAPI 3.0 or 3.1, up to 1 MB). openapidoc parses:
 
 - `tags` → sections
 - `paths` → endpoints (one per method), grouped by their tag
@@ -200,7 +200,7 @@ From the organization settings page (`/app/<org>/settings`), an owner or admin i
 
 ## 11. Analytics
 
-Each project has a `/app/<org>/projects/<project>/metrics` page backed by `convex/analytics.ts`. Minialdoc records two event types:
+Each project has a `/app/<org>/projects/<project>/metrics` page backed by `convex/analytics.ts`. openapidoc records two event types:
 
 - `api_call` — captured for proxy/try-it-out traffic through the documented API. Buckets by method, status class (2xx / 3xx / 4xx / 5xx / failed), and endpoint.
 - `page_view` — captured for visits to guide and reference pages. Buckets by page and page type.
@@ -252,4 +252,4 @@ To unpublish, flip visibility back to `private`. Nothing is deleted; the public 
 - [`DESIGN.md`](./DESIGN.md) — the Geist design system tokens used across the app.
 - [`convex/schema.ts`](./convex/schema.ts) — the source of truth for the data model in this guide.
 - [`convex/lib/validators.ts`](./convex/lib/validators.ts) — every documented enum (roles, visibility, fonts, AI providers, etc.).
-- [`src/routes/`](./src/routes/) — every screen Minialdoc ships.
+- [`src/routes/`](./src/routes/) — every screen openapidoc ships.

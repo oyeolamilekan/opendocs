@@ -88,7 +88,7 @@ function SignIn() {
         </FieldGroup>
       </form>
       <p className="mt-6 text-center text-sm text-muted-foreground">
-        New to Minialdoc?{" "}
+        New to openapidoc?{" "}
         <Link
           to="/auth/sign-up"
           className="font-semibold text-foreground underline underline-offset-4"

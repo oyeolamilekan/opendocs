@@ -85,7 +85,7 @@ export const generateAgentManifest = ({
 
   return {
     schemaVersion: AGENT_SCHEMA_VERSION,
-    name: "Minialdoc Agent Manifest",
+    name: "openapidoc Agent Manifest",
     project: projectMetadata(data.project),
     version: currentVersion ? versionMetadata(currentVersion) : null,
     defaultVersion: defaultVersion ? versionMetadata(defaultVersion) : null,

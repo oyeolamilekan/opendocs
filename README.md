@@ -1,8 +1,8 @@
-# Minialdoc
+# openapidoc
 
 API documentation without the operational clutter. Create, organize, import, and publish clear API references from one focused workspace. Built with TanStack Start, Convex, Better Auth, and the Geist design system.
 
-![Minialdoc endpoint editor](./src/images/screenshot-2.png)
+![openapidoc endpoint editor](./src/images/screenshot-2.png)
 
 ## Features
 
@@ -19,23 +19,23 @@ API documentation without the operational clutter. Create, organize, import, and
 
 ## Screenshot Gallery
 
-Minialdoc has two main surfaces: a private workspace for writing and maintaining API documentation, and a public documentation experience for readers. The reference editor uses a Notion-style block editor.
+openapidoc has two main surfaces: a private workspace for writing and maintaining API documentation, and a public documentation experience for readers. The reference editor uses a Notion-style block editor.
 
 | Reference editor                                              | API reference editor                                                 |
 | ------------------------------------------------------------- | -------------------------------------------------------------------- |
-| ![Minialdoc project dashboard](./src/images/screenshot-1.png) | ![Minialdoc endpoint editor overview](./src/images/screenshot-2.png) |
+| ![openapidoc project dashboard](./src/images/screenshot-1.png) | ![openapidoc endpoint editor overview](./src/images/screenshot-2.png) |
 
 | Reference editor with Notion-style editor                       | Custom navigation links                                            |
 | --------------------------------------------------------------- | ------------------------------------------------------------------ |
-| ![Minialdoc rich content editor](./src/images/screenshot-3.png) | ![Minialdoc custom navigation page](./src/images/screenshot-4.png) |
+| ![openapidoc rich content editor](./src/images/screenshot-3.png) | ![openapidoc custom navigation page](./src/images/screenshot-4.png) |
 
 | Metrics overview                                                | Metrics detail                                                      |
 | --------------------------------------------------------------- | ------------------------------------------------------------------- |
-| ![Minialdoc API calls dashboard](./src/images/screenshot-5.png) | ![Minialdoc top endpoints dashboard](./src/images/screenshot-6.png) |
+| ![openapidoc API calls dashboard](./src/images/screenshot-5.png) | ![openapidoc top endpoints dashboard](./src/images/screenshot-6.png) |
 
 | Manage versions                                                            | Public reference with AI                                                           |
 | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| ![Minialdoc documentation version settings](./src/images/screenshot-7.png) | ![Minialdoc public API reference with AI assistant](./src/images/screenshot-8.png) |
+| ![openapidoc documentation version settings](./src/images/screenshot-7.png) | ![openapidoc public API reference with AI assistant](./src/images/screenshot-8.png) |
 
 ## Prerequisites
 
@@ -47,8 +47,8 @@ Minialdoc has two main surfaces: a private workspace for writing and maintaining
 ### 1. Clone and install
 
 ```bash
-git clone <your-repo-url> app-doc
-cd app-doc
+git clone <your-repo-url> openapidoc
+cd openapidoc
 bun install
 ```
 
@@ -149,6 +149,6 @@ Push the `.output/` directory to any Node-compatible host (Vercel, Fly.io, Rende
 Set the production Convex environment variables the same way as above, and make sure:
 
 - `VITE_SITE_URL` and `SITE_URL` point at your production app URL
-- `VITE_PUBLIC_DOCS_ROOT_DOMAIN` is your apex domain (e.g. `minialdoc.app`)
+- `VITE_PUBLIC_DOCS_ROOT_DOMAIN` is your apex domain (e.g. `openapidoc.app`)
 - `BETTER_AUTH_TRUSTED_ORIGINS` lists your production origin
 - Convex env vars (`BETTER_AUTH_SECRET`, `SITE_URL`, `BETTER_AUTH_TRUSTED_ORIGINS`) are set on the production deployment with `bunx convex env set --prod`

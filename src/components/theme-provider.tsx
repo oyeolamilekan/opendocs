@@ -16,7 +16,7 @@ type ThemeContextValue = {
   setTheme: (theme: Theme) => void;
 };
 
-const THEME_STORAGE_KEY = "minialdoc-theme";
+const THEME_STORAGE_KEY = "openapidoc-theme";
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
