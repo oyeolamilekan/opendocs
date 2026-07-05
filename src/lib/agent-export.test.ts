@@ -170,6 +170,13 @@ describe("agent export formatters", () => {
       openapiUrl: "https://acme-docs.example.com/openapi.json",
       llmsTxtUrl: "https://acme-docs.example.com/llms.txt",
     });
+    expect(manifest.mcp).toMatchObject({
+      protocolVersion: "2025-06-18",
+      transport: "streamable-http",
+      serverUrl: "https://acme-docs.example.com/mcp",
+      discoveryUrl: "https://acme-docs.example.com/.well-known/mcp.json",
+      readOnly: true,
+    });
     expect(manifest.capabilities.executeEndpoint).toMatchObject({
       available: false,
       requiresExplicitProjectOptIn: true,

@@ -215,9 +215,15 @@ Public projects expose a few machine-readable exports on their subdomain (and th
 - `/tools.json` — structured endpoint tool catalog with operation IDs, schemas, response examples, validation metadata, and request recipes.
 - `/openapi.json` — an OpenAPI 3.1 JSON document generated from the current version's sections and endpoints.
 - `/llms.txt` — a Markdown index of guides, endpoints, and the OpenAPI JSON URL, designed for LLM discovery.
+- `/mcp` — a package-free, read-only MCP Streamable HTTP JSON-RPC server for the current public documentation project.
+- `/.well-known/mcp.json` — MCP discovery metadata with the server URL, transport, auth policy, tools, and resource URI scheme.
 - `/reference/<endpoint-slug>.md` — Markdown export of a single endpoint.
 - `/guides/<guide-slug>.md` on the subdomain, or `/docs/<organization-slug>/<project-slug>/guides/<guide-slug>.md` on the path fallback — Markdown export of a single guide page.
 - `/api/public/docs/search?q=...`, `/api/public/docs/page`, `/api/public/docs/endpoint`, and `/api/public/docs/navigation` — read-only JSON retrieval APIs for external agents that bring their own model.
+
+The MCP server implements `initialize`, `ping`, `tools/list`, `tools/call`, `resources/list`, and `resources/read`. The exposed tools are `search_docs`, `get_doc_page`, `get_endpoint_schema`, and `get_navigation`. Resources include the agent manifest, tool catalog, OpenAPI document, llms.txt, navigation tree, every published guide, and every published reference page. It never executes documented endpoints and never exposes stored credential values.
+
+Versioned custom-domain docs expose their own MCP endpoint at `/v/<version-slug>/mcp`. The hosted fallback exposes MCP at `/docs/<organization-slug>/<project-slug>/mcp` and discovery at `/docs/<organization-slug>/<project-slug>/.well-known/mcp.json`.
 
 Published guide and reference pages also include a page copy menu:
 

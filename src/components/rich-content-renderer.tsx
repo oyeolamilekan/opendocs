@@ -6,7 +6,7 @@ import ImageExtension from "@tiptap/extension-image";
 import LinkExtension from "@tiptap/extension-link";
 import { TableKit } from "@tiptap/extension-table";
 import type { JSONContent } from "@tiptap/core";
-import { PublicCodeTabs } from "./code-tabs";
+import { PublicCodeTabs } from "./code-tabs.tsx";
 import { prepareRichContent } from "../lib/rich-content";
 
 const htmlExtensions = [

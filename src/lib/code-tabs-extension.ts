@@ -1,6 +1,6 @@
 import { Node, mergeAttributes } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
-import { CodeTabsNodeView } from "../components/code-tabs";
+import { CodeTabsNodeView } from "../components/code-tabs.tsx";
 
 export const CodeTabsExtension = Node.create({
   name: "codeTabs",

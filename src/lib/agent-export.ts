@@ -14,6 +14,12 @@ import {
   type OpenApiExportSection,
 } from "./openapi-export";
 import { buildRequestUrl, generateCodeExamples } from "./public-docs";
+import {
+  MCP_PROTOCOL_VERSION,
+  MCP_RESOURCE_URI_TEMPLATE,
+  MCP_TOOL_NAMES,
+  MCP_TRANSPORT,
+} from "./mcp-shared";
 
 export type PublicDocumentationVersion = {
   name: string;
@@ -39,6 +45,8 @@ export type AgentExportUrls = {
   toolCatalogUrl?: string;
   openapiUrl?: string;
   llmsTxtUrl?: string;
+  mcpUrl?: string;
+  mcpWellKnownUrl?: string;
   pageUrlTemplates: {
     guide: string;
     reference: string;
@@ -128,6 +136,23 @@ export const generateAgentManifest = ({
       },
     },
     retrievalApi: urls.retrievalApi ?? null,
+    mcp: {
+      protocolVersion: MCP_PROTOCOL_VERSION,
+      transport: MCP_TRANSPORT,
+      serverUrl: urls.mcpUrl ?? url(urls.publicBaseUrl, "/mcp"),
+      discoveryUrl:
+        urls.mcpWellKnownUrl ?? url(urls.publicBaseUrl, "/.well-known/mcp.json"),
+      tools: MCP_TOOL_NAMES,
+      resources: {
+        list: true,
+        read: true,
+        uriScheme: "openapidoc://",
+        uriTemplate: MCP_RESOURCE_URI_TEMPLATE,
+      },
+      readOnly: true,
+      notes:
+        "Use the MCP server for read-only browsing of published guides, API reference pages, schemas, and navigation.",
+    },
     rateLimits: {
       notes:
         "Public JSON exports are cacheable for 60 seconds with stale revalidation. Additional deployment or gateway limits may apply.",

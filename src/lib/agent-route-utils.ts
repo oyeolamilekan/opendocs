@@ -46,6 +46,8 @@ export const customDomainAgentExportUrls = ({
     toolCatalogUrl: `${exportBase}/tools.json`,
     openapiUrl: `${exportBase}/openapi.json`,
     llmsTxtUrl: `${exportBase}/llms.txt`,
+    mcpUrl: `${exportBase}/mcp`,
+    mcpWellKnownUrl: `${origin}/.well-known/mcp.json`,
     pageUrlTemplates: {
       guide: `${pageBase}/docs/{slug}`,
       reference: `${pageBase}/reference/{slug}`,
@@ -91,6 +93,8 @@ export const hostedAgentExportUrls = ({
     toolCatalogUrl: `${base}/tools.json`,
     openapiUrl: `${base}/openapi.json`,
     llmsTxtUrl: `${base}/llms.txt`,
+    mcpUrl: `${base}/mcp`,
+    mcpWellKnownUrl: `${base}/.well-known/mcp.json`,
     pageUrlTemplates: {
       guide: `${base}/guides/{slug}`,
       reference: `${base}/{slug}`,

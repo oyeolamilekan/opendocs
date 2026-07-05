@@ -12,7 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ToolsDotjsonRouteImport } from './routes/tools[.]json'
 import { Route as OpenapiDotjsonRouteImport } from './routes/openapi[.]json'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
+import { Route as LicenseRouteImport } from './routes/license'
+import { Route as LicenceRouteImport } from './routes/licence'
 import { Route as AgentDotjsonRouteImport } from './routes/agent[.]json'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReferenceIndexRouteImport } from './routes/reference.index'
@@ -27,8 +30,10 @@ import { Route as AuthTermsRouteImport } from './routes/auth/terms'
 import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
 import { Route as ApiExecuteRouteImport } from './routes/api/execute'
+import { Route as DotwellKnownMcpDotjsonRouteImport } from './routes/[.]well-known/mcp[.]json'
 import { Route as VVersionSlugToolsDotjsonRouteImport } from './routes/v/$versionSlug/tools[.]json'
 import { Route as VVersionSlugOpenapiDotjsonRouteImport } from './routes/v/$versionSlug/openapi[.]json'
+import { Route as VVersionSlugMcpRouteImport } from './routes/v/$versionSlug/mcp'
 import { Route as VVersionSlugLlmsDottxtRouteImport } from './routes/v/$versionSlug/llms[.]txt'
 import { Route as VVersionSlugAgentDotjsonRouteImport } from './routes/v/$versionSlug/agent[.]json'
 import { Route as AppOrganizationSlugSettingsRouteImport } from './routes/app/$organizationSlug/settings'
@@ -47,6 +52,7 @@ import { Route as VVersionSlugGuidesGuideSlugRouteImport } from './routes/v/$ver
 import { Route as DocsOrganizationSlugProjectSlugChar123endpointSlugChar125DotmdRouteImport } from './routes/docs/$organizationSlug/$projectSlug/{$endpointSlug}[.]md'
 import { Route as DocsOrganizationSlugProjectSlugToolsDotjsonRouteImport } from './routes/docs/$organizationSlug/$projectSlug/tools[.]json'
 import { Route as DocsOrganizationSlugProjectSlugOpenapiDotjsonRouteImport } from './routes/docs/$organizationSlug/$projectSlug/openapi[.]json'
+import { Route as DocsOrganizationSlugProjectSlugMcpRouteImport } from './routes/docs/$organizationSlug/$projectSlug/mcp'
 import { Route as DocsOrganizationSlugProjectSlugLlmsDottxtRouteImport } from './routes/docs/$organizationSlug/$projectSlug/llms[.]txt'
 import { Route as DocsOrganizationSlugProjectSlugAgentDotjsonRouteImport } from './routes/docs/$organizationSlug/$projectSlug/agent[.]json'
 import { Route as DocsOrganizationSlugProjectSlugEndpointSlugRouteImport } from './routes/docs/$organizationSlug/$projectSlug/$endpointSlug'
@@ -57,6 +63,7 @@ import { Route as ApiPublicDocsEndpointRouteImport } from './routes/api/public/d
 import { Route as AppOrganizationSlugProjectsProjectSlugIndexRouteImport } from './routes/app/$organizationSlug/projects/$projectSlug.index'
 import { Route as DocsOrganizationSlugProjectSlugGuidesChar123guideSlugChar125DotmdRouteImport } from './routes/docs/$organizationSlug/$projectSlug/guides/{$guideSlug}[.]md'
 import { Route as DocsOrganizationSlugProjectSlugGuidesGuideSlugRouteImport } from './routes/docs/$organizationSlug/$projectSlug/guides/$guideSlug'
+import { Route as DocsOrganizationSlugProjectSlugDotwellKnownMcpDotjsonRouteImport } from './routes/docs/$organizationSlug/$projectSlug/[.]well-known/mcp[.]json'
 import { Route as AppOrganizationSlugProjectsProjectSlugSettingsRouteImport } from './routes/app/$organizationSlug/projects/$projectSlug/settings'
 import { Route as AppOrganizationSlugProjectsProjectSlugMetricsRouteImport } from './routes/app/$organizationSlug/projects/$projectSlug/metrics'
 import { Route as AppOrganizationSlugProjectsProjectSlugAiRouteImport } from './routes/app/$organizationSlug/projects/$projectSlug/ai'
@@ -85,9 +92,24 @@ const OnboardingRoute = OnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
   id: '/llms.txt',
   path: '/llms.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LicenseRoute = LicenseRouteImport.update({
+  id: '/license',
+  path: '/license',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LicenceRoute = LicenceRouteImport.update({
+  id: '/licence',
+  path: '/licence',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AgentDotjsonRoute = AgentDotjsonRouteImport.update({
@@ -162,6 +184,11 @@ const ApiExecuteRoute = ApiExecuteRouteImport.update({
   path: '/api/execute',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DotwellKnownMcpDotjsonRoute = DotwellKnownMcpDotjsonRouteImport.update({
+  id: '/.well-known/mcp.json',
+  path: '/.well-known/mcp.json',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VVersionSlugToolsDotjsonRoute =
   VVersionSlugToolsDotjsonRouteImport.update({
     id: '/v/$versionSlug/tools.json',
@@ -174,6 +201,11 @@ const VVersionSlugOpenapiDotjsonRoute =
     path: '/v/$versionSlug/openapi.json',
     getParentRoute: () => rootRouteImport,
   } as any)
+const VVersionSlugMcpRoute = VVersionSlugMcpRouteImport.update({
+  id: '/v/$versionSlug/mcp',
+  path: '/v/$versionSlug/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VVersionSlugLlmsDottxtRoute = VVersionSlugLlmsDottxtRouteImport.update({
   id: '/v/$versionSlug/llms.txt',
   path: '/v/$versionSlug/llms.txt',
@@ -279,6 +311,12 @@ const DocsOrganizationSlugProjectSlugOpenapiDotjsonRoute =
     path: '/docs/$organizationSlug/$projectSlug/openapi.json',
     getParentRoute: () => rootRouteImport,
   } as any)
+const DocsOrganizationSlugProjectSlugMcpRoute =
+  DocsOrganizationSlugProjectSlugMcpRouteImport.update({
+    id: '/docs/$organizationSlug/$projectSlug/mcp',
+    path: '/docs/$organizationSlug/$projectSlug/mcp',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const DocsOrganizationSlugProjectSlugLlmsDottxtRoute =
   DocsOrganizationSlugProjectSlugLlmsDottxtRouteImport.update({
     id: '/docs/$organizationSlug/$projectSlug/llms.txt',
@@ -335,6 +373,12 @@ const DocsOrganizationSlugProjectSlugGuidesGuideSlugRoute =
   DocsOrganizationSlugProjectSlugGuidesGuideSlugRouteImport.update({
     id: '/docs/$organizationSlug/$projectSlug/guides/$guideSlug',
     path: '/docs/$organizationSlug/$projectSlug/guides/$guideSlug',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DocsOrganizationSlugProjectSlugDotwellKnownMcpDotjsonRoute =
+  DocsOrganizationSlugProjectSlugDotwellKnownMcpDotjsonRouteImport.update({
+    id: '/docs/$organizationSlug/$projectSlug/.well-known/mcp.json',
+    path: '/docs/$organizationSlug/$projectSlug/.well-known/mcp.json',
     getParentRoute: () => rootRouteImport,
   } as any)
 const AppOrganizationSlugProjectsProjectSlugSettingsRoute =
@@ -427,10 +471,14 @@ const AppOrganizationSlugProjectsProjectSlugVersionsVersionSlugGuidesGuideSlugRo
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/agent.json': typeof AgentDotjsonRoute
+  '/licence': typeof LicenceRoute
+  '/license': typeof LicenseRoute
   '/llms.txt': typeof LlmsDottxtRoute
+  '/mcp': typeof McpRoute
   '/onboarding': typeof OnboardingRoute
   '/openapi.json': typeof OpenapiDotjsonRoute
   '/tools.json': typeof ToolsDotjsonRoute
+  '/.well-known/mcp.json': typeof DotwellKnownMcpDotjsonRoute
   '/api/execute': typeof ApiExecuteRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
@@ -453,6 +501,7 @@ export interface FileRoutesByFullPath {
   '/app/$organizationSlug/settings': typeof AppOrganizationSlugSettingsRoute
   '/v/$versionSlug/agent.json': typeof VVersionSlugAgentDotjsonRoute
   '/v/$versionSlug/llms.txt': typeof VVersionSlugLlmsDottxtRoute
+  '/v/$versionSlug/mcp': typeof VVersionSlugMcpRoute
   '/v/$versionSlug/openapi.json': typeof VVersionSlugOpenapiDotjsonRoute
   '/v/$versionSlug/tools.json': typeof VVersionSlugToolsDotjsonRoute
   '/api/public/docs/endpoint': typeof ApiPublicDocsEndpointRoute
@@ -462,6 +511,7 @@ export interface FileRoutesByFullPath {
   '/docs/$organizationSlug/$projectSlug/$endpointSlug': typeof DocsOrganizationSlugProjectSlugEndpointSlugRoute
   '/docs/$organizationSlug/$projectSlug/agent.json': typeof DocsOrganizationSlugProjectSlugAgentDotjsonRoute
   '/docs/$organizationSlug/$projectSlug/llms.txt': typeof DocsOrganizationSlugProjectSlugLlmsDottxtRoute
+  '/docs/$organizationSlug/$projectSlug/mcp': typeof DocsOrganizationSlugProjectSlugMcpRoute
   '/docs/$organizationSlug/$projectSlug/openapi.json': typeof DocsOrganizationSlugProjectSlugOpenapiDotjsonRoute
   '/docs/$organizationSlug/$projectSlug/tools.json': typeof DocsOrganizationSlugProjectSlugToolsDotjsonRoute
   '/docs/$organizationSlug/$projectSlug/{$endpointSlug}.md': typeof DocsOrganizationSlugProjectSlugChar123endpointSlugChar125DotmdRoute
@@ -473,6 +523,7 @@ export interface FileRoutesByFullPath {
   '/app/$organizationSlug/projects/$projectSlug/ai': typeof AppOrganizationSlugProjectsProjectSlugAiRoute
   '/app/$organizationSlug/projects/$projectSlug/metrics': typeof AppOrganizationSlugProjectsProjectSlugMetricsRoute
   '/app/$organizationSlug/projects/$projectSlug/settings': typeof AppOrganizationSlugProjectsProjectSlugSettingsRoute
+  '/docs/$organizationSlug/$projectSlug/.well-known/mcp.json': typeof DocsOrganizationSlugProjectSlugDotwellKnownMcpDotjsonRoute
   '/docs/$organizationSlug/$projectSlug/guides/$guideSlug': typeof DocsOrganizationSlugProjectSlugGuidesGuideSlugRoute
   '/docs/$organizationSlug/$projectSlug/guides/{$guideSlug}.md': typeof DocsOrganizationSlugProjectSlugGuidesChar123guideSlugChar125DotmdRoute
   '/app/$organizationSlug/projects/$projectSlug/': typeof AppOrganizationSlugProjectsProjectSlugIndexRoute
@@ -489,10 +540,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/agent.json': typeof AgentDotjsonRoute
+  '/licence': typeof LicenceRoute
+  '/license': typeof LicenseRoute
   '/llms.txt': typeof LlmsDottxtRoute
+  '/mcp': typeof McpRoute
   '/onboarding': typeof OnboardingRoute
   '/openapi.json': typeof OpenapiDotjsonRoute
   '/tools.json': typeof ToolsDotjsonRoute
+  '/.well-known/mcp.json': typeof DotwellKnownMcpDotjsonRoute
   '/api/execute': typeof ApiExecuteRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
@@ -515,6 +570,7 @@ export interface FileRoutesByTo {
   '/app/$organizationSlug/settings': typeof AppOrganizationSlugSettingsRoute
   '/v/$versionSlug/agent.json': typeof VVersionSlugAgentDotjsonRoute
   '/v/$versionSlug/llms.txt': typeof VVersionSlugLlmsDottxtRoute
+  '/v/$versionSlug/mcp': typeof VVersionSlugMcpRoute
   '/v/$versionSlug/openapi.json': typeof VVersionSlugOpenapiDotjsonRoute
   '/v/$versionSlug/tools.json': typeof VVersionSlugToolsDotjsonRoute
   '/api/public/docs/endpoint': typeof ApiPublicDocsEndpointRoute
@@ -524,6 +580,7 @@ export interface FileRoutesByTo {
   '/docs/$organizationSlug/$projectSlug/$endpointSlug': typeof DocsOrganizationSlugProjectSlugEndpointSlugRoute
   '/docs/$organizationSlug/$projectSlug/agent.json': typeof DocsOrganizationSlugProjectSlugAgentDotjsonRoute
   '/docs/$organizationSlug/$projectSlug/llms.txt': typeof DocsOrganizationSlugProjectSlugLlmsDottxtRoute
+  '/docs/$organizationSlug/$projectSlug/mcp': typeof DocsOrganizationSlugProjectSlugMcpRoute
   '/docs/$organizationSlug/$projectSlug/openapi.json': typeof DocsOrganizationSlugProjectSlugOpenapiDotjsonRoute
   '/docs/$organizationSlug/$projectSlug/tools.json': typeof DocsOrganizationSlugProjectSlugToolsDotjsonRoute
   '/docs/$organizationSlug/$projectSlug/{$endpointSlug}.md': typeof DocsOrganizationSlugProjectSlugChar123endpointSlugChar125DotmdRoute
@@ -535,6 +592,7 @@ export interface FileRoutesByTo {
   '/app/$organizationSlug/projects/$projectSlug/ai': typeof AppOrganizationSlugProjectsProjectSlugAiRoute
   '/app/$organizationSlug/projects/$projectSlug/metrics': typeof AppOrganizationSlugProjectsProjectSlugMetricsRoute
   '/app/$organizationSlug/projects/$projectSlug/settings': typeof AppOrganizationSlugProjectsProjectSlugSettingsRoute
+  '/docs/$organizationSlug/$projectSlug/.well-known/mcp.json': typeof DocsOrganizationSlugProjectSlugDotwellKnownMcpDotjsonRoute
   '/docs/$organizationSlug/$projectSlug/guides/$guideSlug': typeof DocsOrganizationSlugProjectSlugGuidesGuideSlugRoute
   '/docs/$organizationSlug/$projectSlug/guides/{$guideSlug}.md': typeof DocsOrganizationSlugProjectSlugGuidesChar123guideSlugChar125DotmdRoute
   '/app/$organizationSlug/projects/$projectSlug': typeof AppOrganizationSlugProjectsProjectSlugIndexRoute
@@ -552,10 +610,14 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/agent.json': typeof AgentDotjsonRoute
+  '/licence': typeof LicenceRoute
+  '/license': typeof LicenseRoute
   '/llms.txt': typeof LlmsDottxtRoute
+  '/mcp': typeof McpRoute
   '/onboarding': typeof OnboardingRoute
   '/openapi.json': typeof OpenapiDotjsonRoute
   '/tools.json': typeof ToolsDotjsonRoute
+  '/.well-known/mcp.json': typeof DotwellKnownMcpDotjsonRoute
   '/api/execute': typeof ApiExecuteRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
@@ -578,6 +640,7 @@ export interface FileRoutesById {
   '/app/$organizationSlug/settings': typeof AppOrganizationSlugSettingsRoute
   '/v/$versionSlug/agent.json': typeof VVersionSlugAgentDotjsonRoute
   '/v/$versionSlug/llms.txt': typeof VVersionSlugLlmsDottxtRoute
+  '/v/$versionSlug/mcp': typeof VVersionSlugMcpRoute
   '/v/$versionSlug/openapi.json': typeof VVersionSlugOpenapiDotjsonRoute
   '/v/$versionSlug/tools.json': typeof VVersionSlugToolsDotjsonRoute
   '/api/public/docs/endpoint': typeof ApiPublicDocsEndpointRoute
@@ -587,6 +650,7 @@ export interface FileRoutesById {
   '/docs/$organizationSlug/$projectSlug/$endpointSlug': typeof DocsOrganizationSlugProjectSlugEndpointSlugRoute
   '/docs/$organizationSlug/$projectSlug/agent.json': typeof DocsOrganizationSlugProjectSlugAgentDotjsonRoute
   '/docs/$organizationSlug/$projectSlug/llms.txt': typeof DocsOrganizationSlugProjectSlugLlmsDottxtRoute
+  '/docs/$organizationSlug/$projectSlug/mcp': typeof DocsOrganizationSlugProjectSlugMcpRoute
   '/docs/$organizationSlug/$projectSlug/openapi.json': typeof DocsOrganizationSlugProjectSlugOpenapiDotjsonRoute
   '/docs/$organizationSlug/$projectSlug/tools.json': typeof DocsOrganizationSlugProjectSlugToolsDotjsonRoute
   '/docs/$organizationSlug/$projectSlug/{$endpointSlug}.md': typeof DocsOrganizationSlugProjectSlugChar123endpointSlugChar125DotmdRoute
@@ -598,6 +662,7 @@ export interface FileRoutesById {
   '/app/$organizationSlug/projects/$projectSlug/ai': typeof AppOrganizationSlugProjectsProjectSlugAiRoute
   '/app/$organizationSlug/projects/$projectSlug/metrics': typeof AppOrganizationSlugProjectsProjectSlugMetricsRoute
   '/app/$organizationSlug/projects/$projectSlug/settings': typeof AppOrganizationSlugProjectsProjectSlugSettingsRoute
+  '/docs/$organizationSlug/$projectSlug/.well-known/mcp.json': typeof DocsOrganizationSlugProjectSlugDotwellKnownMcpDotjsonRoute
   '/docs/$organizationSlug/$projectSlug/guides/$guideSlug': typeof DocsOrganizationSlugProjectSlugGuidesGuideSlugRoute
   '/docs/$organizationSlug/$projectSlug/guides/{$guideSlug}.md': typeof DocsOrganizationSlugProjectSlugGuidesChar123guideSlugChar125DotmdRoute
   '/app/$organizationSlug/projects/$projectSlug/': typeof AppOrganizationSlugProjectsProjectSlugIndexRoute
@@ -616,10 +681,14 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/agent.json'
+    | '/licence'
+    | '/license'
     | '/llms.txt'
+    | '/mcp'
     | '/onboarding'
     | '/openapi.json'
     | '/tools.json'
+    | '/.well-known/mcp.json'
     | '/api/execute'
     | '/auth/sign-in'
     | '/auth/sign-up'
@@ -642,6 +711,7 @@ export interface FileRouteTypes {
     | '/app/$organizationSlug/settings'
     | '/v/$versionSlug/agent.json'
     | '/v/$versionSlug/llms.txt'
+    | '/v/$versionSlug/mcp'
     | '/v/$versionSlug/openapi.json'
     | '/v/$versionSlug/tools.json'
     | '/api/public/docs/endpoint'
@@ -651,6 +721,7 @@ export interface FileRouteTypes {
     | '/docs/$organizationSlug/$projectSlug/$endpointSlug'
     | '/docs/$organizationSlug/$projectSlug/agent.json'
     | '/docs/$organizationSlug/$projectSlug/llms.txt'
+    | '/docs/$organizationSlug/$projectSlug/mcp'
     | '/docs/$organizationSlug/$projectSlug/openapi.json'
     | '/docs/$organizationSlug/$projectSlug/tools.json'
     | '/docs/$organizationSlug/$projectSlug/{$endpointSlug}.md'
@@ -662,6 +733,7 @@ export interface FileRouteTypes {
     | '/app/$organizationSlug/projects/$projectSlug/ai'
     | '/app/$organizationSlug/projects/$projectSlug/metrics'
     | '/app/$organizationSlug/projects/$projectSlug/settings'
+    | '/docs/$organizationSlug/$projectSlug/.well-known/mcp.json'
     | '/docs/$organizationSlug/$projectSlug/guides/$guideSlug'
     | '/docs/$organizationSlug/$projectSlug/guides/{$guideSlug}.md'
     | '/app/$organizationSlug/projects/$projectSlug/'
@@ -678,10 +750,14 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/agent.json'
+    | '/licence'
+    | '/license'
     | '/llms.txt'
+    | '/mcp'
     | '/onboarding'
     | '/openapi.json'
     | '/tools.json'
+    | '/.well-known/mcp.json'
     | '/api/execute'
     | '/auth/sign-in'
     | '/auth/sign-up'
@@ -704,6 +780,7 @@ export interface FileRouteTypes {
     | '/app/$organizationSlug/settings'
     | '/v/$versionSlug/agent.json'
     | '/v/$versionSlug/llms.txt'
+    | '/v/$versionSlug/mcp'
     | '/v/$versionSlug/openapi.json'
     | '/v/$versionSlug/tools.json'
     | '/api/public/docs/endpoint'
@@ -713,6 +790,7 @@ export interface FileRouteTypes {
     | '/docs/$organizationSlug/$projectSlug/$endpointSlug'
     | '/docs/$organizationSlug/$projectSlug/agent.json'
     | '/docs/$organizationSlug/$projectSlug/llms.txt'
+    | '/docs/$organizationSlug/$projectSlug/mcp'
     | '/docs/$organizationSlug/$projectSlug/openapi.json'
     | '/docs/$organizationSlug/$projectSlug/tools.json'
     | '/docs/$organizationSlug/$projectSlug/{$endpointSlug}.md'
@@ -724,6 +802,7 @@ export interface FileRouteTypes {
     | '/app/$organizationSlug/projects/$projectSlug/ai'
     | '/app/$organizationSlug/projects/$projectSlug/metrics'
     | '/app/$organizationSlug/projects/$projectSlug/settings'
+    | '/docs/$organizationSlug/$projectSlug/.well-known/mcp.json'
     | '/docs/$organizationSlug/$projectSlug/guides/$guideSlug'
     | '/docs/$organizationSlug/$projectSlug/guides/{$guideSlug}.md'
     | '/app/$organizationSlug/projects/$projectSlug'
@@ -740,10 +819,14 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/agent.json'
+    | '/licence'
+    | '/license'
     | '/llms.txt'
+    | '/mcp'
     | '/onboarding'
     | '/openapi.json'
     | '/tools.json'
+    | '/.well-known/mcp.json'
     | '/api/execute'
     | '/auth/sign-in'
     | '/auth/sign-up'
@@ -766,6 +849,7 @@ export interface FileRouteTypes {
     | '/app/$organizationSlug/settings'
     | '/v/$versionSlug/agent.json'
     | '/v/$versionSlug/llms.txt'
+    | '/v/$versionSlug/mcp'
     | '/v/$versionSlug/openapi.json'
     | '/v/$versionSlug/tools.json'
     | '/api/public/docs/endpoint'
@@ -775,6 +859,7 @@ export interface FileRouteTypes {
     | '/docs/$organizationSlug/$projectSlug/$endpointSlug'
     | '/docs/$organizationSlug/$projectSlug/agent.json'
     | '/docs/$organizationSlug/$projectSlug/llms.txt'
+    | '/docs/$organizationSlug/$projectSlug/mcp'
     | '/docs/$organizationSlug/$projectSlug/openapi.json'
     | '/docs/$organizationSlug/$projectSlug/tools.json'
     | '/docs/$organizationSlug/$projectSlug/{$endpointSlug}.md'
@@ -786,6 +871,7 @@ export interface FileRouteTypes {
     | '/app/$organizationSlug/projects/$projectSlug/ai'
     | '/app/$organizationSlug/projects/$projectSlug/metrics'
     | '/app/$organizationSlug/projects/$projectSlug/settings'
+    | '/docs/$organizationSlug/$projectSlug/.well-known/mcp.json'
     | '/docs/$organizationSlug/$projectSlug/guides/$guideSlug'
     | '/docs/$organizationSlug/$projectSlug/guides/{$guideSlug}.md'
     | '/app/$organizationSlug/projects/$projectSlug/'
@@ -803,10 +889,14 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AgentDotjsonRoute: typeof AgentDotjsonRoute
+  LicenceRoute: typeof LicenceRoute
+  LicenseRoute: typeof LicenseRoute
   LlmsDottxtRoute: typeof LlmsDottxtRoute
+  McpRoute: typeof McpRoute
   OnboardingRoute: typeof OnboardingRoute
   OpenapiDotjsonRoute: typeof OpenapiDotjsonRoute
   ToolsDotjsonRoute: typeof ToolsDotjsonRoute
+  DotwellKnownMcpDotjsonRoute: typeof DotwellKnownMcpDotjsonRoute
   ApiExecuteRoute: typeof ApiExecuteRoute
   AuthSignInRoute: typeof AuthSignInRoute
   AuthSignUpRoute: typeof AuthSignUpRoute
@@ -829,6 +919,7 @@ export interface RootRouteChildren {
   AppOrganizationSlugSettingsRoute: typeof AppOrganizationSlugSettingsRoute
   VVersionSlugAgentDotjsonRoute: typeof VVersionSlugAgentDotjsonRoute
   VVersionSlugLlmsDottxtRoute: typeof VVersionSlugLlmsDottxtRoute
+  VVersionSlugMcpRoute: typeof VVersionSlugMcpRoute
   VVersionSlugOpenapiDotjsonRoute: typeof VVersionSlugOpenapiDotjsonRoute
   VVersionSlugToolsDotjsonRoute: typeof VVersionSlugToolsDotjsonRoute
   ApiPublicDocsEndpointRoute: typeof ApiPublicDocsEndpointRoute
@@ -838,6 +929,7 @@ export interface RootRouteChildren {
   DocsOrganizationSlugProjectSlugEndpointSlugRoute: typeof DocsOrganizationSlugProjectSlugEndpointSlugRoute
   DocsOrganizationSlugProjectSlugAgentDotjsonRoute: typeof DocsOrganizationSlugProjectSlugAgentDotjsonRoute
   DocsOrganizationSlugProjectSlugLlmsDottxtRoute: typeof DocsOrganizationSlugProjectSlugLlmsDottxtRoute
+  DocsOrganizationSlugProjectSlugMcpRoute: typeof DocsOrganizationSlugProjectSlugMcpRoute
   DocsOrganizationSlugProjectSlugOpenapiDotjsonRoute: typeof DocsOrganizationSlugProjectSlugOpenapiDotjsonRoute
   DocsOrganizationSlugProjectSlugToolsDotjsonRoute: typeof DocsOrganizationSlugProjectSlugToolsDotjsonRoute
   DocsOrganizationSlugProjectSlugChar123endpointSlugChar125DotmdRoute: typeof DocsOrganizationSlugProjectSlugChar123endpointSlugChar125DotmdRoute
@@ -846,6 +938,7 @@ export interface RootRouteChildren {
   VVersionSlugReferenceEndpointSlugRoute: typeof VVersionSlugReferenceEndpointSlugRoute
   VVersionSlugReferenceChar123endpointSlugChar125DotmdRoute: typeof VVersionSlugReferenceChar123endpointSlugChar125DotmdRoute
   DocsOrganizationSlugProjectSlugIndexRoute: typeof DocsOrganizationSlugProjectSlugIndexRoute
+  DocsOrganizationSlugProjectSlugDotwellKnownMcpDotjsonRoute: typeof DocsOrganizationSlugProjectSlugDotwellKnownMcpDotjsonRoute
   DocsOrganizationSlugProjectSlugGuidesGuideSlugRoute: typeof DocsOrganizationSlugProjectSlugGuidesGuideSlugRoute
   DocsOrganizationSlugProjectSlugGuidesChar123guideSlugChar125DotmdRoute: typeof DocsOrganizationSlugProjectSlugGuidesChar123guideSlugChar125DotmdRoute
 }
@@ -873,11 +966,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/llms.txt': {
       id: '/llms.txt'
       path: '/llms.txt'
       fullPath: '/llms.txt'
       preLoaderRoute: typeof LlmsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/license': {
+      id: '/license'
+      path: '/license'
+      fullPath: '/license'
+      preLoaderRoute: typeof LicenseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/licence': {
+      id: '/licence'
+      path: '/licence'
+      fullPath: '/licence'
+      preLoaderRoute: typeof LicenceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/agent.json': {
@@ -978,6 +1092,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiExecuteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.well-known/mcp.json': {
+      id: '/.well-known/mcp.json'
+      path: '/.well-known/mcp.json'
+      fullPath: '/.well-known/mcp.json'
+      preLoaderRoute: typeof DotwellKnownMcpDotjsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/v/$versionSlug/tools.json': {
       id: '/v/$versionSlug/tools.json'
       path: '/v/$versionSlug/tools.json'
@@ -990,6 +1111,13 @@ declare module '@tanstack/react-router' {
       path: '/v/$versionSlug/openapi.json'
       fullPath: '/v/$versionSlug/openapi.json'
       preLoaderRoute: typeof VVersionSlugOpenapiDotjsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/v/$versionSlug/mcp': {
+      id: '/v/$versionSlug/mcp'
+      path: '/v/$versionSlug/mcp'
+      fullPath: '/v/$versionSlug/mcp'
+      preLoaderRoute: typeof VVersionSlugMcpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/v/$versionSlug/llms.txt': {
@@ -1118,6 +1246,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocsOrganizationSlugProjectSlugOpenapiDotjsonRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/docs/$organizationSlug/$projectSlug/mcp': {
+      id: '/docs/$organizationSlug/$projectSlug/mcp'
+      path: '/docs/$organizationSlug/$projectSlug/mcp'
+      fullPath: '/docs/$organizationSlug/$projectSlug/mcp'
+      preLoaderRoute: typeof DocsOrganizationSlugProjectSlugMcpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/docs/$organizationSlug/$projectSlug/llms.txt': {
       id: '/docs/$organizationSlug/$projectSlug/llms.txt'
       path: '/docs/$organizationSlug/$projectSlug/llms.txt'
@@ -1186,6 +1321,13 @@ declare module '@tanstack/react-router' {
       path: '/docs/$organizationSlug/$projectSlug/guides/$guideSlug'
       fullPath: '/docs/$organizationSlug/$projectSlug/guides/$guideSlug'
       preLoaderRoute: typeof DocsOrganizationSlugProjectSlugGuidesGuideSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docs/$organizationSlug/$projectSlug/.well-known/mcp.json': {
+      id: '/docs/$organizationSlug/$projectSlug/.well-known/mcp.json'
+      path: '/docs/$organizationSlug/$projectSlug/.well-known/mcp.json'
+      fullPath: '/docs/$organizationSlug/$projectSlug/.well-known/mcp.json'
+      preLoaderRoute: typeof DocsOrganizationSlugProjectSlugDotwellKnownMcpDotjsonRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app/$organizationSlug/projects/$projectSlug/settings': {
@@ -1329,10 +1471,14 @@ const AppOrganizationSlugProjectsRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AgentDotjsonRoute: AgentDotjsonRoute,
+  LicenceRoute: LicenceRoute,
+  LicenseRoute: LicenseRoute,
   LlmsDottxtRoute: LlmsDottxtRoute,
+  McpRoute: McpRoute,
   OnboardingRoute: OnboardingRoute,
   OpenapiDotjsonRoute: OpenapiDotjsonRoute,
   ToolsDotjsonRoute: ToolsDotjsonRoute,
+  DotwellKnownMcpDotjsonRoute: DotwellKnownMcpDotjsonRoute,
   ApiExecuteRoute: ApiExecuteRoute,
   AuthSignInRoute: AuthSignInRoute,
   AuthSignUpRoute: AuthSignUpRoute,
@@ -1358,6 +1504,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppOrganizationSlugSettingsRoute: AppOrganizationSlugSettingsRoute,
   VVersionSlugAgentDotjsonRoute: VVersionSlugAgentDotjsonRoute,
   VVersionSlugLlmsDottxtRoute: VVersionSlugLlmsDottxtRoute,
+  VVersionSlugMcpRoute: VVersionSlugMcpRoute,
   VVersionSlugOpenapiDotjsonRoute: VVersionSlugOpenapiDotjsonRoute,
   VVersionSlugToolsDotjsonRoute: VVersionSlugToolsDotjsonRoute,
   ApiPublicDocsEndpointRoute: ApiPublicDocsEndpointRoute,
@@ -1370,6 +1517,8 @@ const rootRouteChildren: RootRouteChildren = {
     DocsOrganizationSlugProjectSlugAgentDotjsonRoute,
   DocsOrganizationSlugProjectSlugLlmsDottxtRoute:
     DocsOrganizationSlugProjectSlugLlmsDottxtRoute,
+  DocsOrganizationSlugProjectSlugMcpRoute:
+    DocsOrganizationSlugProjectSlugMcpRoute,
   DocsOrganizationSlugProjectSlugOpenapiDotjsonRoute:
     DocsOrganizationSlugProjectSlugOpenapiDotjsonRoute,
   DocsOrganizationSlugProjectSlugToolsDotjsonRoute:
@@ -1385,6 +1534,8 @@ const rootRouteChildren: RootRouteChildren = {
     VVersionSlugReferenceChar123endpointSlugChar125DotmdRoute,
   DocsOrganizationSlugProjectSlugIndexRoute:
     DocsOrganizationSlugProjectSlugIndexRoute,
+  DocsOrganizationSlugProjectSlugDotwellKnownMcpDotjsonRoute:
+    DocsOrganizationSlugProjectSlugDotwellKnownMcpDotjsonRoute,
   DocsOrganizationSlugProjectSlugGuidesGuideSlugRoute:
     DocsOrganizationSlugProjectSlugGuidesGuideSlugRoute,
   DocsOrganizationSlugProjectSlugGuidesChar123guideSlugChar125DotmdRoute:
