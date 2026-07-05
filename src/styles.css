@@ -8,6 +8,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Font assets */
 @font-face {
   font-family: "Geist";
   src: url("/fonts/GeistVF.woff") format("woff");
@@ -24,6 +25,7 @@
   font-display: swap;
 }
 
+/* Application theme tokens */
 :root {
   font-family: "Geist", system-ui, sans-serif;
   font-synthesis: none;
@@ -69,48 +71,7 @@
     0 24px 32px -8px rgba(0, 0, 0, 0.06);
 }
 
-* {
-  box-sizing: border-box;
-}
-
-html {
-  min-width: 320px;
-  min-height: 100%;
-}
-
-body {
-  min-height: 100vh;
-  margin: 0;
-  background: var(--background);
-}
-
-button,
-input,
-textarea,
-select {
-  font: inherit;
-}
-
-button,
-a {
-  -webkit-tap-highlight-color: transparent;
-}
-
-::selection {
-  color: var(--primary-foreground);
-  background: var(--primary);
-}
-
-.font-mono {
-  font-family: "Geist Mono", monospace;
-}
-
-.surface-grid {
-  background:
-    radial-gradient(circle at 50% 0%, rgb(0 107 255 / 5%), transparent 34rem),
-    var(--background);
-}
-
+/* Public documentation theme tokens */
 .documentation-theme {
   --background: #ffffff;
   --foreground: #303740;
@@ -547,6 +508,7 @@ a {
 @theme inline {
   --font-heading: var(--font-sans);
   --font-sans: "Geist", system-ui, sans-serif;
+  --font-mono: "Geist Mono", monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -621,49 +583,77 @@ a {
   --sidebar-ring: #48aeff;
 }
 
+/* Base element defaults */
 @layer base {
+  * {
+    box-sizing: border-box;
+  }
+
   * {
     @apply border-border outline-ring/50;
   }
+
+  html {
+    min-width: 320px;
+    min-height: 100%;
+    @apply font-sans;
+  }
+
   body {
+    min-height: 100vh;
+    margin: 0;
     @apply bg-background text-foreground;
     font-size: 14px;
     line-height: 20px;
   }
-  html {
-    @apply font-sans;
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
   }
+
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  ::selection {
+    color: var(--primary-foreground);
+    background: var(--primary);
+  }
+
   :where(a, button, input, textarea, select, [tabindex]):focus-visible {
     outline: none;
   }
 }
 
+/* Reusable app-level component helpers */
 @layer components {
   .app-container {
-    width: 100%;
-    max-width: 80rem;
-    margin-inline: auto;
-    padding-inline: 1rem;
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6;
   }
 
   .editorial-container {
-    width: 100%;
-    max-width: 72rem;
-    margin-inline: auto;
-    padding-inline: 1.25rem;
-  }
-
-  @media (min-width: 40rem) {
-    .app-container {
-      padding-inline: 1.5rem;
-    }
-
-    .editorial-container {
-      padding-inline: 2rem;
-    }
+    @apply mx-auto w-full max-w-6xl px-5 sm:px-8;
   }
 }
 
+/* Reusable visual utilities */
+@layer utilities {
+  .surface-grid {
+    background:
+      radial-gradient(
+        circle at 50% 0%,
+        rgb(0 107 255 / 5%),
+        transparent 34rem
+      ),
+      var(--background);
+  }
+}
+
+/* Notion editor block controls and drag/drop affordances */
 .notion-editor .ProseMirror {
   outline: none;
   min-height: 28rem;
@@ -889,6 +879,7 @@ a {
   bottom: 0;
 }
 
+/* Project workspace documentation sidebar */
 .project-editor-shell {
   --background: #ffffff;
   --foreground: #171717;
@@ -1196,6 +1187,7 @@ a {
   color: var(--secondary-foreground);
 }
 
+/* Tiptap document content shared by editor and published docs */
 .notion-editor .ProseMirror > * {
   margin-block: 0;
 }
@@ -1767,6 +1759,7 @@ a {
   cursor: col-resize;
 }
 
+/* Notion-style page editor shell */
 .notion-page {
   min-height: calc(100vh - 3.5rem);
   padding: 2rem clamp(1.5rem, 4vw, 4rem) 7rem;
@@ -1949,6 +1942,7 @@ a {
   padding-top: var(--public-doc-header-height, 8rem);
 }
 
+/* Published documentation chrome */
 .public-documentation-header {
   box-shadow: 0 1px 0 rgb(15 23 42 / 0.04);
 }
@@ -2069,6 +2063,7 @@ a {
   }
 }
 
+/* Code samples, response snippets, and code tab editor */
 .code-tabs,
 .code-sample {
   --code-background: #f8fafc;
@@ -2619,6 +2614,7 @@ a {
   color: var(--muted-foreground);
 }
 
+/* Published documentation theme extensions */
 .documentation-theme {
   --documentation-area-text: #66717d;
   --documentation-sidebar-label: #69737f;
@@ -2654,9 +2650,7 @@ a {
   color: var(--sidebar-accent-foreground);
 }
 
-.documentation-theme
-  .public-doc-content
-  :where(h1, h2, h3)[id] {
+.documentation-theme .public-doc-content :where(h1, h2, h3)[id] {
   scroll-margin-top: 5.5rem;
 }
 
@@ -2669,11 +2663,7 @@ a {
 }
 
 .documentation-theme .public-documentation-toc-link:hover {
-  background: color-mix(
-    in srgb,
-    var(--documentation-primary) 8%,
-    transparent
-  );
+  background: color-mix(in srgb, var(--documentation-primary) 8%, transparent);
   color: var(--documentation-primary);
 }
 

@@ -3,9 +3,9 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import {
-  extractRichContentHeadings,
   RichContentRenderer,
 } from "./rich-content-renderer";
+import { extractRichContentHeadings } from "../lib/rich-content";
 
 describe("RichContentRenderer", () => {
   it("extracts public documentation headings with stable unique ids", () => {

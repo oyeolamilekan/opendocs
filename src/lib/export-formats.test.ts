@@ -126,6 +126,51 @@ describe("documentation export formatters", () => {
     ).toBe("## Install\n\nUse the API.");
   });
 
+  it("preserves custom code tabs when converting Tiptap JSON to Markdown", () => {
+    const markdown = contentToMarkdown(
+      "",
+      JSON.stringify({
+        type: "doc",
+        content: [
+          {
+            type: "heading",
+            attrs: { level: 2 },
+            content: [{ type: "text", text: "Add the ramp script" }],
+          },
+          {
+            type: "codeTabs",
+            attrs: {
+              tabs: [
+                {
+                  id: "tab-js",
+                  name: "JavaScript",
+                  language: "javascript",
+                  code: "const ramp = new Ramp({ public_key: 'pk_test' });",
+                },
+                {
+                  id: "tab-html",
+                  name: "HTML",
+                  language: "html",
+                  code: '<script src="https://example.com/ramp.js"></script>',
+                },
+              ],
+            },
+          },
+        ],
+      }),
+    );
+
+    expect(markdown).toContain("## Add the ramp script");
+    expect(markdown).toContain("### JavaScript");
+    expect(markdown).toContain(
+      "```javascript\nconst ramp = new Ramp({ public_key: 'pk_test' });\n```",
+    );
+    expect(markdown).toContain("### HTML");
+    expect(markdown).toContain(
+      '```xml\n<script src="https://example.com/ramp.js"></script>\n```',
+    );
+  });
+
   it("formats llms.txt with markdown export links and OpenAPI link", () => {
     const llms = formatLlmsTxt({
       project,

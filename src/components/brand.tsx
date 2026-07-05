@@ -1,11 +1,15 @@
 import { Link } from "@tanstack/react-router";
-import { PanelsTopLeft } from "lucide-react";
 
 export function Brand({ compact = false }: { compact?: boolean }) {
   return (
     <Link to="/" className="inline-flex items-center gap-2.5 text-foreground">
-      <span className="flex size-9 items-center justify-center rounded-md bg-foreground text-background">
-        <PanelsTopLeft className="size-4.5" />
+      <span className="flex size-9 items-center justify-center rounded-md border border-border bg-white p-1.5">
+        <img
+          src="/minialdoc-icon.svg"
+          alt=""
+          aria-hidden="true"
+          className="size-full object-contain"
+        />
       </span>
       {!compact ? (
         <span className="text-[1.05rem] font-bold tracking-tight">Minialdoc</span>

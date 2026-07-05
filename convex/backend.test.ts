@@ -511,6 +511,153 @@ describe("API documentation", () => {
     expect(duplicateEndpoint?.slug).toBe("get-user-2");
   });
 
+  it("scopes documentation slugs to project and version", async () => {
+    const account = await createOrganizationAndProject(
+      "version-slugs@example.com",
+      "Versioned Company",
+    );
+    const defaultVersion = (
+      await account.authenticated.query(api.versions.list, {
+        projectId: account.project._id,
+      })
+    ).find((version) => version.isDefault);
+    const section = await account.authenticated.mutation(api.sections.create, {
+      projectId: account.project._id,
+      versionId: defaultVersion!._id,
+      title: "Users",
+    });
+    const duplicateSection = await account.authenticated.mutation(
+      api.sections.create,
+      {
+        projectId: account.project._id,
+        versionId: defaultVersion!._id,
+        title: "Users",
+      },
+    );
+    const endpoint = await account.authenticated.mutation(
+      api.endpoints.create,
+      {
+        projectId: account.project._id,
+        sectionId: section!._id,
+        title: "Get User",
+        endpointType: "endpoint",
+      },
+    );
+    const duplicateEndpoint = await account.authenticated.mutation(
+      api.endpoints.create,
+      {
+        projectId: account.project._id,
+        sectionId: section!._id,
+        title: "Get User",
+        endpointType: "endpoint",
+      },
+    );
+    const guideSection = await account.authenticated.mutation(
+      api.guideSections.create,
+      {
+        projectId: account.project._id,
+        versionId: defaultVersion!._id,
+        title: "Guides",
+      },
+    );
+    const duplicateGuideSection = await account.authenticated.mutation(
+      api.guideSections.create,
+      {
+        projectId: account.project._id,
+        versionId: defaultVersion!._id,
+        title: "Guides",
+      },
+    );
+    const guidePage = await account.authenticated.mutation(api.guides.create, {
+      projectId: account.project._id,
+      sectionId: guideSection!._id,
+      title: "Getting Started",
+    });
+    const duplicateGuidePage = await account.authenticated.mutation(
+      api.guides.create,
+      {
+        projectId: account.project._id,
+        sectionId: guideSection!._id,
+        title: "Getting Started",
+      },
+    );
+
+    const copiedVersion = await account.authenticated.mutation(api.versions.create, {
+      projectId: account.project._id,
+      name: "v2.0",
+      copyFromVersionId: defaultVersion!._id,
+    });
+
+    const copiedApiNavigation = await account.authenticated.query(
+      api.sections.navigation,
+      {
+        projectId: account.project._id,
+        versionId: copiedVersion._id,
+      },
+    );
+    const copiedGuideNavigation = await account.authenticated.query(
+      api.guides.navigation,
+      {
+        projectId: account.project._id,
+        versionId: copiedVersion._id,
+      },
+    );
+    const updated = await account.authenticated.mutation(api.endpoints.update, {
+      endpointId: endpoint!._id,
+      title: "Get User",
+    });
+    const updatedSection = await account.authenticated.mutation(
+      api.sections.update,
+      {
+        sectionId: section!._id,
+        title: "Users",
+      },
+    );
+    const updatedGuideSection = await account.authenticated.mutation(
+      api.guideSections.update,
+      {
+        sectionId: guideSection!._id,
+        title: "Guides",
+      },
+    );
+    const updatedGuidePage = await account.authenticated.mutation(
+      api.guides.update,
+      {
+        guidePageId: guidePage!._id,
+        title: "Getting Started",
+      },
+    );
+
+    expect(section?.slug).toBe("users");
+    expect(duplicateSection?.slug).toBe("users-2");
+    expect(endpoint?.slug).toBe("get-user");
+    expect(duplicateEndpoint?.slug).toBe("get-user-2");
+    expect(guideSection?.slug).toBe("guides");
+    expect(duplicateGuideSection?.slug).toBe("guides-2");
+    expect(guidePage?.slug).toBe("getting-started");
+    expect(duplicateGuidePage?.slug).toBe("getting-started-2");
+    expect(copiedApiNavigation.map((item) => item.slug)).toEqual([
+      "users",
+      "users-2",
+    ]);
+    expect(copiedApiNavigation[0]?.endpoints.map((item) => item.slug)).toEqual([
+      "get-user",
+      "get-user-2",
+    ]);
+    expect(copiedGuideNavigation.map((item) => item.slug)).toEqual([
+      "guides",
+      "guides-2",
+    ]);
+    expect(copiedGuideNavigation[0]?.pages.map((item) => item.slug)).toEqual([
+      "getting-started",
+      "getting-started-2",
+    ]);
+    expect(updatedSection?.slug).toBe("users");
+    expect(updated?.slug).toBe("get-user");
+    expect(updatedGuideSection?.slug).toBe("guides");
+    expect(updatedGuidePage?.slug).toBe("getting-started");
+  });
+
   it("does not resolve ambiguous public project subdomains", async () => {
     const first = await createOrganizationAndProject(
       "first-public@example.com",

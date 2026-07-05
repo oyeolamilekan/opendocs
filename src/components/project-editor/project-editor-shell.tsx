@@ -1,16 +1,12 @@
 import { useEffect, useState, type CSSProperties, type FormEvent } from "react";
 import {
-  Link,
   useBlocker as useTanStackBlocker,
   useNavigate,
 } from "@tanstack/react-router";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import type { Doc, Id } from "../../../convex/_generated/dataModel";
-import {
-  smoothDashboardLinkProps,
-  smoothDashboardNavigateOptions,
-} from "../dashboard-navigation";
+import { smoothDashboardNavigateOptions } from "../dashboard-navigation";
 import { getErrorMessage } from "../../lib/errors";
 import { buildBrowserPublicDocumentationUrl } from "../../lib/public-docs-domain";
 import { Button } from "../ui/button";
@@ -34,7 +30,6 @@ import {
 import { useToast } from "../ui/toast";
 import { ThemeToggle } from "../theme-toggle";
 import {
-  ArrowLeft,
   ExternalLink,
   Globe2,
   Lock,
@@ -156,6 +151,7 @@ export function ProjectEditor({
   const [creatingGuideSectionId, setCreatingGuideSectionId] =
     useState<Id<"guideSections"> | null>(null);
   const [isReferenceSidebarOpen, setIsReferenceSidebarOpen] = useState(true);
+  const [publicUrl, setPublicUrl] = useState("/");
   const { draft, setDraft, savedDraft, setSavedDraft } = useEndpointDraft(
     endpoint,
     endpointSlug,
@@ -199,6 +195,10 @@ export function ProjectEditor({
     }
     void ensureVersion();
   }, [project, versions, ensureDefaultVersion]);
+
+  useEffect(() => {
+    setPublicUrl(buildBrowserPublicDocumentationUrl(projectSlug));
+  }, [projectSlug]);
 
   async function submitSection(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -551,7 +551,6 @@ export function ProjectEditor({
     );
   }
 
-  const publicUrl = buildBrowserPublicDocumentationUrl(projectSlug);
   const isDocument = area === "guides";
 
   return (
@@ -580,16 +579,10 @@ export function ProjectEditor({
           >
             <SidebarHeader className="project-documentation-sidebar-header project-editor-sidebar-header border-b border-sidebar-border">
               <div className="project-editor-sidebar-titlebar">
-                <Button variant="ghost" size="icon-sm" asChild>
-                  <Link
-                    to="/app/$organizationSlug/projects"
-                    params={{ organizationSlug: organization.slug }}
-                    {...smoothDashboardLinkProps}
-                  >
-                    <ArrowLeft />
-                  </Link>
-                </Button>
-                <div className="min-w-0">
+                <div className="flex min-w-0 flex-col gap-1">
+                  <p className="truncate text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                    {isDocument ? "Guides" : "Reference"}
+                  </p>
                   <p className="truncate text-sm font-semibold">
                     {project.title}
                   </p>

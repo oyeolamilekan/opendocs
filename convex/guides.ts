@@ -39,7 +39,12 @@ export const create = mutation({
       versionId: section.versionId,
       sectionId: args.sectionId,
       title,
-      slug: await uniqueGuidePageSlug(ctx, args.projectId, title),
+      slug: await uniqueGuidePageSlug(
+        ctx,
+        args.projectId,
+        section.versionId,
+        title,
+      ),
       content: args.content,
       markdown: args.markdown,
       description: args.description?.trim() ?? "",
@@ -134,6 +139,7 @@ export const update = mutation({
       patch.slug = await uniqueGuidePageSlug(
         ctx,
         guidePage.projectId,
+        guidePage.versionId,
         title,
         guidePage._id,
       );

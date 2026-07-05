@@ -8,8 +8,7 @@ import {
   createRootRouteWithContext,
   useRouteContext,
 } from '@tanstack/react-router'
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
-import { TanStackDevtools } from '@tanstack/react-devtools'
+import { type ReactNode } from 'react'
 
 import { authClient } from '../lib/auth-client'
 import { Toaster } from '../components/ui/sonner'
@@ -69,7 +68,7 @@ function RootComponent() {
   )
 }
 
-function RootDocument({ children }: { children: React.ReactNode }) {
+function RootDocument({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -80,17 +79,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <ThemeProvider>
           {children}
           <Toaster position="top-right" richColors closeButton />
-          <TanStackDevtools
-            config={{
-              position: 'bottom-right',
-            }}
-            plugins={[
-              {
-                name: 'Tanstack Router',
-                render: <TanStackRouterDevtoolsPanel />,
-              },
-            ]}
-          />
         </ThemeProvider>
         <Scripts />
       </body>

@@ -31,12 +31,6 @@ import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 
-const SUGGESTIONS = [
-  "What is this page about?",
-  "What should I read next?",
-  "Can you give an example?",
-];
-
 const PROGRESS_STEPS = [
   "Searching documentation",
   "Reading relevant documentation",
@@ -179,21 +173,12 @@ export function PublicAiAssistant({
     await sendMessage({ text });
   }
 
-  async function sendSuggestion(text: string) {
-    if (isBusy || sessionId === "pending") return;
-    progressStepRef.current = 0;
-    setProgressStep(0);
-    setProgressLabel(PROGRESS_STEPS[0]);
-    setInput("");
-    await sendMessage({ text });
-  }
-
   if (!open) {
     return null;
   }
 
   return (
-    <aside className="fixed inset-y-0 right-0 z-50 flex w-[min(34rem,100vw)] flex-col border-l bg-background shadow-2xl lg:sticky lg:top-0 lg:z-20 lg:h-svh lg:w-[30rem] lg:shrink-0 lg:shadow-none xl:w-[34rem] 2xl:w-[38rem]">
+    <aside className="fixed bottom-0 right-0 top-[var(--public-doc-header-height)] z-50 flex h-[calc(100svh-var(--public-doc-header-height))] w-[min(34rem,100vw)] flex-col overflow-hidden border-l bg-background shadow-2xl lg:sticky lg:top-[var(--public-doc-header-height)] lg:z-20 lg:w-[30rem] lg:shrink-0 lg:self-start lg:shadow-none xl:w-[34rem] 2xl:w-[38rem]">
       <header className="flex h-16 shrink-0 items-center gap-3 border-b px-4">
         <Sparkles className="size-4 text-muted-foreground" />
         <h2 className="min-w-0 flex-1 truncate text-sm font-semibold">
@@ -259,22 +244,6 @@ export function PublicAiAssistant({
               <AlertDescription>{error.message}</AlertDescription>
             </Alert>
           ) : null}
-
-          <div className="mb-3 flex flex-wrap gap-2">
-            {SUGGESTIONS.map((suggestion) => (
-              <Button
-                key={suggestion}
-                type="button"
-                variant="secondary"
-                size="sm"
-                className="h-8 rounded-full px-3 text-xs font-normal"
-                disabled={isBusy || sessionId === "pending"}
-                onClick={() => void sendSuggestion(suggestion)}
-              >
-                {suggestion}
-              </Button>
-            ))}
-          </div>
 
           <form
             onSubmit={submitMessage}

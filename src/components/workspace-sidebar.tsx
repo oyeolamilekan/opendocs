@@ -3,7 +3,6 @@ import {
   Building2,
   FolderKanban,
   LogOut,
-  PanelsTopLeft,
   Settings,
 } from "lucide-react";
 import type { Doc } from "../../convex/_generated/dataModel";
@@ -59,8 +58,13 @@ export function WorkspaceSidebar({
                 onClick={closeMobileSidebar}
                 {...smoothDashboardLinkProps}
               >
-                <span className="flex aspect-square size-8 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
-                  <PanelsTopLeft />
+                <span className="flex aspect-square size-8 items-center justify-center rounded-md border border-sidebar-border bg-white p-1">
+                  <img
+                    src="/minialdoc-icon.svg"
+                    alt=""
+                    aria-hidden="true"
+                    className="size-full object-contain"
+                  />
                 </span>
                 <span className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">Minialdoc</span>

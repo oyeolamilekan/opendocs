@@ -346,6 +346,7 @@ export const replaceImportedDocumentation = internalMutation({
         slug: await uniqueSectionSlug(
           ctx,
           args.projectId,
+          args.versionId,
           importedSection.title,
         ),
         position: sectionPosition,
@@ -358,7 +359,12 @@ export const replaceImportedDocumentation = internalMutation({
           versionId: args.versionId,
           sectionId,
           title: endpoint.title,
-          slug: await uniqueEndpointSlug(ctx, args.projectId, endpoint.title),
+          slug: await uniqueEndpointSlug(
+            ctx,
+            args.projectId,
+            args.versionId,
+            endpoint.title,
+          ),
           endpointType: "endpoint",
           content: endpoint.content,
           markdown: endpoint.markdown,

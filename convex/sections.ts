@@ -32,7 +32,7 @@ export const create = mutation({
       projectId: args.projectId,
       versionId: args.versionId,
       title,
-      slug: await uniqueSectionSlug(ctx, args.projectId, title),
+      slug: await uniqueSectionSlug(ctx, args.projectId, args.versionId, title),
       position: await nextSectionPosition(ctx, args.projectId),
       updatedAt: Date.now(),
     });
@@ -95,6 +95,7 @@ export const update = mutation({
       patch.slug = await uniqueSectionSlug(
         ctx,
         section.projectId,
+        section.versionId,
         title,
         section._id,
       );

@@ -64,7 +64,7 @@ export async function uniqueProjectSlug(
         .withIndex("by_organization_slug", (q) =>
           q.eq("organizationId", organizationId).eq("slug", slug),
         )
-        .unique(),
+        .collect(),
     excludeId,
   );
 }
@@ -72,18 +72,34 @@ export async function uniqueProjectSlug(
 export async function uniqueSectionSlug(
   ctx: MutationCtx,
   projectId: Id<"apiProjects">,
+  versionId: Id<"documentationVersions"> | undefined,
   title: string,
   excludeId?: Id<"apiSections">,
 ) {
   return uniqueScopedSlug(
     title,
-    async (slug) =>
-      await ctx.db
+    async (slug) => {
+      if (versionId) {
+        return await ctx.db
+          .query("apiSections")
+          .withIndex("by_version_slug", (q) =>
+            q.eq("versionId", versionId).eq("slug", slug),
+          )
+          .collect()
+          .then((sections) =>
+            sections.filter((section) => section.projectId === projectId),
+          );
+      }
+      return await ctx.db
         .query("apiSections")
         .withIndex("by_project_slug", (q) =>
           q.eq("projectId", projectId).eq("slug", slug),
         )
-        .unique(),
+        .collect()
+        .then((sections) =>
+          sections.filter((section) => section.versionId === undefined),
+        );
+    },
     excludeId,
   );
 }
@@ -91,18 +107,34 @@ export async function uniqueSectionSlug(
 export async function uniqueEndpointSlug(
   ctx: MutationCtx,
   projectId: Id<"apiProjects">,
+  versionId: Id<"documentationVersions"> | undefined,
   title: string,
   excludeId?: Id<"apiEndpoints">,
 ) {
   return uniqueScopedSlug(
     title,
-    async (slug) =>
-      await ctx.db
+    async (slug) => {
+      if (versionId) {
+        return await ctx.db
+          .query("apiEndpoints")
+          .withIndex("by_version_slug", (q) =>
+            q.eq("versionId", versionId).eq("slug", slug),
+          )
+          .collect()
+          .then((endpoints) =>
+            endpoints.filter((endpoint) => endpoint.projectId === projectId),
+          );
+      }
+      return await ctx.db
         .query("apiEndpoints")
         .withIndex("by_project_slug", (q) =>
           q.eq("projectId", projectId).eq("slug", slug),
         )
-        .unique(),
+        .collect()
+        .then((endpoints) =>
+          endpoints.filter((endpoint) => endpoint.versionId === undefined),
+        );
+    },
     excludeId,
   );
 }
@@ -110,18 +142,34 @@ export async function uniqueEndpointSlug(
 export async function uniqueGuidePageSlug(
   ctx: MutationCtx,
   projectId: Id<"apiProjects">,
+  versionId: Id<"documentationVersions"> | undefined,
   title: string,
   excludeId?: Id<"guidePages">,
 ) {
   return uniqueScopedSlug(
     title,
-    async (slug) =>
-      await ctx.db
+    async (slug) => {
+      if (versionId) {
+        return await ctx.db
+          .query("guidePages")
+          .withIndex("by_version_slug", (q) =>
+            q.eq("versionId", versionId).eq("slug", slug),
+          )
+          .collect()
+          .then((pages) =>
+            pages.filter((page) => page.projectId === projectId),
+          );
+      }
+      return await ctx.db
         .query("guidePages")
         .withIndex("by_project_slug", (q) =>
           q.eq("projectId", projectId).eq("slug", slug),
         )
-        .unique(),
+        .collect()
+        .then((pages) =>
+          pages.filter((page) => page.versionId === undefined),
+        );
+    },
     excludeId,
   );
 }
@@ -129,18 +177,34 @@ export async function uniqueGuidePageSlug(
 export async function uniqueGuideSectionSlug(
   ctx: MutationCtx,
   projectId: Id<"apiProjects">,
+  versionId: Id<"documentationVersions"> | undefined,
   title: string,
   excludeId?: Id<"guideSections">,
 ) {
   return uniqueScopedSlug(
     title,
-    async (slug) =>
-      await ctx.db
+    async (slug) => {
+      if (versionId) {
+        return await ctx.db
+          .query("guideSections")
+          .withIndex("by_version_slug", (q) =>
+            q.eq("versionId", versionId).eq("slug", slug),
+          )
+          .collect()
+          .then((sections) =>
+            sections.filter((section) => section.projectId === projectId),
+          );
+      }
+      return await ctx.db
         .query("guideSections")
         .withIndex("by_project_slug", (q) =>
           q.eq("projectId", projectId).eq("slug", slug),
         )
-        .unique(),
+        .collect()
+        .then((sections) =>
+          sections.filter((section) => section.versionId === undefined),
+        );
+    },
     excludeId,
   );
 }
@@ -156,7 +220,7 @@ async function uniqueScopedSlug<
   },
 >(
   title: string,
-  findBySlug: (slug: string) => Promise<T | null>,
+  findBySlug: (slug: string) => Promise<T[]>,
   excludeId?: T["_id"],
 ) {
   const baseSlug = slugify(title);
@@ -173,7 +237,10 @@ async function uniqueScopedSlug<
 
   while (true) {
     const existing = await findBySlug(slug);
-    if (!existing || existing._id === excludeId) {
+    if (
+      existing.length === 0 ||
+      existing.every((candidate) => candidate._id === excludeId)
+    ) {
       return slug;
     }
     suffix += 1;

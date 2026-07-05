@@ -25,7 +25,7 @@ import {
   statusOptionsWithCurrentValue,
   useEndpointDraft,
 } from "./project-editor";
-import { setNestedRequestValue } from "./public-documentation";
+import { setNestedRequestValue } from "../lib/request-values";
 
 afterEach(() => {
   cleanup();

@@ -219,6 +219,14 @@ Public projects expose a few machine-readable exports on their subdomain (and th
 - `/guides/<guide-slug>.md` on the subdomain, or `/docs/<organization-slug>/<project-slug>/guides/<guide-slug>.md` on the path fallback — Markdown export of a single guide page.
 - `/api/public/docs/search?q=...`, `/api/public/docs/page`, `/api/public/docs/endpoint`, and `/api/public/docs/navigation` — read-only JSON retrieval APIs for external agents that bring their own model.
 
+Published guide and reference pages also include a page copy menu:
+
+- **Copy as Markdown** copies the current page in an agent-readable Markdown shape. Endpoint pages include the title, method, path, description, parameters, request body fields, authentication notes, responses, and generated request code examples. Guide pages include the full authored content, including code tabs and code blocks.
+- **Copy as text** copies the same page content as plain text for models or tools that handle prose better than Markdown.
+- **Copy page URL** copies the canonical public URL so an agent or teammate can cite the source page.
+
+The copy output is generated from the same formatter used by the `.md` routes, so the clipboard content and public Markdown exports stay aligned.
+
 Private projects return 404 for these URLs.
 
 ## 13. Publishing

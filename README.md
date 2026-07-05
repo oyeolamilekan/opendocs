@@ -12,7 +12,7 @@ API documentation without the operational clutter. Create, organize, import, and
 - **Documentation versioning** — Run draft and published versions side by side, mark betas and deprecations, and pin a default.
 - **Custom theming** — Pick a theme color, brand color, font, and layout style, then add your logo and favicon.
 - **Try it out** — Readers can call documented endpoints directly from the public docs; calls are proxied through the app and recorded in analytics.
-- **Public exports** — Publish `agent.json`, `tools.json`, `openapi.json`, `llms.txt`, and Markdown exports of every guide and endpoint page.
+- **Agent-friendly exports** — Publish `agent.json`, `tools.json`, `openapi.json`, `llms.txt`, Markdown exports, and one-click Markdown/text copies of every guide and endpoint page.
 - **Private by default** — Keep work inside your organization, then publish documentation deliberately.
 - **Team workspaces** — Invite members as owners, admins, or members and share projects from one organization.
 - **Analytics** — Track API calls and page views per project with hourly and daily counters.
@@ -129,6 +129,7 @@ bun run dev
 - `src/routes/api/` — server API routes for AI chat, auth proxy, and the endpoint tester proxy
 - `src/components/` — React components (editor, AI panel, cards, dialogs)
 - `convex/` — backend: schema, auth, projects, endpoints, guides, versions, AI, analytics, OpenAPI import
+- `src/lib/agent-export.ts` and `src/lib/markdown-export.ts` — public agent manifests, tool catalogs, retrieval payloads, and Markdown/text export formatting
 - `src/styles.css` — Geist design tokens, documentation theme overrides, editor styles
 - `DESIGN.md` — full Geist design system reference
 

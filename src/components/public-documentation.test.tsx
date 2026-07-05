@@ -1,6 +1,12 @@
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
@@ -51,6 +57,12 @@ beforeEach(() => {
       dispatchEvent: vi.fn(),
     })),
   });
+  Object.assign(navigator, {
+    clipboard: {
+      writeText: vi.fn(() => Promise.resolve()),
+    },
+  });
+  document.execCommand = vi.fn(() => true);
 });
 
 afterEach(() => {
@@ -194,6 +206,98 @@ function publicSearchData() {
   };
 }
 
+function publicEndpointData() {
+  return {
+    project: {
+      project: {
+        title: "Example Docs",
+        slug: "example-docs",
+        baseUrl: "https://api.example.com",
+        description: "Example documentation",
+        themeColor: "emerald",
+        documentationStyle: "default",
+        documentationFont: "sans",
+      },
+    },
+    navigation: [
+      {
+        _id: "reference-section",
+        title: "Payments",
+        slug: "payments",
+        position: 0,
+        endpoints: [
+          {
+            _id: "payment-address",
+            title: "Create Payment Address",
+            slug: "create-payment-address",
+            endpointType: "endpoint" as const,
+            method: "POST",
+            path: "/payment-addresses",
+            description: "Create a payment address.",
+            position: 0,
+          },
+        ],
+      },
+    ],
+    guides: [],
+    aiSettings: { enabled: false, displayName: "AI Assistant" },
+    versions: [
+      {
+        _id: "version",
+        name: "v1.0",
+        slug: "v1.0",
+        status: "published",
+        isDefault: true,
+        isBeta: false,
+        isDeprecated: false,
+        updatedAt: 1,
+      },
+    ],
+    endpoint: {
+      title: "Create Payment Address",
+      slug: "create-payment-address",
+      endpointType: "endpoint" as const,
+      content: "",
+      markdown: "Use this endpoint after creating a customer.",
+      position: 0,
+      updatedAt: 1,
+      body: {
+        method: "POST",
+        path: "/payment-addresses",
+        description: "Create a payment address.",
+        parameters: [
+          {
+            name: "customerId",
+            dataType: "string",
+            required: true,
+            description: "Customer identifier.",
+            location: "query",
+          },
+        ],
+        requestBody: [
+          {
+            name: "asset",
+            dataType: "string",
+            required: true,
+            description: "Crypto asset symbol.",
+          },
+        ],
+        authHeader: {
+          type: "bearer" as const,
+          key: "Authorization",
+        },
+        sampleResponses: [
+          {
+            statusCode: 201,
+            description: "Created",
+            body: '{"address":"bc1qexample"}',
+          },
+        ],
+      },
+    },
+  };
+}
+
 describe("public documentation sidebar links", () => {
   it("renders a guide page icon before the title", () => {
     const { container } = renderWithSidebar(
@@ -318,6 +422,120 @@ describe("public documentation table of contents", () => {
       screen.getByRole("link", { name: "Get API Keys" }).getAttribute("target"),
     ).toBe("_blank");
     expect(screen.queryByText("Hidden Link")).toBeNull();
+  });
+
+  it("copies a guide page as Markdown", async () => {
+    render(
+      <ThemeProvider>
+        <PublicDocumentation
+          organizationSlug="example"
+          projectSlug="docs"
+          data={publicGuideData(guideContent(["Overview"])) as any}
+        />
+      </ThemeProvider>,
+    );
+
+    openCopyMenu();
+    fireEvent.click(screen.getByText("Copy as Markdown"));
+
+    await waitFor(() => {
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+        expect.stringContaining("# Getting Started"),
+      );
+    });
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      expect.stringContaining("Overview content."),
+    );
+  });
+
+  it("copies an API reference page as Markdown and plain text", async () => {
+    render(
+      <ThemeProvider>
+        <PublicDocumentation
+          organizationSlug="example"
+          projectSlug="docs"
+          data={publicEndpointData() as any}
+        />
+      </ThemeProvider>,
+    );
+
+    openCopyMenu();
+    fireEvent.click(screen.getByText("Copy as Markdown"));
+
+    await waitFor(() => {
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+        expect.stringContaining("# Create Payment Address"),
+      );
+    });
+    const markdownCopy = vi
+      .mocked(navigator.clipboard.writeText)
+      .mock.calls.at(-1)?.[0];
+    expect(markdownCopy).toContain("POST /payment-addresses");
+    expect(markdownCopy).toContain("## Request body");
+    expect(markdownCopy).toContain("## Code examples");
+    expect(markdownCopy).toContain("### JavaScript");
+    expect(markdownCopy).toContain("const response = await fetch");
+    expect(markdownCopy).toContain("### Python");
+    expect(markdownCopy).toContain("requests.post");
+
+    openCopyMenu("Copied");
+    fireEvent.click(screen.getByText("Copy as text"));
+
+    await waitFor(() => {
+      expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith(
+        expect.stringContaining("Create Payment Address"),
+      );
+    });
+    const textCopy = vi
+      .mocked(navigator.clipboard.writeText)
+      .mock.calls.at(-1)?.[0];
+    expect(textCopy).toContain("POST /payment-addresses");
+    expect(textCopy).not.toContain("# Create Payment Address");
+  });
+
+  it("copies the visible sample code from an API reference page", async () => {
+    render(
+      <ThemeProvider>
+        <PublicDocumentation
+          organizationSlug="example"
+          projectSlug="docs"
+          data={publicEndpointData() as any}
+        />
+      </ThemeProvider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Copy cURL example" }));
+
+    await waitFor(() => {
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+        expect.stringContaining("curl --request POST"),
+      );
+    });
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      expect.stringContaining("https://api.example.com/payment-addresses"),
+    );
+  });
+
+  it("falls back when the Clipboard API cannot copy sample code", async () => {
+    vi.mocked(navigator.clipboard.writeText).mockRejectedValueOnce(
+      new DOMException("Not allowed", "NotAllowedError"),
+    );
+
+    render(
+      <ThemeProvider>
+        <PublicDocumentation
+          organizationSlug="example"
+          projectSlug="docs"
+          data={publicEndpointData() as any}
+        />
+      </ThemeProvider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Copy cURL example" }));
+
+    await waitFor(() => {
+      expect(document.execCommand).toHaveBeenCalledWith("copy");
+    });
   });
 
   it("opens a responsive search modal from the header trigger", () => {
@@ -499,6 +717,13 @@ describe("public documentation table of contents", () => {
     expect(screen.queryByText("On this page")).toBeNull();
   });
 });
+
+function openCopyMenu(name = "Copy") {
+  fireEvent.pointerDown(screen.getByRole("button", { name }), {
+    button: 0,
+    ctrlKey: false,
+  });
+}
 
 describe("public documentation responses", () => {
   it("renders JSON response bodies with syntax highlighting", () => {

@@ -411,6 +411,8 @@ const tiptapNodeToMarkdown = (node: TipTapNode): string => {
         .join("\n");
     case "codeBlock":
       return fenced(String(node.attrs?.language ?? ""), children);
+    case "codeTabs":
+      return formatCodeTabsMarkdown(node.attrs?.tabs);
     case "hardBreak":
       return "\n";
     case "horizontalRule":
@@ -432,6 +434,36 @@ const tiptapNodeToMarkdown = (node: TipTapNode): string => {
     default:
       return children;
   }
+};
+
+const formatCodeTabsMarkdown = (value: unknown) => {
+  if (!Array.isArray(value)) return "";
+
+  return value
+    .flatMap((candidate) => {
+      if (!candidate || typeof candidate !== "object") return [];
+      const tab = candidate as Record<string, unknown>;
+      const code = typeof tab.code === "string" ? tab.code.trim() : "";
+      if (!code) return [];
+
+      const name = typeof tab.name === "string" ? tab.name.trim() : "";
+      const language =
+        typeof tab.language === "string" ? tab.language.trim() : "";
+
+      return [
+        normalizeMarkdown([
+          name ? `### ${name}` : "",
+          fenced(markdownCodeFenceLanguage(language), code),
+        ]),
+      ];
+    })
+    .join("\n\n");
+};
+
+const markdownCodeFenceLanguage = (language: string) => {
+  if (language === "plaintext") return "text";
+  if (language === "html") return "xml";
+  return language;
 };
 
 /**

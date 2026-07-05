@@ -165,12 +165,15 @@ export function ProjectAiPage({
     organizationId: organization._id,
     slug: projectSlug,
   });
-  const [activeSection, setActiveSection] = useState<AiSection>(
-    () => readAiSection(organization.slug, projectSlug) ?? "configuration",
-  );
+  const [activeSection, setActiveSection] =
+    useState<AiSection>("configuration");
   const project = dashboard?.project;
   const settings = dashboard?.settings;
   const versions = dashboard?.versions ?? [];
+  const displayVersion =
+    versions.find((version) => version.isDefault)?.name ??
+    versions[0]?.name ??
+    "v1.0";
   const conversations = usePaginatedQuery(
     api.ai.listConversationSummaries,
     project && activeSection === "conversation"
@@ -236,15 +239,19 @@ export function ProjectAiPage({
           collapsible="offcanvas"
           className="project-documentation-sidebar lg:left-60!"
         >
-          <SidebarHeader className="project-documentation-sidebar-header border-b border-sidebar-border">
-            <div className="project-documentation-title">
-              <p className="text-xs font-semibold uppercase text-muted-foreground">
-                Artificial intelligence
-              </p>
-              <h2 className="mt-2 flex items-center gap-3 text-xl font-semibold">
-                <Bot className="size-5 text-primary" />
-                AI
-              </h2>
+          <SidebarHeader className="project-documentation-sidebar-header project-editor-sidebar-header border-b border-sidebar-border">
+            <div className="project-editor-sidebar-titlebar">
+              <div className="flex min-w-0 flex-col gap-1">
+                <p className="truncate text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                  Artificial intelligence
+                </p>
+                <p className="truncate text-sm font-semibold">
+                  {project.title}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {displayVersion}
+                </p>
+              </div>
             </div>
           </SidebarHeader>
 
@@ -959,12 +966,13 @@ function ConversationMessageCard({
 }
 
 function formatDateTime(value: number) {
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
     hour: "numeric",
     minute: "2-digit",
+    timeZone: "UTC",
   }).format(new Date(value));
 }
 

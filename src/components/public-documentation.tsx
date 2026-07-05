@@ -6,6 +6,7 @@ import {
   ChevronRight,
   CodeXml,
   Copy,
+  FileCode2,
   FileText,
   PanelsTopLeft,
   Search,
@@ -26,20 +27,27 @@ import {
   generateCodeExamples,
   getPublicClient,
 } from "../lib/public-docs";
+import { setNestedRequestValue } from "../lib/request-values";
 import {
   DEFAULT_DOCUMENTATION_FONT,
   DEFAULT_DOCUMENTATION_STYLE,
   getDocumentationTheme,
 } from "../lib/documentation-theme";
 import { DocumentationIcon } from "../lib/documentation-icons";
+import {
+  formatEndpointMarkdown,
+  formatGuideMarkdown,
+} from "../lib/markdown-export";
 import { cn } from "../lib/utils";
 import { EndpointTester } from "./endpoint-tester";
 import { PublicAiAssistant } from "./public-ai-assistant";
 import {
-  extractRichContentHeadings,
   RichContentRenderer,
-  type RichContentHeading,
 } from "./rich-content-renderer";
+import {
+  extractRichContentHeadings,
+  type RichContentHeading,
+} from "../lib/rich-content";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import {
@@ -53,6 +61,13 @@ import {
   DialogDescription,
   DialogTitle,
 } from "./ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 import { FieldGroup } from "./ui/field";
 import { Input } from "./ui/input";
 import { Separator } from "./ui/separator";
@@ -82,11 +97,11 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { ThemeToggle } from "./theme-toggle";
 
-type PublicData = Awaited<
-  ReturnType<typeof import("../lib/public-docs").loadPublicEndpoint>
-> | Awaited<
-  ReturnType<typeof import("../lib/public-docs").loadPublicGuidePage>
->;
+type PublicData =
+  | Awaited<ReturnType<typeof import("../lib/public-docs").loadPublicEndpoint>>
+  | Awaited<
+      ReturnType<typeof import("../lib/public-docs").loadPublicGuidePage>
+    >;
 
 type FieldItem = {
   name: string;
@@ -158,7 +173,9 @@ export function PublicDocumentation({
   const [searchQuery, setSearchQuery] = useState("");
   const [searchScope, setSearchScope] =
     useState<DocumentationSearchScope>("all");
-  const [copied, setCopied] = useState(false);
+  const [copiedFormat, setCopiedFormat] = useState<
+    "markdown" | "text" | "url" | null
+  >(null);
   const [parameters, setParameters] = useState<Record<string, string>>({});
   const [body, setBody] = useState<Record<string, unknown>>({});
   const [credential, setCredential] = useState("");
@@ -171,8 +188,7 @@ export function PublicDocumentation({
   const isAiOpenRef = useRef(isAiOpen);
   const endpoint = "endpoint" in data ? data.endpoint : null;
   const guidePage = "guidePage" in data ? data.guidePage : null;
-  const apiEndpoint =
-    endpoint?.endpointType === "endpoint" ? endpoint : null;
+  const apiEndpoint = endpoint?.endpointType === "endpoint" ? endpoint : null;
   const isDocument = !apiEndpoint;
   const activeArea = guidePage ? "guides" : "api-reference";
   const currentSlug = guidePage?.slug ?? endpoint?.slug ?? "";
@@ -313,21 +329,18 @@ export function PublicDocumentation({
         parameters,
       )
     : "";
-  const examples = useMemo<Record<string, string>>(
-    () => {
-      if (!apiEndpoint) return {};
-      return generateCodeExamples({
-        method: apiEndpoint.body.method,
-        url,
-        authType: apiEndpoint.body.authHeader.type,
-        authKey: apiEndpoint.body.authHeader.key,
-        hasBody: apiEndpoint.body.requestBody.length > 0,
-        bodyValues: body,
-        credential,
-      });
-    },
-    [body, apiEndpoint, url, credential],
-  );
+  const examples = useMemo<Record<string, string>>(() => {
+    if (!apiEndpoint) return {};
+    return generateCodeExamples({
+      method: apiEndpoint.body.method,
+      url,
+      authType: apiEndpoint.body.authHeader.type,
+      authKey: apiEndpoint.body.authHeader.key,
+      hasBody: apiEndpoint.body.requestBody.length > 0,
+      bodyValues: body,
+      credential,
+    });
+  }, [body, apiEndpoint, url, credential]);
   const pathParameters = (apiEndpoint?.body.parameters ?? []).filter(
     (parameter) => parameter.location === "path",
   );
@@ -365,33 +378,37 @@ export function PublicDocumentation({
       .flatMap((section) =>
         [...section.pages]
           .sort((left, right) => left.position - right.position)
-          .map((page): DocumentationSearchResult => ({
-            id: `guide:${page._id}`,
-            kind: "guide",
-            title: page.title,
-            description: getOptionalDescription(page),
-            sectionTitle: section.title,
-            href: versionedPath(`/docs/${page.slug}`),
-            iconName: page.iconName,
-          })),
+          .map(
+            (page): DocumentationSearchResult => ({
+              id: `guide:${page._id}`,
+              kind: "guide",
+              title: page.title,
+              description: getOptionalDescription(page),
+              sectionTitle: section.title,
+              href: versionedPath(`/docs/${page.slug}`),
+              iconName: page.iconName,
+            }),
+          ),
       );
     const referenceResults = [...data.navigation]
       .sort((left, right) => left.position - right.position)
       .flatMap((section) =>
         [...section.endpoints]
           .sort((left, right) => left.position - right.position)
-          .map((endpoint): DocumentationSearchResult => ({
-            id: `reference:${endpoint._id}`,
-            kind: "reference",
-            title: endpoint.title,
-            description: getOptionalDescription(endpoint),
-            sectionTitle: section.title,
-            href: versionedPath(`/reference/${endpoint.slug}`),
-            iconName: endpoint.iconName,
-            endpointType: endpoint.endpointType,
-            method: endpoint.method,
-            path: endpoint.path,
-          })),
+          .map(
+            (endpoint): DocumentationSearchResult => ({
+              id: `reference:${endpoint._id}`,
+              kind: "reference",
+              title: endpoint.title,
+              description: getOptionalDescription(endpoint),
+              sectionTitle: section.title,
+              href: versionedPath(`/reference/${endpoint.slug}`),
+              iconName: endpoint.iconName,
+              endpointType: endpoint.endpointType,
+              method: endpoint.method,
+              path: endpoint.path,
+            }),
+          ),
       );
 
     return [...guideResults, ...referenceResults].filter((result) => {
@@ -431,10 +448,31 @@ export function PublicDocumentation({
     )
     .at(0);
 
-  async function copyPage() {
-    await navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1500);
+  async function copyPageContent(format: "markdown" | "text" | "url") {
+    const markdown = buildCurrentPageMarkdown();
+    const value =
+      format === "markdown"
+        ? markdown
+        : format === "text"
+          ? markdownToPlainText(markdown)
+          : window.location.href;
+
+    await copyTextToClipboard(value);
+    setCopiedFormat(format);
+    window.setTimeout(() => setCopiedFormat(null), 1500);
+  }
+
+  function buildCurrentPageMarkdown() {
+    if (guidePage) return formatGuideMarkdown({ guide: guidePage });
+    if (!endpoint) return "";
+
+    return appendCodeExamplesMarkdown(
+      formatEndpointMarkdown({
+        endpoint,
+        baseUrl: data.project.project.baseUrl,
+      }),
+      endpoint.endpointType === "endpoint" ? examples : {},
+    );
   }
 
   async function switchVersion(nextVersionSlug: string) {
@@ -482,8 +520,8 @@ export function PublicDocumentation({
 
       const nextPath =
         (currentPageType === "guide"
-          ? firstGuidePath ?? firstReferencePath
-          : firstReferencePath ?? firstGuidePath) ?? `${prefix}/`;
+          ? (firstGuidePath ?? firstReferencePath)
+          : (firstReferencePath ?? firstGuidePath)) ?? `${prefix}/`;
 
       navigatePublicDocumentationPath(router, nextPath);
     } catch {
@@ -680,518 +718,552 @@ export function PublicDocumentation({
       <SidebarInset className="public-documentation-inset min-w-0">
         <div className="flex min-w-0 flex-1">
           <div className="min-w-0 flex-1">
-        <header className="public-documentation-header fixed inset-x-0 top-0 z-30 shrink-0 bg-background/95 backdrop-blur">
-            <div className="public-documentation-brandbar flex min-h-16 items-center gap-4 overflow-x-auto border-b px-4 py-2 lg:px-7">
-              <Link
-                to="/"
-                className="flex min-w-0 shrink-0 items-center gap-3 text-sm font-semibold"
-              >
-                {data.project.project.logoUrl ? (
-                  <span className="flex size-9 items-center justify-center">
-                    <img
-                      src={data.project.project.logoUrl}
-                      alt=""
-                      className={cn(
-                        "max-h-9 max-w-9 object-contain",
-                        data.project.project.darkLogoUrl && "dark:hidden",
-                      )}
-                    />
-                    {data.project.project.darkLogoUrl ? (
+            <header className="public-documentation-header fixed inset-x-0 top-0 z-30 shrink-0 bg-background/95 backdrop-blur">
+              <div className="public-documentation-brandbar flex min-h-16 items-center gap-4 overflow-x-auto border-b px-4 py-2 lg:px-7">
+                <Link
+                  to="/"
+                  className="flex min-w-0 shrink-0 items-center gap-3 text-sm font-semibold"
+                >
+                  {data.project.project.logoUrl ? (
+                    <span className="flex size-9 items-center justify-center">
                       <img
-                        src={data.project.project.darkLogoUrl}
+                        src={data.project.project.logoUrl}
                         alt=""
-                        className="hidden max-h-9 max-w-9 object-contain dark:block"
+                        className={cn(
+                          "max-h-9 max-w-9 object-contain",
+                          data.project.project.darkLogoUrl && "dark:hidden",
+                        )}
                       />
-                    ) : null}
-                  </span>
-                ) : (
-                  <span className="flex size-9 items-center justify-center rounded-md bg-primary text-primary-foreground">
-                    <PanelsTopLeft />
-                  </span>
-                )}
-              </Link>
-              <a
-                href="/"
-                onClick={(event) => handlePublicDocumentationClick(event, "/")}
-                className="public-documentation-home-link"
-              >
-                Home
-              </a>
-              <nav
-                aria-label="Custom documentation navigation"
-                className="ml-auto flex min-w-max items-center gap-1"
-              >
-                {visibleCustomNavigation.map((item) => {
-                  const href = customNavigationHref(item.href);
-                  const isExternal = isExternalNavigationHref(href);
-
-                  return (
-                    <a
-                      key={item._id}
-                      href={href}
-                      className="public-documentation-custom-nav-link"
-                      target={
-                        isExternal && item.openInNewTab ? "_blank" : undefined
-                      }
-                      rel={
-                        isExternal && item.openInNewTab
-                          ? "noreferrer"
-                          : undefined
-                      }
-                      onClick={(event) =>
-                        handlePublicDocumentationClick(event, href)
-                      }
-                    >
-                      {item.label}
-                    </a>
-                  );
-                })}
-              </nav>
-            </div>
-          <div className="public-documentation-brand-accent h-px bg-[var(--documentation-primary)]" />
-        <div className="public-documentation-topbar flex min-h-15 shrink-0 items-center gap-3 overflow-x-auto border-b px-4 py-2 lg:px-7">
-          <SidebarTrigger />
-          {currentVersion ? (
-            <Select value={currentVersion.slug} onValueChange={switchVersion}>
-              <SelectTrigger className="h-9 w-auto min-w-24 gap-2 rounded-md border-0 bg-transparent px-2 text-sm font-medium shadow-none hover:bg-muted">
-                <span className="font-mono">{currentVersion.name}</span>
-              </SelectTrigger>
-              <SelectContent
-                align="start"
-                position="popper"
-                className="min-w-80 p-2"
-              >
-                <SelectGroup>
-                  {publishedVersions.map((version) => (
-                    <SelectItem
-                      key={version._id}
-                      value={version.slug}
-                      textValue={version.name}
-                      className="min-h-12 rounded-md py-2 pl-4 pr-10 text-base"
-                    >
-                      <span className="grid w-full min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-2">
-                        <span className="min-w-0 shrink truncate font-semibold">
-                          {version.name}
-                        </span>
-                        <span className="flex min-w-0 flex-nowrap items-center gap-1.5 overflow-hidden">
-                          {version.isDefault ? (
-                            <Badge
-                              variant="secondary"
-                              className="h-6 rounded-full bg-primary px-2.5 text-xs text-primary-foreground!"
-                            >
-                              Default
-                            </Badge>
-                          ) : null}
-                          {version.isBeta ? (
-                            <Badge
-                              variant="outline"
-                              className="h-6 rounded-full bg-muted px-2.5 text-xs text-muted-foreground!"
-                            >
-                              Beta
-                            </Badge>
-                          ) : null}
-                          {version.isDeprecated ? (
-                            <Badge
-                              variant="outline"
-                              className="h-6 rounded-full bg-destructive/10 px-2.5 text-xs text-destructive!"
-                            >
-                              Deprecated
-                            </Badge>
-                          ) : null}
-                        </span>
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          ) : (
-            <Badge variant="secondary" className="font-mono">
-              v1.0
-            </Badge>
-          )}
-          <nav
-            className="public-documentation-area-nav"
-            aria-label="Documentation areas"
-          >
-            {firstGuidePage ? (
-              <a
-                href={versionedPath(`/docs/${firstGuidePage.slug}`)}
-                onClick={(event) =>
-                  handlePublicDocumentationClick(
-                    event,
-                    versionedPath(`/docs/${firstGuidePage.slug}`),
-                  )
-                }
-                className="public-documentation-area-link"
-                data-active={activeArea === "guides" ? "" : undefined}
-                aria-current={activeArea === "guides" ? "page" : undefined}
-              >
-                <BookOpenText />
-                Guides
-              </a>
-            ) : (
-              <span
-                className="public-documentation-area-link"
-                aria-disabled="true"
-              >
-                <BookOpenText />
-                Guides
-              </span>
-            )}
-            {firstEndpoint ? (
-              <a
-                href={versionedPath(`/reference/${firstEndpoint.slug}`)}
-                onClick={(event) =>
-                  handlePublicDocumentationClick(
-                    event,
-                    versionedPath(`/reference/${firstEndpoint.slug}`),
-                  )
-                }
-                className="public-documentation-area-link"
-                data-active={
-                  activeArea === "api-reference" ? "" : undefined
-                }
-                aria-current={
-                  activeArea === "api-reference" ? "page" : undefined
-                }
-              >
-                <CodeXml />
-                API Reference
-              </a>
-            ) : (
-              <span
-                className="public-documentation-area-link"
-                aria-disabled="true"
-              >
-                <CodeXml />
-                API Reference
-              </span>
-            )}
-          </nav>
-          <button
-            type="button"
-            aria-label="Search documentation"
-            aria-haspopup="dialog"
-            aria-expanded={isSearchOpen}
-            aria-controls="public-documentation-search-dialog"
-            className="ml-auto flex h-10 min-w-44 max-w-64 shrink-0 items-center gap-2 rounded-lg border bg-background px-3 text-sm text-muted-foreground shadow-none transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-[var(--documentation-focus-ring)]"
-            onClick={() => setIsSearchOpen(true)}
-          >
-            <Search className="size-4 shrink-0" />
-            <span className="min-w-0 flex-1 truncate text-left">Search</span>
-            <span className="hidden text-[11px] font-medium sm:block">
-              ⌘K
-            </span>
-          </button>
-          <ThemeToggle className="shrink-0" />
-          {isAiEnabled ? (
-            <Button
-              type="button"
-              variant={isAiOpen ? "secondary" : "outline"}
-              size="sm"
-              className="shrink-0"
-              onClick={() => updateAiOpen((current) => !current)}
-              aria-expanded={isAiOpen}
-              aria-controls="public-ai-assistant"
-            >
-              <Sparkles data-icon="inline-start" />
-              Ask AI
-            </Button>
-          ) : null}
-        </div>
-        </header>
-
-        <div
-          className={cn(
-            "public-documentation-body grid min-w-0 overflow-x-hidden",
-            !isDocument &&
-              "xl:h-[calc(100svh-var(--public-doc-header-height))] xl:overflow-hidden",
-            !isDocument &&
-              (isAiOpen
-                ? "xl:grid-cols-[minmax(20rem,0.85fr)_minmax(24rem,1.15fr)] 2xl:grid-cols-[minmax(24rem,0.9fr)_minmax(28rem,1.1fr)]"
-                : "xl:grid-cols-[minmax(0,1fr)_minmax(26rem,36rem)] 2xl:grid-cols-[minmax(0,1fr)_minmax(30rem,40rem)]"),
-          )}
-          data-ai-open={isAiOpen ? "" : undefined}
-        >
-          <main
-            className={cn(
-              "public-documentation-main min-w-0 overflow-x-hidden px-4 py-7 sm:px-5 sm:py-9 lg:px-8 2xl:px-10",
-              !isDocument && "xl:overflow-y-auto xl:border-r",
-            )}
-          >
-              <div
-                className={cn(
-                  "mx-auto",
-                  isDocument
-                    ? hasTableOfContents
-                      ? "max-w-7xl"
-                      : "max-w-6xl"
-                    : "max-w-4xl",
-                )}
-              >
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-5">
-                <div className="min-w-0">
-                  <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
-                    {areaLabel}
-                  </p>
-                  <h1 className="mt-3 text-3xl font-semibold tracking-[-0.05em] sm:text-5xl">
-                    {currentTitle}
-                  </h1>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="shrink-0"
-                  onClick={() => void copyPage()}
-                >
-                  {copied ? (
-                    <Check data-icon="inline-start" />
+                      {data.project.project.darkLogoUrl ? (
+                        <img
+                          src={data.project.project.darkLogoUrl}
+                          alt=""
+                          className="hidden max-h-9 max-w-9 object-contain dark:block"
+                        />
+                      ) : null}
+                    </span>
                   ) : (
-                    <Copy data-icon="inline-start" />
+                    <span className="flex size-9 items-center justify-center rounded-md bg-primary text-primary-foreground">
+                      <PanelsTopLeft />
+                    </span>
                   )}
-                  {copied ? "Copied" : "Copy Page"}
-                </Button>
-              </div>
-
-              {!isDocument ? (
-                <div className="mt-4 flex min-w-0 flex-wrap items-center gap-2">
-                  <MethodBadge method={apiEndpoint.body.method} />
-                  <code className="min-w-0 break-all text-sm text-muted-foreground sm:truncate">
-                    {url}
-                  </code>
-                </div>
-              ) : null}
-              {isDocument ? (
-                <div
-                  className={cn(
-                    "mt-10",
-                    hasTableOfContents &&
-                      "xl:grid xl:grid-cols-[minmax(0,1fr)_16rem] xl:items-start xl:gap-12 2xl:grid-cols-[minmax(0,1fr)_18rem]",
-                  )}
+                </Link>
+                <a
+                  href="/"
+                  onClick={(event) =>
+                    handlePublicDocumentationClick(event, "/")
+                  }
+                  className="public-documentation-home-link"
                 >
-                  <article className="min-w-0">
-                    {hasTableOfContents ? (
-                      <DocumentationTableOfContents
-                        headings={currentHeadings}
-                        className="mb-8 xl:hidden"
-                      />
-                    ) : null}
-                    {currentContent ? (
-                      <RichContentRenderer
-                        content={currentContent}
-                        className="public-doc-content text-foreground"
-                        onClickCapture={handleRichContentClick}
-                      />
-                    ) : (
-                      <p className="text-[15px] leading-7 text-muted-foreground">
-                        {currentDescription ||
-                          "No description has been provided."}
-                      </p>
-                    )}
-                  </article>
-                  {hasTableOfContents ? (
-                    <aside className="hidden min-w-0 xl:block">
-                      <DocumentationTableOfContents
-                        headings={currentHeadings}
-                        className="sticky top-[calc(var(--public-doc-header-height)+1.5rem)]"
-                      />
-                    </aside>
-                  ) : null}
-                </div>
-              ) : (
-                <div className="mt-7 flex flex-col gap-6">
-                  <p className="text-[15px] leading-7 text-muted-foreground">
-                    {apiEndpoint.body.description ||
-                      "No description has been provided."}
-                  </p>
-                  {currentContent ? (
-                    <RichContentRenderer
-                      content={currentContent}
-                      className="text-[15px] leading-7 text-muted-foreground"
-                      onClickCapture={handleRichContentClick}
-                    />
-                  ) : null}
-                </div>
-              )}
+                  Home
+                </a>
+                <nav
+                  aria-label="Custom documentation navigation"
+                  className="ml-auto flex min-w-max items-center gap-1"
+                >
+                  {visibleCustomNavigation.map((item) => {
+                    const href = customNavigationHref(item.href);
+                    const isExternal = isExternalNavigationHref(href);
 
-              {!isDocument ? (
-                <>
-                  <Separator className="my-8" />
-
-                  {apiEndpoint.body.authHeader.type !== "none" ? (
-                    <DocumentationSection title="Authentication">
-                      <div className="rounded-lg border">
-                        <div className="flex items-center justify-between gap-4 p-4">
-                          <div>
-                            <p className="text-sm font-medium capitalize">
-                              {apiEndpoint.body.authHeader.type}
-                            </p>
-                            <p className="mt-1 text-xs text-muted-foreground">
-                              Send credentials using the{" "}
-                              <code className="text-foreground">
-                                {apiEndpoint.body.authHeader.key ||
-                                  "Authorization"}
-                              </code>{" "}
-                              header.
-                            </p>
-                          </div>
-                          <Badge variant="outline">Header</Badge>
-                        </div>
-                      </div>
-                    </DocumentationSection>
-                  ) : null}
-
-                  {pathParameters.length > 0 ? (
-                    <RequestFieldList
-                      title="Path Params"
-                      items={pathParameters}
-                      compact={isAiOpen}
-                      values={parameters}
-                      onValueChange={(path, value) =>
-                        setParameters((current) => ({
-                          ...current,
-                          [path[0]]: value,
-                        }))
-                      }
-                    />
-                  ) : null}
-
-                  {queryParameters.length > 0 ? (
-                    <RequestFieldList
-                      title="Query Params"
-                      items={queryParameters}
-                      compact={isAiOpen}
-                      values={parameters}
-                      onValueChange={(path, value) =>
-                        setParameters((current) => ({
-                          ...current,
-                          [path[0]]: value,
-                        }))
-                      }
-                    />
-                  ) : null}
-
-                  {otherParameters.length > 0 ? (
-                    <RequestFieldList
-                      title="Request Params"
-                      items={otherParameters}
-                      compact={isAiOpen}
-                      values={parameters}
-                      onValueChange={(path, value) =>
-                        setParameters((current) => ({
-                          ...current,
-                          [path[0]]: value,
-                        }))
-                      }
-                    />
-                  ) : null}
-
-                  {apiEndpoint.body.requestBody.length > 0 ? (
-                    <RequestFieldList
-                      title="Body Params"
-                      items={apiEndpoint.body.requestBody}
-                      compact={isAiOpen}
-                      values={body}
-                      onValueChange={(path, value) =>
-                        setBody((current) =>
-                          setNestedRequestValue(current, path, value),
+                    return (
+                      <a
+                        key={item._id}
+                        href={href}
+                        className="public-documentation-custom-nav-link"
+                        target={
+                          isExternal && item.openInNewTab ? "_blank" : undefined
+                        }
+                        rel={
+                          isExternal && item.openInNewTab
+                            ? "noreferrer"
+                            : undefined
+                        }
+                        onClick={(event) =>
+                          handlePublicDocumentationClick(event, href)
+                        }
+                      >
+                        {item.label}
+                      </a>
+                    );
+                  })}
+                </nav>
+              </div>
+              <div className="public-documentation-brand-accent h-px bg-[var(--documentation-primary)]" />
+              <div className="public-documentation-topbar flex min-h-15 shrink-0 items-center gap-3 overflow-x-auto border-b px-4 py-2 lg:px-7">
+                <SidebarTrigger />
+                {currentVersion ? (
+                  <Select
+                    value={currentVersion.slug}
+                    onValueChange={switchVersion}
+                  >
+                    <SelectTrigger className="h-9 w-auto min-w-24 gap-2 rounded-md border-0 bg-transparent px-2 text-sm font-medium shadow-none hover:bg-muted">
+                      <span className="font-mono">{currentVersion.name}</span>
+                    </SelectTrigger>
+                    <SelectContent
+                      align="start"
+                      position="popper"
+                      className="min-w-80 p-2"
+                    >
+                      <SelectGroup>
+                        {publishedVersions.map((version) => (
+                          <SelectItem
+                            key={version._id}
+                            value={version.slug}
+                            textValue={version.name}
+                            className="min-h-12 rounded-md py-2 pl-4 pr-10 text-base"
+                          >
+                            <span className="grid w-full min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-2">
+                              <span className="min-w-0 shrink truncate font-semibold">
+                                {version.name}
+                              </span>
+                              <span className="flex min-w-0 flex-nowrap items-center gap-1.5 overflow-hidden">
+                                {version.isDefault ? (
+                                  <Badge
+                                    variant="secondary"
+                                    className="h-6 rounded-full bg-primary px-2.5 text-xs text-primary-foreground!"
+                                  >
+                                    Default
+                                  </Badge>
+                                ) : null}
+                                {version.isBeta ? (
+                                  <Badge
+                                    variant="outline"
+                                    className="h-6 rounded-full bg-muted px-2.5 text-xs text-muted-foreground!"
+                                  >
+                                    Beta
+                                  </Badge>
+                                ) : null}
+                                {version.isDeprecated ? (
+                                  <Badge
+                                    variant="outline"
+                                    className="h-6 rounded-full bg-destructive/10 px-2.5 text-xs text-destructive!"
+                                  >
+                                    Deprecated
+                                  </Badge>
+                                ) : null}
+                              </span>
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Badge variant="secondary" className="font-mono">
+                    v1.0
+                  </Badge>
+                )}
+                <nav
+                  className="public-documentation-area-nav"
+                  aria-label="Documentation areas"
+                >
+                  {firstGuidePage ? (
+                    <a
+                      href={versionedPath(`/docs/${firstGuidePage.slug}`)}
+                      onClick={(event) =>
+                        handlePublicDocumentationClick(
+                          event,
+                          versionedPath(`/docs/${firstGuidePage.slug}`),
                         )
                       }
-                    />
-                  ) : null}
+                      className="public-documentation-area-link"
+                      data-active={activeArea === "guides" ? "" : undefined}
+                      aria-current={
+                        activeArea === "guides" ? "page" : undefined
+                      }
+                    >
+                      <BookOpenText />
+                      Guides
+                    </a>
+                  ) : (
+                    <span
+                      className="public-documentation-area-link"
+                      aria-disabled="true"
+                    >
+                      <BookOpenText />
+                      Guides
+                    </span>
+                  )}
+                  {firstEndpoint ? (
+                    <a
+                      href={versionedPath(`/reference/${firstEndpoint.slug}`)}
+                      onClick={(event) =>
+                        handlePublicDocumentationClick(
+                          event,
+                          versionedPath(`/reference/${firstEndpoint.slug}`),
+                        )
+                      }
+                      className="public-documentation-area-link"
+                      data-active={
+                        activeArea === "api-reference" ? "" : undefined
+                      }
+                      aria-current={
+                        activeArea === "api-reference" ? "page" : undefined
+                      }
+                    >
+                      <CodeXml />
+                      API Reference
+                    </a>
+                  ) : (
+                    <span
+                      className="public-documentation-area-link"
+                      aria-disabled="true"
+                    >
+                      <CodeXml />
+                      API Reference
+                    </span>
+                  )}
+                </nav>
+                <button
+                  type="button"
+                  aria-label="Search documentation"
+                  aria-haspopup="dialog"
+                  aria-expanded={isSearchOpen}
+                  aria-controls="public-documentation-search-dialog"
+                  className="ml-auto flex h-10 min-w-44 max-w-64 shrink-0 items-center gap-2 rounded-lg border bg-background px-3 text-sm text-muted-foreground shadow-none transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-[var(--documentation-focus-ring)]"
+                  onClick={() => setIsSearchOpen(true)}
+                >
+                  <Search className="size-4 shrink-0" />
+                  <span className="min-w-0 flex-1 truncate text-left">
+                    Search
+                  </span>
+                  <span className="hidden text-[11px] font-medium sm:block">
+                    ⌘K
+                  </span>
+                </button>
+                <ThemeToggle className="shrink-0" />
+                {isAiEnabled ? (
+                  <Button
+                    type="button"
+                    variant={isAiOpen ? "secondary" : "outline"}
+                    size="sm"
+                    className="shrink-0"
+                    onClick={() => updateAiOpen((current) => !current)}
+                    aria-expanded={isAiOpen}
+                    aria-controls="public-ai-assistant"
+                  >
+                    <Sparkles data-icon="inline-start" />
+                    Ask AI
+                  </Button>
+                ) : null}
+              </div>
+            </header>
 
-                  {apiEndpoint.body.sampleResponses.length > 0 ? (
-                    <DocumentationSection title="Responses">
-                      <div className="overflow-hidden rounded-lg border">
-                        {apiEndpoint.body.sampleResponses.map(
-                          (response, index) => (
-                            <details
-                              key={`${response.statusCode}-${index}`}
-                              className="group border-b last:border-b-0"
-                            >
-                              <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-4 text-sm">
-                                <span
-                                  className={cn(
-                                    "size-2.5 rounded-full",
-                                    response.statusCode < 400
-                                      ? "bg-primary"
-                                      : "bg-destructive",
-                                  )}
-                                />
-                                <span className="flex min-w-0 flex-col">
-                                  <span className="font-semibold">
-                                    {response.statusCode}
-                                  </span>
-                                  <span className="truncate text-muted-foreground">
-                                    {response.description}
-                                  </span>
-                                </span>
-                                <ChevronRight className="ml-auto transition-transform group-open:rotate-90" />
-                              </summary>
-                              <ResponseBodyCode code={response.body} />
-                            </details>
-                          ),
-                        )}
-                      </div>
-                    </DocumentationSection>
+            <div
+              className={cn(
+                "public-documentation-body grid min-w-0 overflow-x-hidden",
+                !isDocument &&
+                  "xl:h-[calc(100svh-var(--public-doc-header-height))] xl:overflow-hidden",
+                !isDocument &&
+                  (isAiOpen
+                    ? "xl:grid-cols-[minmax(20rem,0.85fr)_minmax(24rem,1.15fr)] 2xl:grid-cols-[minmax(24rem,0.9fr)_minmax(28rem,1.1fr)]"
+                    : "xl:grid-cols-[minmax(0,1fr)_minmax(26rem,36rem)] 2xl:grid-cols-[minmax(0,1fr)_minmax(30rem,40rem)]"),
+              )}
+              data-ai-open={isAiOpen ? "" : undefined}
+            >
+              <main
+                className={cn(
+                  "public-documentation-main min-w-0 overflow-x-hidden px-4 py-7 sm:px-5 sm:py-9 lg:px-8 2xl:px-10",
+                  !isDocument && "xl:overflow-y-auto xl:border-r",
+                )}
+              >
+                <div
+                  className={cn(
+                    "mx-auto",
+                    isDocument
+                      ? hasTableOfContents
+                        ? "max-w-7xl"
+                        : "max-w-6xl"
+                      : "max-w-4xl",
+                  )}
+                >
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-5">
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
+                        {areaLabel}
+                      </p>
+                      <h1 className="mt-3 text-3xl font-semibold tracking-[-0.05em] sm:text-5xl">
+                        {currentTitle}
+                      </h1>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="shrink-0"
+                        >
+                          {copiedFormat ? (
+                            <Check data-icon="inline-start" />
+                          ) : (
+                            <Copy data-icon="inline-start" />
+                          )}
+                          {copiedFormat ? "Copied" : "Copy"}
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-52">
+                        <DropdownMenuGroup>
+                          <DropdownMenuItem
+                            onSelect={() => void copyPageContent("markdown")}
+                          >
+                            <FileCode2 data-icon="inline-start" />
+                            Copy as Markdown
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onSelect={() => void copyPageContent("text")}
+                          >
+                            <FileText data-icon="inline-start" />
+                            Copy as text
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onSelect={() => void copyPageContent("url")}
+                          >
+                            <Copy data-icon="inline-start" />
+                            Copy page URL
+                          </DropdownMenuItem>
+                        </DropdownMenuGroup>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+
+                  {!isDocument ? (
+                    <div className="mt-4 flex min-w-0 flex-wrap items-center gap-2">
+                      <MethodBadge method={apiEndpoint.body.method} />
+                      <code className="min-w-0 break-all text-sm text-muted-foreground sm:truncate">
+                        {url}
+                      </code>
+                    </div>
                   ) : null}
-                </>
+                  {isDocument ? (
+                    <div
+                      className={cn(
+                        "mt-10",
+                        hasTableOfContents &&
+                          "xl:grid xl:grid-cols-[minmax(0,1fr)_16rem] xl:items-start xl:gap-12 2xl:grid-cols-[minmax(0,1fr)_18rem]",
+                      )}
+                    >
+                      <article className="min-w-0">
+                        {hasTableOfContents ? (
+                          <DocumentationTableOfContents
+                            headings={currentHeadings}
+                            className="mb-8 xl:hidden"
+                          />
+                        ) : null}
+                        {currentContent ? (
+                          <RichContentRenderer
+                            content={currentContent}
+                            className="public-doc-content text-foreground"
+                            onClickCapture={handleRichContentClick}
+                          />
+                        ) : (
+                          <p className="text-[15px] leading-7 text-muted-foreground">
+                            {currentDescription ||
+                              "No description has been provided."}
+                          </p>
+                        )}
+                      </article>
+                      {hasTableOfContents ? (
+                        <aside className="hidden min-w-0 xl:block">
+                          <DocumentationTableOfContents
+                            headings={currentHeadings}
+                            className="sticky top-[calc(var(--public-doc-header-height)+1.5rem)]"
+                          />
+                        </aside>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <div className="mt-7 flex flex-col gap-6">
+                      <p className="text-[15px] leading-7 text-muted-foreground">
+                        {apiEndpoint.body.description ||
+                          "No description has been provided."}
+                      </p>
+                      {currentContent ? (
+                        <RichContentRenderer
+                          content={currentContent}
+                          className="text-[15px] leading-7 text-muted-foreground"
+                          onClickCapture={handleRichContentClick}
+                        />
+                      ) : null}
+                    </div>
+                  )}
+
+                  {!isDocument ? (
+                    <>
+                      <Separator className="my-8" />
+
+                      {apiEndpoint.body.authHeader.type !== "none" ? (
+                        <DocumentationSection title="Authentication">
+                          <div className="rounded-lg border">
+                            <div className="flex items-center justify-between gap-4 p-4">
+                              <div>
+                                <p className="text-sm font-medium capitalize">
+                                  {apiEndpoint.body.authHeader.type}
+                                </p>
+                                <p className="mt-1 text-xs text-muted-foreground">
+                                  Send credentials using the{" "}
+                                  <code className="text-foreground">
+                                    {apiEndpoint.body.authHeader.key ||
+                                      "Authorization"}
+                                  </code>{" "}
+                                  header.
+                                </p>
+                              </div>
+                              <Badge variant="outline">Header</Badge>
+                            </div>
+                          </div>
+                        </DocumentationSection>
+                      ) : null}
+
+                      {pathParameters.length > 0 ? (
+                        <RequestFieldList
+                          title="Path Params"
+                          items={pathParameters}
+                          compact={isAiOpen}
+                          values={parameters}
+                          onValueChange={(path, value) =>
+                            setParameters((current) => ({
+                              ...current,
+                              [path[0]]: value,
+                            }))
+                          }
+                        />
+                      ) : null}
+
+                      {queryParameters.length > 0 ? (
+                        <RequestFieldList
+                          title="Query Params"
+                          items={queryParameters}
+                          compact={isAiOpen}
+                          values={parameters}
+                          onValueChange={(path, value) =>
+                            setParameters((current) => ({
+                              ...current,
+                              [path[0]]: value,
+                            }))
+                          }
+                        />
+                      ) : null}
+
+                      {otherParameters.length > 0 ? (
+                        <RequestFieldList
+                          title="Request Params"
+                          items={otherParameters}
+                          compact={isAiOpen}
+                          values={parameters}
+                          onValueChange={(path, value) =>
+                            setParameters((current) => ({
+                              ...current,
+                              [path[0]]: value,
+                            }))
+                          }
+                        />
+                      ) : null}
+
+                      {apiEndpoint.body.requestBody.length > 0 ? (
+                        <RequestFieldList
+                          title="Body Params"
+                          items={apiEndpoint.body.requestBody}
+                          compact={isAiOpen}
+                          values={body}
+                          onValueChange={(path, value) =>
+                            setBody((current) =>
+                              setNestedRequestValue(current, path, value),
+                            )
+                          }
+                        />
+                      ) : null}
+
+                      {apiEndpoint.body.sampleResponses.length > 0 ? (
+                        <DocumentationSection title="Responses">
+                          <div className="overflow-hidden rounded-lg border">
+                            {apiEndpoint.body.sampleResponses.map(
+                              (response, index) => (
+                                <details
+                                  key={`${response.statusCode}-${index}`}
+                                  className="group border-b last:border-b-0"
+                                >
+                                  <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-4 text-sm">
+                                    <span
+                                      className={cn(
+                                        "size-2.5 rounded-full",
+                                        response.statusCode < 400
+                                          ? "bg-primary"
+                                          : "bg-destructive",
+                                      )}
+                                    />
+                                    <span className="flex min-w-0 flex-col">
+                                      <span className="font-semibold">
+                                        {response.statusCode}
+                                      </span>
+                                      <span className="truncate text-muted-foreground">
+                                        {response.description}
+                                      </span>
+                                    </span>
+                                    <ChevronRight className="ml-auto transition-transform group-open:rotate-90" />
+                                  </summary>
+                                  <ResponseBodyCode code={response.body} />
+                                </details>
+                              ),
+                            )}
+                          </div>
+                        </DocumentationSection>
+                      ) : null}
+                    </>
+                  ) : null}
+                </div>
+              </main>
+
+              {!isDocument ? (
+                <aside
+                  className={cn(
+                    "public-documentation-aux-panel min-w-0 border-t bg-muted/20 px-4 py-7 sm:px-5 xl:h-full xl:overflow-y-auto xl:border-t-0",
+                    isAiOpen ? "lg:px-5" : "lg:px-8",
+                  )}
+                >
+                  <div className="mx-auto flex w-full max-w-2xl flex-col gap-7 xl:min-h-full 2xl:gap-8">
+                    <section className="min-w-0">
+                      <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                        Language
+                      </p>
+                      <Tabs
+                        value={language}
+                        onValueChange={setLanguage}
+                        className="min-w-0 gap-5"
+                      >
+                        <TabsList className="grid h-auto w-full grid-cols-2 gap-2 bg-transparent p-0 sm:grid-cols-4">
+                          {Object.keys(examples).map((name) => (
+                            <TabsTrigger
+                              key={name}
+                              value={name}
+                              className="h-10 px-2 text-xs data-active:border data-active:bg-background sm:h-12 sm:px-3 sm:text-sm"
+                            >
+                              {name}
+                            </TabsTrigger>
+                          ))}
+                        </TabsList>
+                        {Object.entries(examples).map(([name, example]) => (
+                          <TabsContent key={name} value={name} className="pt-2">
+                            <CodePanel language={name} code={example} />
+                          </TabsContent>
+                        ))}
+                      </Tabs>
+                    </section>
+
+                    <EndpointTester
+                      organizationSlug={organizationSlug}
+                      projectSlug={projectSlug}
+                      endpoint={apiEndpoint}
+                      parameters={parameters}
+                      body={body}
+                      credential={credential}
+                      onCredentialChange={setCredential}
+                      variant="panel"
+                      compact={isAiOpen}
+                    />
+                  </div>
+                </aside>
               ) : null}
             </div>
-          </main>
-
-          {!isDocument ? (
-            <aside
-              className={cn(
-                "public-documentation-aux-panel min-w-0 border-t bg-muted/20 px-4 py-7 sm:px-5 xl:h-full xl:overflow-y-auto xl:border-t-0",
-                isAiOpen ? "lg:px-5" : "lg:px-8",
-              )}
-            >
-            <div className="mx-auto flex w-full max-w-2xl flex-col gap-7 xl:min-h-full 2xl:gap-8">
-              <section className="min-w-0">
-                <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-                  Language
-                </p>
-                <Tabs
-                  value={language}
-                  onValueChange={setLanguage}
-                  className="min-w-0 gap-5"
-                >
-                  <TabsList className="grid h-auto w-full grid-cols-2 gap-2 bg-transparent p-0 sm:grid-cols-4">
-                    {Object.keys(examples).map((name) => (
-                      <TabsTrigger
-                        key={name}
-                        value={name}
-                        className="h-10 px-2 text-xs data-active:border data-active:bg-background sm:h-12 sm:px-3 sm:text-sm"
-                      >
-                        {name}
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
-                  {Object.entries(examples).map(([name, example]) => (
-                    <TabsContent key={name} value={name} className="pt-2">
-                      <CodePanel language={name} code={example} />
-                    </TabsContent>
-                  ))}
-                </Tabs>
-              </section>
-
-              <EndpointTester
-                organizationSlug={organizationSlug}
-                projectSlug={projectSlug}
-                endpoint={apiEndpoint}
-                parameters={parameters}
-                body={body}
-                credential={credential}
-                onCredentialChange={setCredential}
-                variant="panel"
-                compact={isAiOpen}
-              />
-            </div>
-            </aside>
-          ) : null}
-        </div>
           </div>
           {isAiEnabled ? (
             <div id="public-ai-assistant">
@@ -1212,11 +1284,7 @@ export function PublicDocumentation({
   );
 }
 
-function PublicDocumentationSidebarSync({
-  isAiOpen,
-}: {
-  isAiOpen: boolean;
-}) {
+function PublicDocumentationSidebarSync({ isAiOpen }: { isAiOpen: boolean }) {
   const { setOpenMobile } = useSidebar();
 
   useEffect(() => {
@@ -1459,10 +1527,7 @@ function PublicDocumentationSearchDialog({
   onScopeChange: (scope: DocumentationSearchScope) => void;
   results: DocumentationSearchResult[];
   primaryColor: string;
-  onResultClick: (
-    event: MouseEvent<HTMLAnchorElement>,
-    href: string,
-  ) => void;
+  onResultClick: (event: MouseEvent<HTMLAnchorElement>, href: string) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const trimmedQuery = query.trim();
@@ -1636,9 +1701,7 @@ function SearchScopeButton({
       aria-pressed={active}
       className={cn(
         "flex h-10 shrink-0 items-center gap-2 border-b-2 px-3 text-base font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--documentation-ring)] focus-visible:ring-offset-2",
-        active
-          ? "border-foreground text-foreground"
-          : "border-transparent",
+        active ? "border-foreground text-foreground" : "border-transparent",
       )}
       onClick={onClick}
     >
@@ -1648,13 +1711,11 @@ function SearchScopeButton({
   );
 }
 
-function SearchResultIcon({
-  result,
-}: {
-  result: DocumentationSearchResult;
-}) {
+function SearchResultIcon({ result }: { result: DocumentationSearchResult }) {
   if (result.kind === "guide") {
-    return <DocumentationIcon iconName={result.iconName} fallback={BookOpenText} />;
+    return (
+      <DocumentationIcon iconName={result.iconName} fallback={BookOpenText} />
+    );
   }
 
   if (result.endpointType === "doc") {
@@ -1774,10 +1835,7 @@ export function DocumentationLink({
         ) : null}
         <span className="min-w-0 truncate">{title}</span>
       </span>
-      <EndpointTypeBadge
-        method={method}
-        endpointType={endpointType}
-      />
+      <EndpointTypeBadge method={method} endpointType={endpointType} />
     </a>
   );
 }
@@ -2079,6 +2137,81 @@ function isRequestRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
+function appendCodeExamplesMarkdown(
+  markdown: string,
+  examples: Record<string, string>,
+) {
+  const entries = Object.entries(examples);
+  if (!entries.length) return markdown;
+
+  const codeExamples = entries
+    .map(
+      ([language, code]) =>
+        `### ${language}\n\n\`\`\`${codeFenceLanguage(language)}\n${code.trim()}\n\`\`\``,
+    )
+    .join("\n\n");
+
+  return `${markdown.trim()}\n\n## Code examples\n\n${codeExamples}\n`;
+}
+
+function codeFenceLanguage(language: string) {
+  if (language === "JavaScript") return "javascript";
+  if (language === "Python") return "python";
+  if (language === "Ruby") return "ruby";
+  if (language === "cURL") return "bash";
+  return "txt";
+}
+
+async function copyTextToClipboard(value: string) {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(value);
+      return;
+    }
+  } catch {
+    // Fall through to the selection-based copy path for restricted browsers.
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = value;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.top = "0";
+  textarea.style.left = "-9999px";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+
+  try {
+    document.execCommand("copy");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+
+function markdownToPlainText(markdown: string) {
+  return markdown
+    .replace(/```[a-zA-Z0-9_-]*\n([\s\S]*?)```/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^>\s?/gm, "")
+    .replace(/^\s*[-*]\s+/gm, "- ")
+    .replace(/^\s*\d+\.\s+/gm, "")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/_([^_]+)_/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/^\|[-:| ]+\|\n?/gm, "")
+    .replace(/^\|(.+)\|$/gm, (_, row: string) =>
+      row
+        .split("|")
+        .map((cell) => cell.trim())
+        .filter(Boolean)
+        .join(" - "),
+    )
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 function responseBodyCode(value: string): {
   code: string;
   language: CodeSnippetLanguage;
@@ -2103,21 +2236,6 @@ export function ResponseBodyCode({ code }: { code: string }) {
   );
 }
 
-export function setNestedRequestValue(
-  values: Record<string, unknown>,
-  path: string[],
-  value: string,
-): Record<string, unknown> {
-  const [head, ...rest] = path;
-  if (!head) return values;
-  if (rest.length === 0) return { ...values, [head]: value };
-  const child = isRequestRecord(values[head]) ? values[head] : {};
-  return {
-    ...values,
-    [head]: setNestedRequestValue(child, rest, value),
-  };
-}
-
 function CodePanel({ language, code }: { language: string; code: string }) {
   const [copied, setCopied] = useState(false);
   const snippetLanguage: CodeSnippetLanguage =
@@ -2130,7 +2248,7 @@ function CodePanel({ language, code }: { language: string; code: string }) {
           : "curl";
 
   async function copyCode() {
-    await navigator.clipboard.writeText(formatCode(code));
+    await copyTextToClipboard(formatCode(code));
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1500);
   }

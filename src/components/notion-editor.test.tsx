@@ -7,7 +7,8 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import { NotionEditor, reorderBlocks } from "./notion-editor";
+import { reorderBlocks } from "../lib/reorder-blocks";
+import { NotionEditor } from "./notion-editor";
 
 vi.mock("convex/react", () => ({
   useMutation: () => vi.fn(),

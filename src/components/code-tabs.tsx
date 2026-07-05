@@ -7,12 +7,7 @@ import {
   type ReactNode,
   type UIEvent,
 } from "react";
-import { Node, mergeAttributes } from "@tiptap/core";
-import {
-  NodeViewWrapper,
-  ReactNodeViewRenderer,
-  type ReactNodeViewProps,
-} from "@tiptap/react";
+import { NodeViewWrapper, type ReactNodeViewProps } from "@tiptap/react";
 import { createLowlight } from "lowlight";
 import bash from "highlight.js/lib/languages/bash";
 import cpp from "highlight.js/lib/languages/cpp";
@@ -42,6 +37,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import {
+  codeLanguages,
+  defaultTabName,
+  normalizeCodeTabs,
+  type CodeTab,
+} from "../lib/code-tabs";
 import { cn } from "../lib/utils";
 
 const lowlight = createLowlight({
@@ -64,36 +65,6 @@ const lowlight = createLowlight({
   yaml,
 });
 
-export type CodeTab = {
-  id: string;
-  name: string;
-  language: string;
-  code: string;
-};
-
-export const codeLanguages = [
-  { value: "plaintext", label: "Plain Text" },
-  { value: "javascript", label: "JavaScript" },
-  { value: "typescript", label: "TypeScript" },
-  { value: "jsx", label: "JSX" },
-  { value: "tsx", label: "TSX" },
-  { value: "json", label: "JSON" },
-  { value: "bash", label: "Shell" },
-  { value: "python", label: "Python" },
-  { value: "ruby", label: "Ruby" },
-  { value: "java", label: "Java" },
-  { value: "csharp", label: "C#" },
-  { value: "cpp", label: "C++" },
-  { value: "css", label: "CSS" },
-  { value: "html", label: "HTML" },
-  { value: "sql", label: "SQL" },
-  { value: "yaml", label: "YAML" },
-  { value: "markdown", label: "Markdown" },
-  { value: "go", label: "Go" },
-  { value: "rust", label: "Rust" },
-  { value: "php", label: "PHP" },
-] as const;
-
 const languageAliases: Record<string, string> = {
   html: "xml",
   jsx: "javascript",
@@ -101,55 +72,13 @@ const languageAliases: Record<string, string> = {
   tsx: "typescript",
 };
 
-function defaultTabName(index: number) {
-  return index === 0 ? "Example" : `Example ${index + 1}`;
-}
-
-function makeTab(index: number, id = `code-tab-${index}`): CodeTab {
+function makeNewTab(index: number, id: string): CodeTab {
   return {
     id,
     name: defaultTabName(index),
     language: "javascript",
     code: "",
   };
-}
-
-function makeNewTab(index: number): CodeTab {
-  return makeTab(
-    index,
-    `code-tab-${Date.now()}-${index}-${Math.random().toString(36).slice(2, 7)}`,
-  );
-}
-
-export function createInitialCodeTabs(): CodeTab[] {
-  return [makeTab(0)];
-}
-
-export function normalizeCodeTabs(value: unknown): CodeTab[] {
-  if (!Array.isArray(value) || value.length === 0) {
-    return createInitialCodeTabs();
-  }
-
-  const tabs = value.flatMap((candidate, index) => {
-    if (!candidate || typeof candidate !== "object") return [];
-    const tab = candidate as Partial<CodeTab>;
-    return [
-      {
-        id:
-          typeof tab.id === "string" && tab.id
-            ? tab.id
-            : `code-tab-stored-${index}`,
-        name: typeof tab.name === "string" ? tab.name : defaultTabName(index),
-        language:
-          typeof tab.language === "string" && tab.language
-            ? tab.language
-            : "plaintext",
-        code: typeof tab.code === "string" ? tab.code : "",
-      },
-    ];
-  });
-
-  return tabs.length > 0 ? tabs : createInitialCodeTabs();
 }
 
 type HastNode = {
@@ -371,9 +300,13 @@ function CodeTabSettings({
   );
 }
 
-function CodeTabsNodeView({ node, updateAttributes }: ReactNodeViewProps) {
+export function CodeTabsNodeView({
+  node,
+  updateAttributes,
+}: ReactNodeViewProps) {
   const tabs = normalizeCodeTabs(node.attrs.tabs);
   const [activeId, setActiveId] = useState(tabs[0].id);
+  const generatedTabCountRef = useRef(0);
   const activeTab = tabs.find((tab) => tab.id === activeId) ?? tabs[0];
 
   function updateTabs(nextTabs: CodeTab[]) {
@@ -387,7 +320,11 @@ function CodeTabsNodeView({ node, updateAttributes }: ReactNodeViewProps) {
   }
 
   function addTab() {
-    const nextTab = makeNewTab(tabs.length);
+    generatedTabCountRef.current += 1;
+    const nextTab = makeNewTab(
+      tabs.length,
+      `code-tab-new-${tabs.length}-${generatedTabCountRef.current}`,
+    );
     updateTabs([...tabs, nextTab]);
     setActiveId(nextTab.id);
   }
@@ -475,34 +412,6 @@ function CodeTabsNodeView({ node, updateAttributes }: ReactNodeViewProps) {
     </NodeViewWrapper>
   );
 }
-
-export const CodeTabsExtension = Node.create({
-  name: "codeTabs",
-  group: "block",
-  atom: true,
-  isolating: true,
-  selectable: false,
-
-  addAttributes() {
-    return {
-      tabs: {
-        default: [],
-      },
-    };
-  },
-
-  parseHTML() {
-    return [{ tag: "div[data-code-tabs]" }];
-  },
-
-  renderHTML({ HTMLAttributes }) {
-    return ["div", mergeAttributes(HTMLAttributes, { "data-code-tabs": "" })];
-  },
-
-  addNodeView() {
-    return ReactNodeViewRenderer(CodeTabsNodeView);
-  },
-});
 
 export function PublicCodeTabs({ tabs: value }: { tabs: unknown }) {
   const tabs = useMemo(() => normalizeCodeTabs(value), [value]);

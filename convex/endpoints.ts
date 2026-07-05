@@ -53,7 +53,7 @@ export const create = mutation({
       versionId: section.versionId,
       sectionId: args.sectionId,
       title,
-      slug: await uniqueEndpointSlug(ctx, args.projectId, title),
+      slug: await uniqueEndpointSlug(ctx, args.projectId, section.versionId, title),
       endpointType: args.endpointType,
       content: args.content,
       markdown: args.markdown,
@@ -164,6 +164,7 @@ export const update = mutation({
       patch.slug = await uniqueEndpointSlug(
         ctx,
         endpoint.projectId,
+        endpoint.versionId,
         title,
         endpoint._id,
       );
