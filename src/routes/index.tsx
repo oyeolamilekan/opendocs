@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Brand } from "../components/brand";
 import { ThemeToggle } from "../components/theme-toggle";
+import { Button } from "../components/ui/button";
 import {
   Card,
   CardContent,
@@ -182,6 +183,12 @@ function Home() {
         <div className="app-container flex h-16 items-center justify-between">
           <Brand />
           <nav className="flex items-center gap-2">
+            <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+              <Link to="/auth/sign-in">Sign In</Link>
+            </Button>
+            <Button asChild size="sm">
+              <Link to="/auth/sign-up">Sign Up</Link>
+            </Button>
             <ThemeToggle />
           </nav>
         </div>
