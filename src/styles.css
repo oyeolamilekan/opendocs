@@ -738,11 +738,7 @@
 @layer utilities {
   .surface-grid {
     background:
-      radial-gradient(
-        circle at 50% 0%,
-        rgb(0 107 255 / 5%),
-        transparent 34rem
-      ),
+      radial-gradient(circle at 50% 0%, rgb(0 107 255 / 5%), transparent 34rem),
       var(--background);
   }
 }

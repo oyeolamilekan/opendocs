@@ -27,7 +27,11 @@ import {
   generateCodeExamples,
   getPublicClient,
 } from "../lib/public-docs";
-import { setNestedRequestValue } from "../lib/request-values";
+import {
+  coerceRequestValue,
+  formatRequestInputValue,
+  setNestedRequestValue,
+} from "../lib/request-values";
 import {
   DEFAULT_DOCUMENTATION_FONT,
   DEFAULT_DOCUMENTATION_STYLE,
@@ -1123,7 +1127,7 @@ export function PublicDocumentation({
                           onValueChange={(path, value) =>
                             setParameters((current) => ({
                               ...current,
-                              [path[0]]: value,
+                              [path[0]]: String(value),
                             }))
                           }
                         />
@@ -1138,7 +1142,7 @@ export function PublicDocumentation({
                           onValueChange={(path, value) =>
                             setParameters((current) => ({
                               ...current,
-                              [path[0]]: value,
+                              [path[0]]: String(value),
                             }))
                           }
                         />
@@ -1153,7 +1157,7 @@ export function PublicDocumentation({
                           onValueChange={(path, value) =>
                             setParameters((current) => ({
                               ...current,
-                              [path[0]]: value,
+                              [path[0]]: String(value),
                             }))
                           }
                         />
@@ -1170,6 +1174,7 @@ export function PublicDocumentation({
                               setNestedRequestValue(current, path, value),
                             )
                           }
+                          coerceValues
                         />
                       ) : null}
 
@@ -1948,13 +1953,15 @@ function RequestFieldList({
   onValueChange,
   pathPrefix = [],
   compact = false,
+  coerceValues = false,
 }: {
   title: string;
   items: FieldItem[];
   values: Record<string, unknown>;
-  onValueChange: (path: string[], value: string) => void;
+  onValueChange: (path: string[], value: unknown) => void;
   pathPrefix?: string[];
   compact?: boolean;
+  coerceValues?: boolean;
 }) {
   return (
     <DocumentationSection title={title}>
@@ -2009,9 +2016,17 @@ function RequestFieldList({
                     name={itemPath.join(".")}
                     form="endpoint-request-form"
                     required={item.required}
-                    value={typeof itemValue === "string" ? itemValue : ""}
+                    value={formatRequestInputValue(itemValue)}
                     onChange={(event) =>
-                      onValueChange(itemPath, event.target.value)
+                      onValueChange(
+                        itemPath,
+                        coerceValues
+                          ? coerceRequestValue(
+                              item.dataType,
+                              event.target.value,
+                            )
+                          : event.target.value,
+                      )
                     }
                     placeholder={item.required ? "Enter value" : "Optional"}
                     aria-label={`${title}: ${itemPath.join(".")}`}
@@ -2028,6 +2043,7 @@ function RequestFieldList({
                     onValueChange={onValueChange}
                     pathPrefix={itemPath}
                     compact={compact}
+                    coerceValues={coerceValues}
                   />
                 </div>
               ) : null}
@@ -2046,13 +2062,15 @@ function RequestFieldListContent({
   onValueChange,
   pathPrefix,
   compact,
+  coerceValues,
 }: {
   title: string;
   items: FieldItem[];
   values: Record<string, unknown>;
-  onValueChange: (path: string[], value: string) => void;
+  onValueChange: (path: string[], value: unknown) => void;
   pathPrefix: string[];
   compact: boolean;
+  coerceValues: boolean;
 }) {
   return (
     <>
@@ -2104,9 +2122,14 @@ function RequestFieldListContent({
                   name={itemPath.join(".")}
                   form="endpoint-request-form"
                   required={item.required}
-                  value={typeof itemValue === "string" ? itemValue : ""}
+                  value={formatRequestInputValue(itemValue)}
                   onChange={(event) =>
-                    onValueChange(itemPath, event.target.value)
+                    onValueChange(
+                      itemPath,
+                      coerceValues
+                        ? coerceRequestValue(item.dataType, event.target.value)
+                        : event.target.value,
+                    )
                   }
                   placeholder={item.required ? "Enter value" : "Optional"}
                   aria-label={`${title}: ${itemPath.join(".")}`}
@@ -2123,6 +2146,7 @@ function RequestFieldListContent({
                   onValueChange={onValueChange}
                   pathPrefix={itemPath}
                   compact={compact}
+                  coerceValues={coerceValues}
                 />
               </div>
             ) : null}
