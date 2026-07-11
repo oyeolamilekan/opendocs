@@ -1678,12 +1678,22 @@ function SearchScopeButton({
 function SearchResultIcon({ result }: { result: DocumentationSearchResult }) {
   if (result.kind === "guide") {
     return (
-      <DocumentationIcon iconName={result.iconName} fallback={BookOpenText} />
+      <DocumentationIcon
+        iconName={result.iconName}
+        fallback={BookOpenText}
+        className="size-4"
+      />
     );
   }
 
   if (result.endpointType === "doc") {
-    return <DocumentationIcon iconName={result.iconName} fallback={FileText} />;
+    return (
+      <DocumentationIcon
+        iconName={result.iconName}
+        fallback={FileText}
+        className="size-4"
+      />
+    );
   }
 
   return <CodeXml className="size-5" />;
@@ -1753,7 +1763,11 @@ export function DocumentationLink({
     >
       <span className="flex min-w-0 items-center gap-2">
         {endpointType === "doc" ? (
-          <DocumentationIcon iconName={iconName} fallback={FileText} />
+          <DocumentationIcon
+            iconName={iconName}
+            fallback={FileText}
+            className="size-4 shrink-0"
+          />
         ) : null}
         <span className="min-w-0 truncate">{title}</span>
       </span>
@@ -1794,7 +1808,11 @@ export function GuideDocumentationLink({
           : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
       )}
     >
-      <DocumentationIcon iconName={iconName} fallback={FileText} />
+      <DocumentationIcon
+        iconName={iconName}
+        fallback={FileText}
+        className="size-4 shrink-0"
+      />
       <span className="min-w-0 truncate">{title}</span>
     </a>
   );
