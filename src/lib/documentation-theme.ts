@@ -148,6 +148,24 @@ export const DOCUMENTATION_FONTS = [
 export type DocumentationFont = (typeof DOCUMENTATION_FONTS)[number]["value"];
 export const DEFAULT_DOCUMENTATION_FONT: DocumentationFont = "sans";
 
+const GOOGLE_FONT_FAMILIES: Partial<Record<DocumentationFont, string>> = {
+  inter: "Inter:wght@400;500;600;700",
+  roboto: "Roboto:wght@400;500;700",
+  "open-sans": "Open+Sans:wght@400;500;600;700",
+  lato: "Lato:wght@400;700",
+  "ibm-plex-sans": "IBM+Plex+Sans:wght@400;500;600;700",
+  merriweather: "Merriweather:wght@400;700",
+  "source-serif-4": "Source+Serif+4:wght@400;500;600;700",
+  "jetbrains-mono": "JetBrains+Mono:wght@400;500;600;700",
+};
+
+export function getDocumentationFontUrl(font: DocumentationFont) {
+  const family = GOOGLE_FONT_FAMILIES[font];
+  return family
+    ? `https://fonts.googleapis.com/css2?family=${family}&display=swap`
+    : null;
+}
+
 /**
  * Returns the configured documentation font option or the default font.
  *

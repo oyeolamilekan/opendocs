@@ -14,6 +14,9 @@ import {
   X,
 } from "lucide-react";
 import {
+  lazy,
+  Suspense,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -35,6 +38,7 @@ import {
 import {
   DEFAULT_DOCUMENTATION_FONT,
   DEFAULT_DOCUMENTATION_STYLE,
+  getDocumentationFontUrl,
   getDocumentationTheme,
 } from "../lib/documentation-theme";
 import { DocumentationIcon } from "../lib/documentation-icons";
@@ -43,22 +47,46 @@ import {
   formatGuideMarkdown,
 } from "../lib/markdown-export";
 import { cn } from "../lib/utils";
-import { EndpointTester } from "./endpoint-tester";
-import { PublicAiAssistant } from "./public-ai-assistant";
 import {
-  RichContentRenderer,
-} from "./rich-content-renderer";
+  appendCodeExamplesMarkdown,
+  markdownToPlainText,
+} from "./public-documentation/markdown";
+import {
+  filterDocumentationSearchResults,
+  getDocumentationSearchHaystack,
+  getDocumentationSearchSnippet,
+  getOptionalDescription,
+  normalizeSearchText,
+} from "./public-documentation/search";
+import { shouldHandlePublicDocumentationClick } from "./public-documentation/navigation";
+import type {
+  DocumentationSearchResult,
+  FieldItem,
+  IndexedDocumentationSearchResult,
+  PublicData,
+} from "./public-documentation/types";
+const PublicAiAssistant = lazy(() =>
+  import("./public-ai-assistant").then(({ PublicAiAssistant: Component }) => ({
+    default: Component,
+  })),
+);
+const EndpointTester = lazy(() =>
+  import("./endpoint-tester").then(({ EndpointTester: Component }) => ({
+    default: Component,
+  })),
+);
+import { RichContentRenderer } from "./rich-content-renderer";
 import {
   extractRichContentHeadings,
-  type RichContentHeading,
 } from "../lib/rich-content";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import {
-  CodeSnippet,
-  formatCode,
-  type CodeSnippetLanguage,
-} from "./ui/code-snippet";
+  copyTextToClipboard,
+} from "./public-documentation/clipboard";
+import { CodePanel, ResponseBodyCode } from "./public-documentation/endpoint-code";
+import { DocumentationTableOfContents } from "./public-documentation/table-of-contents";
+export { DocumentationTableOfContents, ResponseBodyCode };
 import {
   Dialog,
   DialogContent,
@@ -101,35 +129,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { ThemeToggle } from "./theme-toggle";
 
-type PublicData =
-  | Awaited<ReturnType<typeof import("../lib/public-docs").loadPublicEndpoint>>
-  | Awaited<
-      ReturnType<typeof import("../lib/public-docs").loadPublicGuidePage>
-    >;
-
-type FieldItem = {
-  name: string;
-  dataType: string;
-  required: boolean;
-  description: string;
-  location?: string;
-  fields?: FieldItem[];
-};
-
 type DocumentationSearchScope = "all" | "guides" | "reference";
-
-type DocumentationSearchResult = {
-  id: string;
-  kind: "guide" | "reference";
-  title: string;
-  description: string;
-  sectionTitle: string;
-  href: string;
-  iconName?: string;
-  endpointType?: "endpoint" | "doc";
-  method?: string;
-  path?: string;
-};
 
 const documentationSearchInputId = "docs-navigation-filter";
 const publicAiOpenMemory = new Map<string, boolean>();
@@ -287,6 +287,29 @@ export function PublicDocumentation({
   }, [currentSlug]);
 
   useEffect(() => {
+    const href = getDocumentationFontUrl(documentationFont);
+    const linkId = "public-documentation-font";
+    let link = document.getElementById(linkId) as HTMLLinkElement | null;
+
+    if (!href) {
+      link?.remove();
+      return;
+    }
+
+    if (!link) {
+      link = document.createElement("link");
+      link.id = linkId;
+      link.rel = "stylesheet";
+      document.head.appendChild(link);
+    }
+    if (link.href !== href) link.href = href;
+
+    return () => {
+      link?.remove();
+    };
+  }, [documentationFont]);
+
+  useEffect(() => {
     function handleSearchShortcut(event: KeyboardEvent) {
       if (event.defaultPrevented) return;
 
@@ -315,7 +338,8 @@ export function PublicDocumentation({
     };
   }, []);
 
-  function updateAiOpen(value: boolean | ((current: boolean) => boolean)) {
+  const updateAiOpen = useCallback(
+    (value: boolean | ((current: boolean) => boolean)) => {
     const next =
       typeof value === "function" ? value(isAiOpenRef.current) : value;
     publicAiOpenMemory.set(projectSlug, next);
@@ -323,16 +347,22 @@ export function PublicDocumentation({
     persistPublicAiOpen(projectSlug, next);
     setIsAiOpenState(next);
     setIsNavigationOpen(!next);
-  }
+    },
+    [projectSlug],
+  );
 
-  const url = apiEndpoint
-    ? buildRequestUrl(
-        data.project.project.baseUrl,
-        apiEndpoint.body.path,
-        apiEndpoint.body.parameters,
-        parameters,
-      )
-    : "";
+  const url = useMemo(
+    () =>
+      apiEndpoint
+        ? buildRequestUrl(
+            data.project.project.baseUrl,
+            apiEndpoint.body.path,
+            apiEndpoint.body.parameters,
+            parameters,
+          )
+        : "",
+    [apiEndpoint, data.project.project.baseUrl, parameters],
+  );
   const examples = useMemo<Record<string, string>>(() => {
     if (!apiEndpoint) return {};
     return generateCodeExamples({
@@ -345,112 +375,118 @@ export function PublicDocumentation({
       credential,
     });
   }, [body, apiEndpoint, url, credential]);
-  const pathParameters = (apiEndpoint?.body.parameters ?? []).filter(
-    (parameter) => parameter.location === "path",
-  );
-  const queryParameters = (apiEndpoint?.body.parameters ?? []).filter(
-    (parameter) => parameter.location === "query",
-  );
-  const otherParameters = (apiEndpoint?.body.parameters ?? []).filter(
-    (parameter) =>
-      parameter.location !== "path" && parameter.location !== "query",
-  );
-  const visibleGuideNavigation = [...data.guides]
-    .sort((left, right) => left.position - right.position)
-    .map((section) => ({
-      ...section,
-      pages: [...section.pages].sort(
-        (left, right) => left.position - right.position,
+  const parameterGroups = useMemo(() => {
+    const parameters = apiEndpoint?.body.parameters ?? [];
+    return {
+      path: parameters.filter((parameter) => parameter.location === "path"),
+      query: parameters.filter((parameter) => parameter.location === "query"),
+      other: parameters.filter(
+        (parameter) =>
+          parameter.location !== "path" && parameter.location !== "query",
       ),
-    }))
-    .filter((section) => section.pages.length > 0);
-  const visibleNavigation = [...data.navigation]
-    .sort((left, right) => left.position - right.position)
-    .map((section) => ({
-      ...section,
-      endpoints: [...section.endpoints].sort(
-        (left, right) => left.position - right.position,
-      ),
-    }))
-    .filter((section) => section.endpoints.length > 0);
+    };
+  }, [apiEndpoint]);
+  const { path: pathParameters, query: queryParameters, other: otherParameters } =
+    parameterGroups;
+  const visibleGuideNavigation = useMemo(
+    () =>
+      [...data.guides]
+        .sort((left, right) => left.position - right.position)
+        .map((section) => ({
+          ...section,
+          pages: [...section.pages].sort(
+            (left, right) => left.position - right.position,
+          ),
+        }))
+        .filter((section) => section.pages.length > 0),
+    [data.guides],
+  );
+  const visibleNavigation = useMemo(
+    () =>
+      [...data.navigation]
+        .sort((left, right) => left.position - right.position)
+        .map((section) => ({
+          ...section,
+          endpoints: [...section.endpoints].sort(
+            (left, right) => left.position - right.position,
+          ),
+        }))
+        .filter((section) => section.endpoints.length > 0),
+    [data.navigation],
+  );
+  const searchIndex = useMemo<IndexedDocumentationSearchResult[]>(() => {
+    const guideResults = visibleGuideNavigation.flatMap((section) =>
+      section.pages.map((page) => {
+        const result: DocumentationSearchResult = {
+          id: `guide:${page._id}`,
+          kind: "guide",
+          title: page.title,
+          description: getOptionalDescription(page),
+          sectionTitle: section.title,
+          href:
+            currentVersion && !currentVersion.isDefault
+              ? `/${currentVersion.slug}/docs/${page.slug}`
+              : `/docs/${page.slug}`,
+          iconName: page.iconName,
+        };
+        return {
+          ...result,
+          searchHaystack: getDocumentationSearchHaystack(result),
+        };
+      }),
+    );
+    const referenceResults = visibleNavigation.flatMap((section) =>
+      section.endpoints.map((endpoint) => {
+        const result: DocumentationSearchResult = {
+          id: `reference:${endpoint._id}`,
+          kind: "reference",
+          title: endpoint.title,
+          description: getOptionalDescription(endpoint),
+          sectionTitle: section.title,
+          href:
+            currentVersion && !currentVersion.isDefault
+              ? `/${currentVersion.slug}/reference/${endpoint.slug}`
+              : `/reference/${endpoint.slug}`,
+          iconName: endpoint.iconName,
+          endpointType: endpoint.endpointType,
+          method: endpoint.method,
+          path: endpoint.path,
+        };
+        return {
+          ...result,
+          searchHaystack: getDocumentationSearchHaystack(result),
+        };
+      }),
+    );
+
+    return [...guideResults, ...referenceResults];
+  }, [currentVersion, visibleGuideNavigation, visibleNavigation]);
   const searchResults = useMemo(() => {
-    const normalizedQuery = normalizeSearchText(searchQuery);
-    if (!normalizedQuery) return [];
-
-    const guideResults = [...data.guides]
-      .sort((left, right) => left.position - right.position)
-      .flatMap((section) =>
-        [...section.pages]
-          .sort((left, right) => left.position - right.position)
-          .map(
-            (page): DocumentationSearchResult => ({
-              id: `guide:${page._id}`,
-              kind: "guide",
-              title: page.title,
-              description: getOptionalDescription(page),
-              sectionTitle: section.title,
-              href: versionedPath(`/docs/${page.slug}`),
-              iconName: page.iconName,
-            }),
-          ),
-      );
-    const referenceResults = [...data.navigation]
-      .sort((left, right) => left.position - right.position)
-      .flatMap((section) =>
-        [...section.endpoints]
-          .sort((left, right) => left.position - right.position)
-          .map(
-            (endpoint): DocumentationSearchResult => ({
-              id: `reference:${endpoint._id}`,
-              kind: "reference",
-              title: endpoint.title,
-              description: getOptionalDescription(endpoint),
-              sectionTitle: section.title,
-              href: versionedPath(`/reference/${endpoint.slug}`),
-              iconName: endpoint.iconName,
-              endpointType: endpoint.endpointType,
-              method: endpoint.method,
-              path: endpoint.path,
-            }),
-          ),
-      );
-
-    return [...guideResults, ...referenceResults].filter((result) => {
-      const matchesScope =
-        searchScope === "all" ||
-        (searchScope === "guides" && result.kind === "guide") ||
-        (searchScope === "reference" && result.kind === "reference");
-
-      return (
-        matchesScope &&
-        getDocumentationSearchHaystack(result).includes(normalizedQuery)
-      );
-    });
+    return filterDocumentationSearchResults(
+      searchIndex,
+      searchQuery,
+      searchScope,
+    );
   }, [
-    currentVersion?.isDefault,
-    currentVersion?.slug,
-    data.guides,
-    data.navigation,
     searchQuery,
     searchScope,
+    searchIndex,
   ]);
-  const visibleCustomNavigation = [...(data.customNavigation ?? [])]
-    .sort((left, right) => left.position - right.position)
-    .filter((item) => item.isVisible);
-  const firstGuidePage = [...data.guides]
-    .sort((left, right) => left.position - right.position)
-    .flatMap((section) =>
-      [...section.pages].sort((left, right) => left.position - right.position),
-    )
-    .at(0);
-  const firstEndpoint = [...data.navigation]
-    .sort((left, right) => left.position - right.position)
-    .flatMap((section) =>
-      [...section.endpoints].sort(
-        (left, right) => left.position - right.position,
-      ),
-    )
-    .at(0);
+  const visibleCustomNavigation = useMemo(
+    () =>
+      [...(data.customNavigation ?? [])]
+        .sort((left, right) => left.position - right.position)
+        .filter((item) => item.isVisible),
+    [data.customNavigation],
+  );
+  const firstGuidePage = useMemo(
+    () => visibleGuideNavigation.flatMap((section) => section.pages).at(0),
+    [visibleGuideNavigation],
+  );
+  const firstEndpoint = useMemo(
+    () => visibleNavigation.flatMap((section) => section.endpoints).at(0),
+    [visibleNavigation],
+  );
 
   async function copyPageContent(format: "markdown" | "text" | "url") {
     const markdown = buildCurrentPageMarkdown();
@@ -556,33 +592,36 @@ export function PublicDocumentation({
     return /^https?:\/\//i.test(href);
   }
 
-  function handlePublicDocumentationClick(
-    event: MouseEvent<HTMLElement>,
-    href?: string | null,
-  ) {
-    if (!href || !shouldHandlePublicDocumentationClick(event, href)) return;
+  const handlePublicDocumentationClick = useCallback(
+    (event: MouseEvent<HTMLElement>, href?: string | null) => {
+      if (!href || !shouldHandlePublicDocumentationClick(event, href)) return;
 
-    event.preventDefault();
-    navigatePublicDocumentationPath(router, href);
-  }
+      event.preventDefault();
+      navigatePublicDocumentationPath(router, href);
+    },
+    [router],
+  );
 
-  function handleSearchResultClick(
-    event: MouseEvent<HTMLAnchorElement>,
-    href: string,
-  ) {
-    if (!shouldHandlePublicDocumentationClick(event, href)) return;
+  const handleSearchResultClick = useCallback(
+    (event: MouseEvent<HTMLAnchorElement>, href: string) => {
+      if (!shouldHandlePublicDocumentationClick(event, href)) return;
 
-    event.preventDefault();
-    setIsSearchOpen(false);
-    navigatePublicDocumentationPath(router, href);
-  }
+      event.preventDefault();
+      setIsSearchOpen(false);
+      navigatePublicDocumentationPath(router, href);
+    },
+    [router],
+  );
 
-  function handleRichContentClick(event: MouseEvent<HTMLDivElement>) {
-    const link = (event.target as Element | null)?.closest("a[href]");
-    if (!(link instanceof HTMLAnchorElement)) return;
+  const handleRichContentClick = useCallback(
+    (event: MouseEvent<HTMLDivElement>) => {
+      const link = (event.target as Element | null)?.closest("a[href]");
+      if (!(link instanceof HTMLAnchorElement)) return;
 
-    handlePublicDocumentationClick(event, link.getAttribute("href"));
-  }
+      handlePublicDocumentationClick(event, link.getAttribute("href"));
+    },
+    [handlePublicDocumentationClick],
+  );
 
   return (
     <SidebarProvider
@@ -1254,17 +1293,19 @@ export function PublicDocumentation({
                       </Tabs>
                     </section>
 
-                    <EndpointTester
-                      organizationSlug={organizationSlug}
-                      projectSlug={projectSlug}
-                      endpoint={apiEndpoint}
-                      parameters={parameters}
-                      body={body}
-                      credential={credential}
-                      onCredentialChange={setCredential}
-                      variant="panel"
-                      compact={isAiOpen}
-                    />
+                    <Suspense fallback={null}>
+                      <EndpointTester
+                        organizationSlug={organizationSlug}
+                        projectSlug={projectSlug}
+                        endpoint={apiEndpoint}
+                        parameters={parameters}
+                        body={body}
+                        credential={credential}
+                        onCredentialChange={setCredential}
+                        variant="panel"
+                        compact={isAiOpen}
+                      />
+                    </Suspense>
                   </div>
                 </aside>
               ) : null}
@@ -1299,89 +1340,7 @@ function PublicDocumentationSidebarSync({ isAiOpen }: { isAiOpen: boolean }) {
   return null;
 }
 
-export function DocumentationTableOfContents({
-  headings,
-  className,
-}: {
-  headings: RichContentHeading[];
-  className?: string;
-}) {
-  if (headings.length === 0) return null;
-
-  return (
-    <nav
-      aria-label="Table of contents"
-      className={cn(
-        "public-documentation-toc rounded-lg border bg-card/70 p-4 text-sm",
-        className,
-      )}
-    >
-      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-        On this page
-      </p>
-      <ol className="mt-3 flex flex-col gap-0.5">
-        {headings.map((heading) => (
-          <li key={heading.id} className="min-w-0">
-            <a
-              href={`#${heading.id}`}
-              className={cn(
-                "public-documentation-toc-link block min-w-0 rounded-sm py-1.5 pr-2 text-sm leading-5 transition-colors",
-                heading.level === 1 && "pl-0 font-medium",
-                heading.level === 2 && "pl-3",
-                heading.level === 3 && "pl-6 text-xs",
-              )}
-            >
-              <span className="line-clamp-2">{heading.text}</span>
-            </a>
-          </li>
-        ))}
-      </ol>
-    </nav>
-  );
-}
-
 type PublicDocumentationRouter = ReturnType<typeof useRouter>;
-
-function shouldHandlePublicDocumentationClick(
-  event: MouseEvent<HTMLElement>,
-  href: string,
-) {
-  if (
-    event.defaultPrevented ||
-    event.button !== 0 ||
-    event.metaKey ||
-    event.ctrlKey ||
-    event.shiftKey ||
-    event.altKey ||
-    !isPublicDocumentationHref(href)
-  ) {
-    return false;
-  }
-
-  const url = new URL(href, window.location.href);
-  return url.origin === window.location.origin;
-}
-
-function isPublicDocumentationHref(value: string) {
-  try {
-    const pathname = /^https?:\/\//i.test(value)
-      ? new URL(value).pathname
-      : value.split(/[?#]/, 1)[0];
-
-    return (
-      pathname === "/docs" ||
-      pathname.startsWith("/docs/") ||
-      pathname === "/guides" ||
-      pathname.startsWith("/guides/") ||
-      pathname === "/reference" ||
-      pathname.startsWith("/reference/") ||
-      /^\/v\/[^/]+\/(?:guides|reference)(?:\/|$)/.test(pathname) ||
-      /^\/[^/]+\/(?:docs|reference)(?:\/|$)/.test(pathname)
-    );
-  } catch {
-    return false;
-  }
-}
 
 function navigatePublicDocumentationPath(
   router: PublicDocumentationRouter,
@@ -1756,48 +1715,6 @@ function HighlightedSearchText({
   );
 }
 
-function normalizeSearchText(value: string) {
-  return value.trim().toLowerCase();
-}
-
-function getOptionalDescription(value: { description?: string | null }) {
-  return typeof value.description === "string" ? value.description : "";
-}
-
-function getDocumentationSearchHaystack(result: DocumentationSearchResult) {
-  return normalizeSearchText(
-    [
-      result.title,
-      result.description,
-      result.sectionTitle,
-      result.method,
-      result.path,
-    ]
-      .filter(Boolean)
-      .join(" "),
-  );
-}
-
-function getDocumentationSearchSnippet(
-  result: DocumentationSearchResult,
-  normalizedQuery: string,
-) {
-  const candidates = [
-    result.description,
-    result.path,
-    result.sectionTitle,
-    result.title,
-  ].filter((candidate): candidate is string => Boolean(candidate));
-
-  return (
-    candidates.find((candidate) =>
-      normalizeSearchText(candidate).includes(normalizedQuery),
-    ) ??
-    candidates[0] ??
-    result.title
-  );
-}
-
 export function DocumentationLink({
   title,
   method,
@@ -2159,139 +2076,4 @@ function RequestFieldListContent({
 
 function isRequestRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function appendCodeExamplesMarkdown(
-  markdown: string,
-  examples: Record<string, string>,
-) {
-  const entries = Object.entries(examples);
-  if (!entries.length) return markdown;
-
-  const codeExamples = entries
-    .map(
-      ([language, code]) =>
-        `### ${language}\n\n\`\`\`${codeFenceLanguage(language)}\n${code.trim()}\n\`\`\``,
-    )
-    .join("\n\n");
-
-  return `${markdown.trim()}\n\n## Code examples\n\n${codeExamples}\n`;
-}
-
-function codeFenceLanguage(language: string) {
-  if (language === "JavaScript") return "javascript";
-  if (language === "Python") return "python";
-  if (language === "Ruby") return "ruby";
-  if (language === "cURL") return "bash";
-  return "txt";
-}
-
-async function copyTextToClipboard(value: string) {
-  try {
-    if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(value);
-      return;
-    }
-  } catch {
-    // Fall through to the selection-based copy path for restricted browsers.
-  }
-
-  const textarea = document.createElement("textarea");
-  textarea.value = value;
-  textarea.setAttribute("readonly", "");
-  textarea.style.position = "fixed";
-  textarea.style.top = "0";
-  textarea.style.left = "-9999px";
-  textarea.style.opacity = "0";
-  document.body.appendChild(textarea);
-  textarea.select();
-
-  try {
-    document.execCommand("copy");
-  } finally {
-    document.body.removeChild(textarea);
-  }
-}
-
-function markdownToPlainText(markdown: string) {
-  return markdown
-    .replace(/```[a-zA-Z0-9_-]*\n([\s\S]*?)```/g, "$1")
-    .replace(/^#{1,6}\s+/gm, "")
-    .replace(/^>\s?/gm, "")
-    .replace(/^\s*[-*]\s+/gm, "- ")
-    .replace(/^\s*\d+\.\s+/gm, "")
-    .replace(/\*\*([^*]+)\*\*/g, "$1")
-    .replace(/_([^_]+)_/g, "$1")
-    .replace(/`([^`]+)`/g, "$1")
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-    .replace(/^\|[-:| ]+\|\n?/gm, "")
-    .replace(/^\|(.+)\|$/gm, (_, row: string) =>
-      row
-        .split("|")
-        .map((cell) => cell.trim())
-        .filter(Boolean)
-        .join(" - "),
-    )
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-}
-
-function responseBodyCode(value: string): {
-  code: string;
-  language: CodeSnippetLanguage;
-} {
-  try {
-    return {
-      code: JSON.stringify(JSON.parse(value), null, 2),
-      language: "json",
-    };
-  } catch {
-    return { code: value, language: "text" };
-  }
-}
-
-export function ResponseBodyCode({ code }: { code: string }) {
-  const snippet = useMemo(() => responseBodyCode(code), [code]);
-
-  return (
-    <div className="code-sample response-code-sample border-t">
-      <CodeSnippet code={snippet.code} language={snippet.language} wrap />
-    </div>
-  );
-}
-
-function CodePanel({ language, code }: { language: string; code: string }) {
-  const [copied, setCopied] = useState(false);
-  const snippetLanguage: CodeSnippetLanguage =
-    language === "JavaScript"
-      ? "javascript"
-      : language === "Python"
-        ? "python"
-        : language === "Ruby"
-          ? "ruby"
-          : "curl";
-
-  async function copyCode() {
-    await copyTextToClipboard(formatCode(code));
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1500);
-  }
-
-  return (
-    <div className="code-sample overflow-hidden rounded-lg border">
-      <div className="code-sample-toolbar flex min-h-12 items-center justify-between gap-4 border-b px-5 py-3">
-        <span className="code-sample-muted text-xs">{language} request</span>
-        <Button
-          variant="ghost"
-          size="icon-xs"
-          className="code-sample-copy"
-          onClick={() => void copyCode()}
-          aria-label={`Copy ${language} example`}
-        >
-          {copied ? <Check /> : <Copy />}
-        </Button>
-      </div>
-      <CodeSnippet code={code} language={snippetLanguage} />
-    </div>
-  );
 }

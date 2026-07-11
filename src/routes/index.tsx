@@ -231,6 +231,8 @@ function Home() {
             src={endpointEditorImage}
             alt="openapidoc project and endpoint editor"
             className="w-full rounded-xl bg-[#090909] sm:rounded-2xl"
+            decoding="async"
+            fetchPriority="high"
           />
         </div>
       </section>
@@ -373,6 +375,8 @@ function FeaturePreview({
           src={image}
           alt={`${title} screenshot`}
           className="aspect-[16/10] w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.175,0.885,0.32,1.1)] group-hover:scale-[1.02]"
+          decoding="async"
+          loading="lazy"
         />
       </div>
       <div className="p-7">
