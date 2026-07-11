@@ -1,7 +1,11 @@
 // @vitest-environment jsdom
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ensureProfileCached, resetAuthCache } from "./auth-cache";
+import {
+  ensureProfileCached,
+  isProfileBootstrapFresh,
+  resetAuthCache,
+} from "./auth-cache";
 
 describe("auth cache", () => {
   beforeEach(() => {
@@ -28,6 +32,17 @@ describe("auth cache", () => {
     await ensureProfileCached(ensureProfile);
 
     expect(ensureProfile).toHaveBeenCalledTimes(2);
+  });
+
+  it("reports a fresh persisted bootstrap for return visits", async () => {
+    const ensureProfile = vi.fn().mockResolvedValue(undefined);
+    vi.spyOn(Date, "now").mockReturnValue(1_000);
+
+    await ensureProfileCached(ensureProfile, 1_000);
+
+    expect(isProfileBootstrapFresh(1_000 + 60_000)).toBe(true);
+    expect(isProfileBootstrapFresh(1_000 + 5 * 60_000 + 1)).toBe(false);
+    vi.restoreAllMocks();
   });
 
   it("retries after a failed bootstrap", async () => {

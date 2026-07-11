@@ -90,11 +90,7 @@ function WorkspaceShellContent({
     !selected ||
     selected.organization.slug !== organizationSlug
   ) {
-    return (
-      <main className="min-h-screen px-5">
-        <LoadingState label="Opening workspace" />
-      </main>
-    );
+    return <WorkspaceLoadingShell />;
   }
 
   if (layout === "none") {
@@ -112,6 +108,36 @@ function WorkspaceShellContent({
         {children(selected)}
       </SidebarInset>
     </SidebarProvider>
+  );
+}
+
+function WorkspaceLoadingShell() {
+  return (
+    <div className="flex min-h-svh w-full overflow-hidden bg-sidebar text-foreground">
+      <aside className="hidden w-60 shrink-0 border-r border-sidebar-border bg-sidebar lg:block">
+        <div className="space-y-4 p-4">
+          <div className="h-8 w-32 animate-pulse rounded-md bg-sidebar-accent" />
+          <div className="space-y-2 pt-3">
+            <div className="h-3 w-16 animate-pulse rounded bg-sidebar-accent" />
+            <div className="h-5 w-40 animate-pulse rounded bg-sidebar-accent" />
+          </div>
+          <div className="space-y-2 pt-4">
+            <div className="h-9 w-full animate-pulse rounded-md bg-sidebar-accent" />
+            <div className="h-9 w-full animate-pulse rounded-md bg-sidebar-accent/70" />
+            <div className="h-9 w-full animate-pulse rounded-md bg-sidebar-accent/70" />
+          </div>
+        </div>
+      </aside>
+      <main className="flex min-w-0 flex-1 flex-col bg-background">
+        <header className="flex h-14 shrink-0 items-center border-b px-4">
+          <div className="h-5 w-40 animate-pulse rounded bg-muted" />
+          <div className="ml-auto h-8 w-8 animate-pulse rounded-full bg-muted" />
+        </header>
+        <div className="flex flex-1 items-center justify-center px-5">
+          <LoadingState label="Restoring workspace" />
+        </div>
+      </main>
+    </div>
   );
 }
 

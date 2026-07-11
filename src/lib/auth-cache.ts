@@ -40,6 +40,15 @@ const storeExpiry = (expiresAt: number) => {
 };
 
 /**
+ * Reports whether profile bootstrap can be skipped for this browser session.
+ * This is only a UX optimization; protected queries still enforce authorization.
+ */
+export const isProfileBootstrapFresh = (now = Date.now()) => {
+  const storedExpiry = readStoredExpiry();
+  return Math.max(profileBootstrapExpiresAt, storedExpiry) > now;
+};
+
+/**
  * Ensures the authenticated profile has been fetched recently before protected work continues.
  *
  * @param ensureProfile - Async callback that fetches or validates the current profile.
@@ -50,10 +59,7 @@ export const ensureProfileCached = (
   ensureProfile: () => Promise<unknown>,
   now = Date.now(),
 ) => {
-  const storedExpiry = readStoredExpiry();
-  const expiresAt = Math.max(profileBootstrapExpiresAt, storedExpiry);
-
-  if (expiresAt > now) {
+  if (isProfileBootstrapFresh(now)) {
     return Promise.resolve();
   }
   if (profileBootstrapPromise) {

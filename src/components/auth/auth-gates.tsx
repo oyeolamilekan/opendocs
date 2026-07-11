@@ -2,7 +2,10 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useConvexAuth, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { ensureProfileCached } from "../../lib/auth-cache";
+import {
+  ensureProfileCached,
+  isProfileBootstrapFresh,
+} from "../../lib/auth-cache";
 import { LoadingState } from "../ui/status";
 
 export function RequireGuest({ children }: { children: ReactNode }) {
@@ -41,8 +44,8 @@ export function RequireAuth({ children }: { children: ReactNode }) {
 
 function ProfileBootstrap({ children }: { children: ReactNode }) {
   const ensureProfile = useMutation(api.users.ensureCurrentProfile);
-  const [status, setStatus] = useState<"loading" | "ready" | "error">(
-    "loading",
+  const [status, setStatus] = useState<"loading" | "ready" | "error">(() =>
+    isProfileBootstrapFresh() ? "ready" : "loading",
   );
 
   useEffect(() => {
