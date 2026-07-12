@@ -130,11 +130,20 @@ export function PublicAiAssistant({
           projectSlug,
           sessionId,
         },
-        prepareSendMessagesRequest: ({ body, ...request }) => ({
-          ...request,
+        prepareSendMessagesRequest: ({
+          id,
+          messages,
+          trigger,
+          messageId,
+          body,
+        }) => ({
           body: {
             ...body,
             ...pageContextRef.current,
+            id,
+            messages,
+            trigger,
+            messageId,
           },
         }),
       }),
