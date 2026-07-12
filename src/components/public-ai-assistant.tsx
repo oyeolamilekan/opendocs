@@ -38,6 +38,8 @@ const PROGRESS_STEPS = [
   "Writing the response",
 ];
 
+const publicAiScrollMemory = new Map<string, number>();
+
 type PublicChatMessage = UIMessage<
   unknown,
   {
@@ -47,6 +49,29 @@ type PublicChatMessage = UIMessage<
     };
   }
 >;
+
+function getMessagesStorageKey(organizationSlug: string, projectSlug: string) {
+  return `adisa-public-ai-messages:${organizationSlug}:${projectSlug}`;
+}
+
+function readStoredMessages(
+  organizationSlug: string,
+  projectSlug: string,
+): PublicChatMessage[] {
+  if (typeof window === "undefined") return [];
+
+  try {
+    const stored = window.sessionStorage.getItem(
+      getMessagesStorageKey(organizationSlug, projectSlug),
+    );
+    return stored ? (JSON.parse(stored) as PublicChatMessage[]) : [];
+  } catch {
+    window.sessionStorage.removeItem(
+      getMessagesStorageKey(organizationSlug, projectSlug),
+    );
+    return [];
+  }
+}
 
 export function PublicAiAssistant({
   open,
@@ -69,9 +94,17 @@ export function PublicAiAssistant({
   const [sessionId, setSessionId] = useState("pending");
   const [progressStep, setProgressStep] = useState(-1);
   const [progressLabel, setProgressLabel] = useState("");
-  const [messagesHydrated, setMessagesHydrated] = useState(false);
+  const initialMessages = useMemo(
+    () => readStoredMessages(organizationSlug, projectSlug),
+    [organizationSlug, projectSlug],
+  );
+  const [messagesHydrated] = useState(true);
   const conversationEndRef = useRef<HTMLDivElement>(null);
+  const conversationScrollRef = useRef<HTMLDivElement>(null);
   const progressStepRef = useRef(-1);
+  const hasMountedConversationRef = useRef(false);
+  const pageContextRef = useRef({ currentPageTitle, currentPagePath });
+  pageContextRef.current = { currentPageTitle, currentPagePath };
 
   useEffect(() => {
     const storageKey = `adisa-public-ai-session:${organizationSlug}:${projectSlug}`;
@@ -96,22 +129,26 @@ export function PublicAiAssistant({
           organizationSlug,
           projectSlug,
           sessionId,
-          currentPageTitle,
-          currentPagePath,
         },
+        prepareSendMessagesRequest: ({ body, ...request }) => ({
+          ...request,
+          body: {
+            ...body,
+            ...pageContextRef.current,
+          },
+        }),
       }),
     [
-      currentPagePath,
-      currentPageTitle,
       organizationSlug,
       projectSlug,
       sessionId,
     ],
   );
-  const { messages, setMessages, sendMessage, status, stop, error } =
+  const { messages, sendMessage, status, stop, error } =
     useChat<PublicChatMessage>({
     id: `public-ai-${organizationSlug}-${projectSlug}`,
     transport,
+    messages: initialMessages,
     onData: (part) => {
       if (part.type === "data-progress") {
         if (part.data.step < progressStepRef.current) return;
@@ -135,32 +172,30 @@ export function PublicAiAssistant({
   const canSend = input.trim().length > 0 && !isBusy && sessionId !== "pending";
 
   useEffect(() => {
-    const storageKey = `adisa-public-ai-messages:${organizationSlug}:${projectSlug}`;
-    try {
-      const stored = window.sessionStorage.getItem(storageKey);
-      if (stored) {
-        setMessages(JSON.parse(stored) as PublicChatMessage[]);
-      }
-    } catch {
-      window.sessionStorage.removeItem(storageKey);
-    } finally {
-      setMessagesHydrated(true);
-    }
-  }, [organizationSlug, projectSlug, setMessages]);
-
-  useEffect(() => {
     if (!messagesHydrated) return;
-    const storageKey = `adisa-public-ai-messages:${organizationSlug}:${projectSlug}`;
-    window.sessionStorage.setItem(storageKey, JSON.stringify(messages));
+    window.sessionStorage.setItem(
+      getMessagesStorageKey(organizationSlug, projectSlug),
+      JSON.stringify(messages),
+    );
   }, [messages, messagesHydrated, organizationSlug, projectSlug]);
 
   useEffect(() => {
-    if (!open || messages.length === 0) return;
+    if (!open) return;
+    if (!hasMountedConversationRef.current) {
+      hasMountedConversationRef.current = true;
+      const key = `${organizationSlug}:${projectSlug}`;
+      const scrollTop = publicAiScrollMemory.get(key);
+      if (scrollTop !== undefined && conversationScrollRef.current) {
+        conversationScrollRef.current.scrollTop = scrollTop;
+      }
+      return;
+    }
+    if (messages.length === 0) return;
     conversationEndRef.current?.scrollIntoView({
       behavior: status === "streaming" ? "auto" : "smooth",
       block: "end",
     });
-  }, [messages, open, status]);
+  }, [messages, open, status, organizationSlug, projectSlug]);
 
   async function submitMessage(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -196,7 +231,16 @@ export function PublicAiAssistant({
       </header>
 
       <div className="flex min-h-0 flex-1 flex-col">
-        <div className="min-h-0 flex-1 overflow-y-auto scroll-smooth px-4 py-5 sm:px-5">
+        <div
+          ref={conversationScrollRef}
+          onScroll={(event) => {
+            publicAiScrollMemory.set(
+              `${organizationSlug}:${projectSlug}`,
+              event.currentTarget.scrollTop,
+            );
+          }}
+          className="min-h-0 flex-1 overflow-y-auto scroll-smooth px-4 py-5 sm:px-5"
+        >
           {messages.length === 0 ? (
             <div className="flex min-h-full flex-col items-center justify-center text-center">
               <div className="flex size-20 items-center justify-center rounded-full bg-muted">
