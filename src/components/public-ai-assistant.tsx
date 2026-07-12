@@ -206,14 +206,22 @@ export function PublicAiAssistant({
       const key = `${organizationSlug}:${projectSlug}`;
       const scrollTop = publicAiScrollMemory.get(key);
       if (scrollTop !== undefined && conversationScrollRef.current) {
-        conversationScrollRef.current.scrollTop = scrollTop;
+        const frame = window.requestAnimationFrame(() => {
+          if (conversationScrollRef.current) {
+            conversationScrollRef.current.scrollTop = scrollTop;
+          }
+        });
+        return () => window.cancelAnimationFrame(frame);
       }
       return;
     }
     if (messages.length === 0) return;
-    conversationEndRef.current?.scrollIntoView({
+    const container = conversationScrollRef.current;
+    if (!container) return;
+
+    container.scrollTo({
+      top: container.scrollHeight,
       behavior: status === "streaming" ? "auto" : "smooth",
-      block: "end",
     });
   }, [messages, open, status, organizationSlug, projectSlug]);
 
@@ -259,7 +267,7 @@ export function PublicAiAssistant({
               event.currentTarget.scrollTop,
             );
           }}
-          className="min-h-0 flex-1 overflow-y-auto scroll-smooth px-4 py-5 sm:px-5"
+          className="min-h-0 flex-1 overflow-y-auto overscroll-contain scroll-smooth px-4 py-5 sm:px-5"
         >
           {messages.length === 0 ? (
             <div className="flex min-h-full flex-col items-center justify-center text-center">
