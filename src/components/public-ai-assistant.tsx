@@ -73,6 +73,25 @@ function readStoredMessages(
   }
 }
 
+function getOrCreateSessionId(organizationSlug: string, projectSlug: string) {
+  if (typeof window === "undefined") return "pending";
+
+  const storageKey = `adisa-public-ai-session:${organizationSlug}:${projectSlug}`;
+  try {
+    const existing = window.localStorage.getItem(storageKey);
+    if (existing) return existing;
+
+    const next =
+      typeof window.crypto?.randomUUID === "function"
+        ? window.crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    window.localStorage.setItem(storageKey, next);
+    return next;
+  } catch {
+    return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  }
+}
+
 export function PublicAiAssistant({
   open,
   organizationSlug,
@@ -103,22 +122,13 @@ export function PublicAiAssistant({
   const conversationScrollRef = useRef<HTMLDivElement>(null);
   const progressStepRef = useRef(-1);
   const hasMountedConversationRef = useRef(false);
+  const sessionIdRef = useRef(sessionId);
+  sessionIdRef.current = sessionId;
   const pageContextRef = useRef({ currentPageTitle, currentPagePath });
   pageContextRef.current = { currentPageTitle, currentPagePath };
 
   useEffect(() => {
-    const storageKey = `adisa-public-ai-session:${organizationSlug}:${projectSlug}`;
-    const existing = window.localStorage.getItem(storageKey);
-    if (existing) {
-      setSessionId(existing);
-      return;
-    }
-    const next =
-      typeof window.crypto?.randomUUID === "function"
-        ? window.crypto.randomUUID()
-        : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    window.localStorage.setItem(storageKey, next);
-    setSessionId(next);
+    setSessionId(getOrCreateSessionId(organizationSlug, projectSlug));
   }, [organizationSlug, projectSlug]);
 
   const transport = useMemo(
@@ -128,7 +138,6 @@ export function PublicAiAssistant({
         body: {
           organizationSlug,
           projectSlug,
-          sessionId,
         },
         prepareSendMessagesRequest: ({
           id,
@@ -139,6 +148,9 @@ export function PublicAiAssistant({
         }) => ({
           body: {
             ...body,
+            organizationSlug,
+            projectSlug,
+            sessionId: sessionIdRef.current,
             ...pageContextRef.current,
             id,
             messages,
@@ -150,7 +162,6 @@ export function PublicAiAssistant({
     [
       organizationSlug,
       projectSlug,
-      sessionId,
     ],
   );
   const { messages, sendMessage, status, stop, error } =
