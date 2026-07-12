@@ -92,6 +92,18 @@ function getOrCreateSessionId(organizationSlug: string, projectSlug: string) {
   }
 }
 
+function getConversationSignature(messages: PublicChatMessage[]) {
+  const lastMessage = messages.at(-1);
+  if (!lastMessage) return "empty";
+
+  return [
+    messages.length,
+    lastMessage.id,
+    lastMessage.parts.length,
+    getMessageText(lastMessage).length,
+  ].join(":");
+}
+
 export function PublicAiAssistant({
   open,
   organizationSlug,
@@ -118,10 +130,12 @@ export function PublicAiAssistant({
     [organizationSlug, projectSlug],
   );
   const [messagesHydrated] = useState(true);
-  const conversationEndRef = useRef<HTMLDivElement>(null);
   const conversationScrollRef = useRef<HTMLDivElement>(null);
   const progressStepRef = useRef(-1);
-  const hasMountedConversationRef = useRef(false);
+  const hasRestoredConversationScrollRef = useRef(false);
+  const conversationSignatureRef = useRef(
+    getConversationSignature(initialMessages),
+  );
   const sessionIdRef = useRef(sessionId);
   sessionIdRef.current = sessionId;
   const pageContextRef = useRef({ currentPageTitle, currentPagePath });
@@ -201,20 +215,29 @@ export function PublicAiAssistant({
 
   useEffect(() => {
     if (!open) return;
-    if (!hasMountedConversationRef.current) {
-      hasMountedConversationRef.current = true;
+    const signature = getConversationSignature(messages);
+
+    if (!hasRestoredConversationScrollRef.current) {
+      hasRestoredConversationScrollRef.current = true;
+      conversationSignatureRef.current = signature;
       const key = `${organizationSlug}:${projectSlug}`;
       const scrollTop = publicAiScrollMemory.get(key);
       if (scrollTop !== undefined && conversationScrollRef.current) {
         const frame = window.requestAnimationFrame(() => {
           if (conversationScrollRef.current) {
-            conversationScrollRef.current.scrollTop = scrollTop;
+            conversationScrollRef.current.scrollTo({
+              top: scrollTop,
+              behavior: "auto",
+            });
           }
         });
         return () => window.cancelAnimationFrame(frame);
       }
       return;
     }
+
+    if (conversationSignatureRef.current === signature) return;
+    conversationSignatureRef.current = signature;
     if (messages.length === 0) return;
     const container = conversationScrollRef.current;
     if (!container) return;
@@ -224,6 +247,15 @@ export function PublicAiAssistant({
       behavior: status === "streaming" ? "auto" : "smooth",
     });
   }, [messages, open, status, organizationSlug, projectSlug]);
+
+  useEffect(() => {
+    const key = `${organizationSlug}:${projectSlug}`;
+    return () => {
+      if (conversationScrollRef.current) {
+        publicAiScrollMemory.set(key, conversationScrollRef.current.scrollTop);
+      }
+    };
+  }, [organizationSlug, projectSlug]);
 
   async function submitMessage(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -267,7 +299,7 @@ export function PublicAiAssistant({
               event.currentTarget.scrollTop,
             );
           }}
-          className="min-h-0 flex-1 overflow-y-auto overscroll-contain scroll-smooth px-4 py-5 sm:px-5"
+          className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-5 sm:px-5"
         >
           {messages.length === 0 ? (
             <div className="flex min-h-full flex-col items-center justify-center text-center">
@@ -305,7 +337,6 @@ export function PublicAiAssistant({
                   />
                 </div>
               ) : null}
-              <div ref={conversationEndRef} />
             </div>
           )}
         </div>
