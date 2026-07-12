@@ -2,6 +2,8 @@
 
 API documentation without the operational clutter. Create, organize, import, and publish clear API references from one focused workspace. Built with TanStack Start, Convex, Better Auth, and the Geist design system.
 
+[View the project on GitHub](https://github.com/oyeolamilekan/opendocs)
+
 ![openapidoc endpoint editor](./src/images/screenshot-2.png)
 
 ## Features

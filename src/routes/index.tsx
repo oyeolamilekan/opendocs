@@ -9,6 +9,7 @@ import {
   Bot,
   FileCode2,
   GitBranch,
+  GitFork,
   Layers3,
   Palette,
   ShieldCheck,
@@ -345,6 +346,15 @@ function Home() {
         <div className="app-container flex flex-col items-center justify-between gap-4 sm:flex-row">
           <Brand compact />
           <nav className="flex items-center gap-4 text-xs text-muted-foreground">
+            <a
+              href="https://github.com/oyeolamilekan/opendocs"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 hover:text-foreground"
+            >
+              <GitFork className="size-3.5" aria-hidden="true" />
+              GitHub
+            </a>
             <Link to="/license" className="hover:text-foreground">
               MIT License
             </Link>
