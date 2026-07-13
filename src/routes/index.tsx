@@ -358,6 +358,9 @@ function Home() {
             <Link to="/license" className="hover:text-foreground">
               MIT License
             </Link>
+            <Link to="/auth/terms" className="hover:text-foreground">
+              Terms of Use
+            </Link>
             <a href="/sitemap.xml" className="hover:text-foreground">
               Sitemap
             </a>

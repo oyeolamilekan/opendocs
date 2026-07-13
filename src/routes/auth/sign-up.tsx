@@ -147,7 +147,7 @@ function SignUp() {
                   to="/auth/terms"
                   className="font-semibold text-foreground underline underline-offset-4"
                 >
-                  terms of service
+                  Terms of Use
                 </Link>
                 .
               </span>
